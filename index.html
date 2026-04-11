@@ -1,734 +1,144 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Šachové párování – Round Robin</title>
-  <meta name="description" content="Jednostránková aplikace pro malý šachový turnaj (Round Robin / Double RR). Bez knihoven, offline, localStorage, export/import JSON.">
-  <meta name="theme-color" content="#0d6efd">
-  <style>
-    :root{
-      --bg:#f7f7f8; --card:#ffffff; --muted:#6b7280; --text:#0f172a; --pri:#0d6efd; --pri-700:#0b5ed7; --ok:#16a34a; --warn:#ca8a04; --err:#dc2626;
-      --radius:12px; --shadow:0 1px 3px rgba(0,0,0,.08), 0 10px 20px rgba(0,0,0,.04);
-    }
-    html,body{height:100%}
-    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    h1,h2,h3{margin:.25rem 0 1rem 0}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 88px}
-    .tabs{display:flex;gap:8px;position:sticky;top:0;background:linear-gradient(#fff,#fff00) #fff;padding:8px 0 12px;margin:-8px -16px 12px;border-bottom:1px solid #e5e7eb;z-index:10}
-    .tab{appearance:none;border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer}
-    .tab.active{background:var(--pri);color:#fff;border-color:transparent}
-    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:var(--radius);box-shadow:var(--shadow);padding:12px}
-    .grid{display:grid;gap:12px}
-    @media (min-width:768px){.grid-2{grid-template-columns:1fr 1fr}}
-    label{font-size:.9rem;color:var(--muted)}
-    input[type=text],input[type=number],select{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;background:#fff}
-    button{appearance:none;border:0;border-radius:8px;padding:10px 12px;font-weight:600;cursor:pointer}
-    .btn{background:#e5e7eb}
-    .btn-pri{background:var(--pri);color:#fff}
-    .btn-pri:hover{background:var(--pri-700)}
-    .btn-ghost{background:transparent;border:1px solid #e5e7eb}
-    .muted{color:var(--muted)}
-    .row{display:flex;gap:8px;align-items:center}
-    .row > *{flex:1}
-    .players-table,.pairs-table,.standings{width:100%;border-collapse:separate;border-spacing:0}
-    th,td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:middle}
-    th{background:#fafafa;text-align:left;position:sticky;top:0;z-index:1}
-    .scroll-x{overflow:auto}
-    .sticky-actions{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5e7eb;box-shadow:0 -4px 24px rgba(0,0,0,.06);padding:8px 12px;z-index:50}
-    .sticky-actions .bar{max-width:1100px;margin:0 auto;display:flex;gap:8px}
-    .tag{display:inline-block;background:#eef2ff;color:#3730a3;font-size:.75rem;padding:2px 8px;border-radius:999px;border:1px solid #e5e7eb}
-    .tie{background:linear-gradient(0deg, rgba(2,132,199,.06), rgba(2,132,199,.06))}
-    .tooltip{position:relative}
-    .tooltip:hover .tip{display:block}
-    .tip{display:none;position:absolute;left:0;top:100%;background:#111827;color:#fff;padding:8px;border-radius:6px;font-size:.8rem;min-width:200px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    @media print{
-      body{background:#fff}
-      .tabs,.sticky-actions{display:none}
-      .card{box-shadow:none;border:0;padding:0}
-      .wrap{padding:0}
-      .print-section{break-inside:avoid}
-      .page-break{page-break-before:always}
-    }
-  </style>
+  <title>Turnaj Koruna</title>
+  <meta name="description" content="Registrace do šachového turnaje Turnaj Koruna. Ověříme nejvyšší rating z chess.com a lichess.org.">
+  <meta name="theme-color" content="#c58b2a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="wrap">
-    <div class="tabs" role="tablist">
-      <button type="button" class="tab active" data-tab="setup" role="tab" aria-selected="true">Nastavení & Hráči</button>
-      <button type="button" class="tab" data-tab="rounds" role="tab" aria-selected="false">Kola & Zápisy</button>
-      <button type="button" class="tab" data-tab="standings" role="tab" aria-selected="false">Pořadí</button>
+  <header class="site-header reveal">
+    <div class="brand">
+      <div class="brand-mark">TK</div>
+      <div>
+        <p class="brand-title">Turnaj Koruna</p>
+        <p class="brand-subtitle">šachový turnaj</p>
+      </div>
     </div>
+    <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
+  </header>
 
-    <section id="setup" class="card grid grid-2 print-section">
-      <div class="grid">
-        <div>
-          <label for="tName">Název turnaje</label>
-          <input id="tName" type="text" placeholder="Můj turnaj">
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">Nová sezóna</span>
+        <h1>Turnaj Koruna</h1>
+        <p class="lead">Otevřená registrace pro klubový šachový turnaj. Stačí jméno a případný účet na chess.com nebo lichess.org - nejvyšší rating dohledáme za vás.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#registrace">Zaregistrovat hráče</a>
+          <a class="btn btn-ghost" href="#jak-to-funguje">Jak to funguje</a>
         </div>
-        <div>
-          <label for="tType">Typ</label>
-          <select id="tType">
-            <option value="RR">Round Robin (jednokolový)</option>
-            <option value="DRR">Double Round Robin (dvojkolový)</option>
-          </select>
-        </div>
-        <div class="row">
-          <button id="btnAddPlayer" class="btn">Přidat hráče</button>
-          <button id="btnDemo" class="btn-ghost">Nahrát demo</button>
-          <button id="btnGenerate" class="btn-pri">Vygenerovat los</button>
+        <div class="hero-meta">
+          <div class="meta-card">Blitz / Rapid / Korespondence</div>
+          <div class="meta-card">Automatické načtení ratingu</div>
         </div>
       </div>
+      <div class="hero-card reveal delay-1">
+        <h2>Co přijde dál</h2>
+        <ul>
+          <li><span>1</span> Generování kol a párování hráčů</li>
+          <li><span>2</span> Tabulka pořadí a průběžné výsledky</li>
+          <li><span>3</span> Export registrací a statistik</li>
+        </ul>
+      </div>
+    </section>
 
-      <div>
-        <div class="row" style="justify-content:space-between;align-items:baseline">
-          <h3>Hráči <span class="muted" id="playersCount">0/20</span></h3>
-          <span class="muted">Pořadí hráčů ovlivní los</span>
+    <section id="jak-to-funguje" class="info">
+      <div class="card info-card reveal">
+        <h3>Výběr účtu</h3>
+        <p>Zvolte chess.com, lichess.org nebo variantu bez účtu. V případě účtu potřebujeme jen přezdívku.</p>
+      </div>
+      <div class="card info-card reveal delay-1">
+        <h3>Výpočet ratingu</h3>
+        <p>Procházíme pouze blitz, rapid a korespondenční tempo. Pokud data chybí, hráč zůstává s ratingem 0.</p>
+      </div>
+      <div class="card info-card reveal delay-2">
+        <h3>Lokální seznam</h3>
+        <p>Registrovaní hráči se ukládají lokálně v prohlížeči. Přesné seznamy později půjde exportovat.</p>
+      </div>
+    </section>
+
+    <section id="registrace" class="registration">
+      <div class="card reveal">
+        <h2>Registrace do turnaje</h2>
+        <p class="lead">Vyplňte jméno hráče a vyberte účet. Ověření ratingu může chvíli trvat.</p>
+        <form id="registration-form">
+          <div>
+            <label for="playerName">Jméno hráče</label>
+            <input id="playerName" type="text" placeholder="např. Jakub Novák" autocomplete="name" required>
+          </div>
+
+          <fieldset>
+            <legend>Účet</legend>
+            <div class="radio-grid">
+              <label class="radio-option">
+                <input type="radio" name="provider" value="chess.com" checked>
+                <span>chess.com</span>
+                <small>nejvyšší rating</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="provider" value="lichess">
+                <span>lichess.org</span>
+                <small>nejvyšší rating</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="provider" value="none">
+                <span>nemám účet</span>
+                <small>rating 0</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <div>
+            <label for="accountHandle">Uživatelské jméno</label>
+            <input id="accountHandle" type="text" placeholder="např. kubaczess" autocomplete="off">
+            <p id="accountHelp" class="hint"></p>
+          </div>
+
+          <div class="form-actions">
+            <button id="submitBtn" class="btn btn-primary" type="submit">Ověřit a registrovat</button>
+            <p id="formStatus" class="status-text" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+
+      <div class="card reveal delay-1">
+        <div class="list-header">
+          <div>
+            <h2>Registrovaní hráči</h2>
+            <p class="hint">Seznam se ukládá lokálně ve vašem prohlížeči.</p>
+          </div>
+          <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
         </div>
-        <div class="scroll-x">
-          <table class="players-table" id="playersTable" aria-label="Seznam hráčů">
+        <div class="table-wrap">
+          <table>
             <thead>
-              <tr><th style="width:40px">#</th><th>Jméno</th><th style="width:120px">Rating</th><th style="width:90px">Akce</th></tr>
+              <tr>
+                <th>Jméno</th>
+                <th>Účet</th>
+                <th>Uživatel</th>
+                <th>Rating</th>
+                <th>Kategorie</th>
+                <th>Stav</th>
+              </tr>
             </thead>
             <tbody id="playersBody"></tbody>
           </table>
         </div>
+        <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
       </div>
     </section>
+  </main>
 
-    <section id="rounds" class="card grid print-section" hidden>
-      <div class="row" style="justify-content:space-between;align-items:baseline">
-        <h3>Kola</h3>
-        <span class="muted" id="roundsInfo">—</span>
-      </div>
-      <div id="roundsList" class="grid"></div>
-    </section>
+  <footer class="footer">
+    Ratingy načítáme z veřejných API chess.com a lichess.org. Pro lichess používáme historii ratingu (blitz/rapid/korespondenční).
+  </footer>
 
-    <section id="standings" class="card grid print-section" hidden>
-      <div class="row" style="justify-content:space-between;align-items:baseline">
-        <h3>Pořadí</h3>
-        <div class="row" style="flex:0 0 auto;gap:6px">
-          <span class="muted">Řadit podle:</span>
-          <span class="tag">Body → H2H → SB → Výhry → Los</span>
-        </div>
-      </div>
-      <div class="scroll-x">
-        <table class="standings" id="standingsTable" aria-label="Tabulka pořadí">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Hráč</th>
-              <th>Body</th>
-              <th>H2H</th>
-              <th>Sonneborn–Berger</th>
-              <th>Výhry</th>
-              <th class="muted">Buchholz</th>
-              <th class="muted">Skóre detail</th>
-            </tr>
-          </thead>
-          <tbody id="standingsBody"></tbody>
-        </table>
-      </div>
-
-      <div class="row" style="justify-content:space-between;align-items:baseline;margin-top:12px">
-        <h3>Vzájemné zápasy (H2H)</h3>
-        <span class="muted">Součet bodů řádek proti sloupcům</span>
-      </div>
-      <div class="scroll-x">
-        <table class="standings" id="h2hTable" aria-label="Tabulka vzájemných zápasů">
-          <thead id="h2hHead"></thead>
-          <tbody id="h2hBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <div class="sticky-actions">
-    <div class="bar">
-      <button id="btnSave" class="btn">Uložit</button>
-      <button id="btnExport" class="btn">Export JSON</button>
-      <label class="btn" for="fileImport" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">Import JSON<input id="fileImport" class="sr-only" type="file" accept="application/json"></label>
-      <button id="btnReset" class="btn" style="margin-left:auto;color:#fff;background:var(--err)">Reset</button>
-    </div>
-  </div>
-
-  <script type="module">
-  // ===== Util: seeded random (mulberry32) =====
-  function hashStringToU32(str){
-    let h = 2166136261 >>> 0;
-    for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-    return h >>> 0;
-  }
-  function mulberry32(seed){
-    let t = seed >>> 0;
-    return function(){
-      t += 0x6D2B79F5; t = t >>> 0;
-      let r = Math.imul(t ^ (t >>> 15), 1 | t);
-      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
-      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  // ===== State namespace =====
-  const State = (()=>{
-    const KEY = 'rr-chess-app-state-v1';
-    let state = {
-      tournament: { name: '', type: 'RR' },
-      players: [], // {id, name, rating}
-      rounds: [],  // [ [ {white, black, result:'- | 1-0 | 0-1 | 0.5-0.5'} ] ]
-      seed: '',
-      version: '1'
-    };
-    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-    function load(){ const s = localStorage.getItem(KEY); if(!s) return null; try { state = JSON.parse(s); return state; } catch{ return null; } }
-    function set(next){ state = next; save(); return state; }
-    function get(){ return state; }
-    function reset(){ state = { tournament:{name:'',type:'RR'}, players:[], rounds:[], seed:'', version:'1' }; save(); }
-    return { save, load, set, get, reset, KEY };
-  })();
-
-  // ===== Scheduler (round robin circle method) =====
-  const Scheduler = (()=>{
-    function generateSchedule(players, doubleRR=false){
-      // players: array of {id, name}
-      const ids = players.map(p=>p.id);
-      const BYE = '__BYE__';
-      let list = ids.slice();
-      if(list.length % 2 === 1){ list.push(BYE); }
-      const n = list.length; const half = n/2;
-      const rounds = [];
-      const arr = list.slice(); // rotating array
-      for(let r=0;r<n-1;r++){
-        const pairs = [];
-        for(let i=0;i<half;i++){
-          const a = arr[i]; const b = arr[n-1-i];
-          // Alternate colors per round for some variety
-          const white = (r % 2 === 0) ? a : b;
-          const black = (r % 2 === 0) ? b : a;
-          if(white!==BYE && black!==BYE) pairs.push({white, black, result:'-'});
-        }
-        rounds.push(pairs);
-        // rotate (keep first fixed)
-        const fixed = arr[0];
-        const moved = arr.pop();
-        arr.splice(1,0,moved);
-        arr[0] = fixed;
-      }
-      if(doubleRR){
-        const rev = rounds.map(r => r.map(m => ({ white:m.black, black:m.white, result:'-' })));
-        return rounds.concat(rev);
-      }
-      return rounds;
-    }
-    // Regenerate full schedule after roster change, but keep previous results where possible.
-    function regenerateKeepingResults(players, oldRounds, doubleRR=false){
-      // Build map of previous results per unordered pair, in chronological order
-      const keyOf = (a,b)=> a<b ? (a+'|'+b) : (b+'|'+a);
-      const prev = new Map();
-      (oldRounds||[]).forEach(r=>r.forEach(m=>{
-        const key = keyOf(m.white, m.black);
-        if(!prev.has(key)) prev.set(key, []);
-        prev.get(key).push({ white:m.white, black:m.black, result:m.result });
-      }));
-      const next = generateSchedule(players, doubleRR);
-      next.forEach(r=>r.forEach(m=>{
-        const key = keyOf(m.white, m.black);
-        const list = prev.get(key);
-        if(list && list.length){
-          const old = list.shift();
-          let res = old.result;
-          if(res==='1-0'){
-            // If winner (old white) aligns with new white, keep 1-0, else flip
-            res = (old.white===m.white) ? '1-0' : '0-1';
-          } else if(res==='0-1'){
-            res = (old.black===m.black) ? '0-1' : '1-0';
-          } // draws and '-' stay as-is
-          m.result = res;
-        } else {
-          m.result = '-';
-        }
-      }));
-      return next;
-    }
-    // Late joiner integration when previous count was odd: keep old results,
-    // new player gets losses for already-played rounds, plays normally afterwards.
-    function regenerateLateJoinOdd(players, oldRounds, doubleRR=false){
-      const appeared = new Set();
-      (oldRounds||[]).forEach(r=>r.forEach(m=>{ appeared.add(m.white); appeared.add(m.black); }));
-      const newId = players.map(p=>p.id).find(id=>!appeared.has(id));
-      // Fallback: if not found, behave like keeping results
-      if(!newId) return regenerateKeepingResults(players, oldRounds, doubleRR);
-      const keyOf = (a,b)=> a<b ? (a+'|'+b) : (b+'|'+a);
-      const prev = new Map();
-      (oldRounds||[]).forEach(r=>r.forEach(m=>{
-        const key = keyOf(m.white, m.black);
-        if(!prev.has(key)) prev.set(key, []);
-        prev.get(key).push({ white:m.white, black:m.black, result:m.result });
-      }));
-      // Determine last played round index (any match with result played)
-      const isPlayed = (v)=> v==='1-0' || v==='0-1' || v==='0.5-0.5';
-      let cutoff = -1;
-      (oldRounds||[]).forEach((r,ri)=>{ if(r.some(m=>isPlayed(m.result))) cutoff = Math.max(cutoff, ri); });
-      const next = generateSchedule(players, doubleRR);
-      next.forEach((r,ri)=>r.forEach(m=>{
-        const key = keyOf(m.white, m.black);
-        const list = prev.get(key);
-        if(m.white===newId || m.black===newId){
-          // Past rounds: assign losses to late player; future rounds blank
-          if(ri<=cutoff){
-            m.result = (m.white===newId) ? '0-1' : '1-0';
-          } else {
-            m.result = '-';
-          }
-        } else if(list && list.length){
-          const old = list.shift();
-          let res = old.result;
-          if(res==='1-0') res = (old.white===m.white) ? '1-0' : '0-1';
-          else if(res==='0-1') res = (old.black===m.black) ? '0-1' : '1-0';
-          m.result = res;
-        } else {
-          m.result = '-';
-        }
-      }));
-      return next;
-    }
-    return { generateSchedule, regenerateKeepingResults, regenerateLateJoinOdd };
-  })();
-
-  // ===== Scoring =====
-  const Scoring = (()=>{
-    function pointsFromResult(r, forWhite){
-      if(r==='1-0') return forWhite?1:0;
-      if(r==='0-1') return forWhite?0:1;
-      if(r==='0.5-0.5') return 0.5;
-      return 0; // '-' or vs BYE → 0
-    }
-    function isPlayed(r){ return r==='1-0' || r==='0-1' || r==='0.5-0.5'; }
-
-    function collectMatches(state){
-      const matches=[]; const byPlayer = new Map();
-      for(const p of state.players){ byPlayer.set(p.id, []); }
-      (state.rounds||[]).forEach((round,ri)=>{
-        round.forEach((m,mi)=>{
-          matches.push({...m, ri, mi});
-          if(byPlayer.has(m.white)) byPlayer.get(m.white).push({...m, side:'W'});
-          if(byPlayer.has(m.black)) byPlayer.get(m.black).push({...m, side:'B'});
-        });
-      });
-      return { matches, byPlayer };
-    }
-
-    function computeStandings(state){
-      const idToPlayer = new Map(state.players.map(p=>[p.id,p]));
-      const ids = state.players.map(p=>p.id);
-      const { byPlayer } = collectMatches(state);
-      const base = new Map();
-      for(const id of ids){ base.set(id, { id, name:idToPlayer.get(id)?.name||id, points:0, wins:0, sb:0, buchholz:0, h2h:0, opponents:new Set(), oppPoints:new Map() }); }
-
-      // First pass: points, wins, opponents, and keep results
-      for(const id of ids){
-        const games = byPlayer.get(id)||[];
-        for(const g of games){
-          const opp = (g.white===id) ? g.black : g.white;
-          if(!base.has(opp)) continue; // ignore BYE
-          base.get(id).opponents.add(opp);
-          const forWhite = (g.white===id);
-          const p = pointsFromResult(g.result, forWhite);
-          base.get(id).points += p;
-          if(isPlayed(g.result)){
-            if(p===1) base.get(id).wins += 1;
-          }
-        }
-      }
-      // Compute opponent total points map (for SB/Buchholz)
-      for(const id of ids){
-        const games = byPlayer.get(id)||[];
-        for(const g of games){
-          const opp = (g.white===id) ? g.black : g.white;
-          if(!base.has(opp)) continue;
-          const oppPts = base.get(opp).points;
-          base.get(id).oppPoints.set(opp, oppPts);
-        }
-      }
-      // SB and Buchholz
-      for(const id of ids){
-        const games = byPlayer.get(id)||[];
-        let sb=0, buch=0;
-        for(const g of games){
-          const opp = (g.white===id) ? g.black : g.white;
-          if(!base.has(opp)) continue;
-          const oppPts = base.get(id).oppPoints.get(opp)||0;
-          if(isPlayed(g.result)){
-            const pts = pointsFromResult(g.result, g.white===id);
-            if(pts===1) sb += oppPts; else if(pts===0.5) sb += oppPts*0.5;
-          }
-          // Buchholz: sum of opponents' points (ignore BYE)
-          buch += oppPts;
-        }
-        base.get(id).sb = +sb.toFixed(2);
-        base.get(id).buchholz = +buch.toFixed(2);
-      }
-
-      const out = ids.map(id=>({ id, name:base.get(id).name, points:+base.get(id).points.toFixed(2), wins:base.get(id).wins, sb:base.get(id).sb, buchholz:base.get(id).buchholz }));
-      return out;
-    }
-
-    function computeH2HMatrix(state){
-      const { byPlayer } = collectMatches(state);
-      const m = new Map();
-      for(const p of state.players){ m.set(p.id, new Map()); }
-      for(const p of state.players){
-        const games = byPlayer.get(p.id)||[];
-        for(const g of games){
-          const opp = (g.white===p.id) ? g.black : g.white;
-          if(!m.has(opp)) continue;
-          const forWhite = (g.white===p.id);
-          const pts = pointsFromResult(g.result, forWhite);
-          const row = m.get(p.id);
-          row.set(opp, (row.get(opp)||0) + pts);
-        }
-      }
-      return m; // m.get(A).get(B) = body A proti B
-    }
-
-    function rankPlayers(state){
-      const base = computeStandings(state);
-      const h2hM = computeH2HMatrix(state);
-      const seedStr = (state.tournament?.name||'') + '|' + state.players.map(p=>p.name).sort((a,b)=>a.localeCompare(b,'cs')).join('|');
-      const rng = mulberry32(hashStringToU32(seedStr));
-      const seeded = base.map((r)=>({ ...r, seed:rng() }));
-
-      // Group by points
-      const groups = new Map();
-      for(const r of seeded){ const key = r.points.toFixed(2); if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r); }
-
-      function compare(a,b, group){
-        if(a.points!==b.points) return b.points - a.points;
-        if(group.length===2){
-          const A = h2hM.get(a.id)?.get(b.id)||0; const B = h2hM.get(b.id)?.get(a.id)||0;
-          if(A!==B) return B - A;
-        } else {
-          const ids = new Set(group.map(x=>x.id));
-          let aMini=0,bMini=0;
-          for(const opp of ids){ if(opp!==a.id) aMini += h2hM.get(a.id)?.get(opp)||0; }
-          for(const opp of ids){ if(opp!==b.id) bMini += h2hM.get(b.id)?.get(opp)||0; }
-          if(aMini!==bMini) return bMini - aMini;
-        }
-        if(a.sb!==b.sb) return b.sb - a.sb;
-        if(a.wins!==b.wins) return b.wins - a.wins;
-        if(a.seed!==b.seed) return a.seed < b.seed ? -1 : 1;
-        return a.name.localeCompare(b.name,'cs');
-      }
-
-      const sorted=[]; const tieGroups=[];
-      const keys = Array.from(groups.keys()).map(parseFloat).sort((a,b)=>b-a);
-      for(const key of keys){
-        const group = groups.get(key.toFixed(2));
-        group.sort((a,b)=>compare(a,b, group));
-        const startIdx = sorted.length;
-        sorted.push(...group);
-        tieGroups.push({ points:key, from:startIdx, to:sorted.length-1 });
-      }
-      for(const tg of tieGroups){
-        const ids = sorted.slice(tg.from, tg.to+1).map(r=>r.id);
-        for(const r of sorted.slice(tg.from, tg.to+1)){
-          let v=0; for(const opp of ids){ if(opp!==r.id) v += h2hM.get(r.id)?.get(opp)||0; }
-          r.h2h = +v.toFixed(2);
-        }
-      }
-      return { rows:sorted, tieGroups };
-    }
-    return { computeStandings, rankPlayers, computeH2HMatrix };
-  })();
-
-  // ===== UI =====
-  const UI = (()=>{
-    const els = {
-      tabBtns: Array.from(document.querySelectorAll('.tab')),
-      sections: {
-        setup: document.getElementById('setup'),
-        rounds: document.getElementById('rounds'),
-        standings: document.getElementById('standings'),
-      },
-      tName: document.getElementById('tName'),
-      tType: document.getElementById('tType'),
-      playersBody: document.getElementById('playersBody'),
-      playersCount: document.getElementById('playersCount'),
-      btnAddPlayer: document.getElementById('btnAddPlayer'),
-      btnDemo: document.getElementById('btnDemo'),
-      btnGenerate: document.getElementById('btnGenerate'),
-      roundsList: document.getElementById('roundsList'),
-      roundsInfo: document.getElementById('roundsInfo'),
-      standingsBody: document.getElementById('standingsBody'),
-      h2hHead: document.getElementById('h2hHead'),
-      h2hBody: document.getElementById('h2hBody'),
-      btnSave: document.getElementById('btnSave'),
-      btnExport: document.getElementById('btnExport'),
-      fileImport: document.getElementById('fileImport'),
-      btnReset: document.getElementById('btnReset'),
-    };
-
-    // Robust tab switching (delegation) + prevent default submit behavior
-    const tabsBar = document.querySelector('.tabs');
-    tabsBar.addEventListener('click', (ev)=>{
-      const b = ev.target.closest('.tab');
-      if(!b) return;
-      const tab = b.dataset.tab;
-      els.tabBtns.forEach(x=>{ x.classList.toggle('active', x===b); x.setAttribute('aria-selected', x===b ? 'true':'false'); });
-      for(const k in els.sections){ els.sections[k].hidden = (k!==tab); }
-    });
-
-    function renderPlayers(){
-      const s = State.get();
-      els.playersCount.textContent = `${s.players.length}/20`;
-      els.playersBody.innerHTML = '';
-      s.players.forEach((p,idx)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${idx+1}</td>
-          <td><input type="text" value="${p.name}" data-id="${p.id}" class="inp-name"></td>
-          <td><input type="number" value="${p.rating??''}" data-id="${p.id}" class="inp-rating" min="0" step="1"></td>
-          <td><button class="btn btn-ghost btn-del" data-id="${p.id}">Odebrat</button></td>
-        `;
-        els.playersBody.appendChild(tr);
-      });
-    }
-
-    function renderRounds(){
-      const s = State.get();
-      const rounds = s.rounds||[];
-      els.roundsInfo.textContent = rounds.length? `${rounds.length} kol, hráčů: ${s.players.length}` : 'Žádná kola';
-      els.roundsList.innerHTML = '';
-      rounds.forEach((round,ri)=>{
-        const card = document.createElement('div'); card.className='card';
-        const open = ri===0;
-        card.innerHTML = `
-          <details ${open?'open':''}>
-            <summary><strong>Kolo ${ri+1}</strong> <span class="muted">(${round.length} partií)</span></summary>
-            <div class="scroll-x" style="margin-top:8px">
-              <table class="pairs-table">
-                <thead><tr><th>Bílý</th><th>Černý</th><th>Výsledek</th></tr></thead>
-                <tbody>
-                  ${round.map((m,mi)=>{
-                    const W = s.players.find(x=>x.id===m.white)?.name||'?' ;
-                    const B = s.players.find(x=>x.id===m.black)?.name||'?';
-                    const name = `r${ri}m${mi}`;
-                    const val = m.result;
-                    const opt = (v,l)=>`<label><input type="radio" name="${name}" value="${v}" ${val===v?'checked':''}> ${l}</label>`;
-                    return `
-                      <tr>
-                        <td>${W}</td><td>${B}</td>
-                        <td class="row" style="gap:12px">
-                          ${opt('1-0','1–0')}
-                          ${opt('0-1','0–1')}
-                          ${opt('0.5-0.5','½–½')}
-                          ${opt('-','-')}
-                        </td>
-                      </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </details>
-        `;
-        els.roundsList.appendChild(card);
-      });
-    }
-
-    function renderStandings(){
-      const s = State.get();
-      if(!s.players.length){ els.standingsBody.innerHTML=''; return; }
-      const { rows, tieGroups } = Scoring.rankPlayers(s);
-      els.standingsBody.innerHTML = '';
-      const tieRanges = new Set(); tieGroups.forEach(tg=>{ if(tg.to>tg.from) for(let i=tg.from;i<=tg.to;i++) tieRanges.add(i); });
-      rows.forEach((r,idx)=>{
-        const tr = document.createElement('tr'); if(tieRanges.has(idx)) tr.classList.add('tie');
-        const tip = `H2H v tie-skupině: ${r.h2h?.toFixed?.(2)||r.h2h}`;
-        tr.innerHTML = `
-          <td>${idx+1}</td>
-          <td>${r.name}</td>
-          <td>${r.points.toFixed(2)}</td>
-          <td class="tooltip">${(r.h2h??0).toFixed(2)}<span class="tip">${tip}</span></td>
-          <td>${r.sb.toFixed(2)}</td>
-          <td>${r.wins}</td>
-          <td class="muted">${r.buchholz.toFixed(2)}</td>
-          <td class="muted">—</td>
-        `;
-        els.standingsBody.appendChild(tr);
-      });
-
-      // Render H2H matrix (order = current standings order)
-      const order = rows.map(r=>({ id:r.id, name:r.name }));
-      const M = Scoring.computeH2HMatrix(s);
-      const fmtHalf = (x)=>{
-        const y = Math.round((+x||0)*2)/2; // snap to .5
-        const n = Math.trunc(y);
-        const f = +(y - n).toFixed(1);
-        if(f===0.5){ return (n? n.toString(): '') + '½'; }
-        return n.toString();
-      };
-      // Build head
-      const headRow = document.createElement('tr');
-      headRow.innerHTML = '<th></th>' + order.map(o=>`<th>${o.name}</th>`).join('') + '<th title="Součet">Σ</th>';
-      els.h2hHead.innerHTML = '';
-      els.h2hHead.appendChild(headRow);
-      // Body
-      els.h2hBody.innerHTML = '';
-      order.forEach(row => {
-        const tr = document.createElement('tr');
-        let cells = `<th>${row.name}</th>`;
-        let sum = 0;
-        order.forEach(col => {
-          if(col.id===row.id){ cells += '<td class="muted">–</td>'; }
-          else {
-            const v = (M.get(row.id)?.get(col.id)) || 0;
-            sum += (+v)||0;
-            cells += `<td>${fmtHalf(v)}</td>`;
-          }
-        });
-        cells += `<td><strong>${fmtHalf(sum)}</strong></td>`;
-        tr.innerHTML = cells;
-        els.h2hBody.appendChild(tr);
-      });
-    }
-
-    els.playersBody.addEventListener('input', (e)=>{
-      const s = State.get();
-      const t = e.target;
-      if(t.classList.contains('inp-name')){
-        // Aktualizuj jméno bez přerenderování celé tabulky hráčů,
-        // aby se neztrácel fokus a caret během psaní.
-        const p = s.players.find(x=>x.id===t.dataset.id);
-        if(p){
-          p.name = t.value;
-          State.set(s);
-          // Přerenderuj jen závislé sekce (kola/pořadí), vstup ponecháme nedotčený
-          renderRounds();
-          renderStandings();
-        }
-      } else if(t.classList.contains('inp-rating')){
-        const p = s.players.find(x=>x.id===t.dataset.id); if(p){ const v = t.value===''?null:Number(t.value); p.rating = isNaN(v)?null:v; State.set(s); }
-      }
-    });
-    els.playersBody.addEventListener('click', (e)=>{
-      const btn = e.target.closest('.btn-del'); if(!btn) return;
-      const id = btn.dataset.id; const s = State.get();
-      s.players = s.players.filter(p=>p.id!==id);
-      s.rounds = [];
-      State.set(s); renderPlayers(); renderRounds(); renderStandings();
-    });
-
-    els.btnAddPlayer.addEventListener('click', ()=>{
-      const s = State.get(); if(s.players.length>=20) return alert('Max 20 hráčů');
-      const prevCount = s.players.length;
-      const id = (crypto.randomUUID? crypto.randomUUID(): (Date.now()+Math.random()).toString(36));
-      const newPlayer = { id, name:`Hráč ${prevCount+1}`, rating:null };
-      const hadSchedule = (s.rounds && s.rounds.length>0);
-      s.players.push(newPlayer);
-      if(hadSchedule){
-        const doubleRR = (s.tournament?.type==='DRR');
-        if(prevCount % 2 === 1){
-          // Dříve lichý počet: žádný nový los, jen dosadíme hráče a dáme mu prohry v minulých kolech
-          s.rounds = Scheduler.regenerateLateJoinOdd(s.players, s.rounds, doubleRR);
-        } else {
-          // Dříve sudý počet: nutný nový los (zachová maximum výsledků)
-          s.rounds = Scheduler.regenerateKeepingResults(s.players, s.rounds, doubleRR);
-          alert('Přidán hráč při sudém počtu účastníků – byl vygenerován nový los. Stávající výsledky byly zachovány, kde to šlo.');
-        }
-      }
-      State.set(s); renderPlayers(); renderRounds(); renderStandings();
-    });
-
-    els.btnDemo.addEventListener('click', ()=>{
-      const names = ['Novák','Svoboda','Dvořák','Černý','Procházka','Kučera','Krejčí','Veselý'];
-      const s = State.get(); s.tournament.name = 'Demo Cup'; s.tournament.type='RR';
-      s.players = names.slice(0,8).map((n,i)=>({ id: (crypto.randomUUID? crypto.randomUUID(): (Date.now()+Math.random()).toString(36)), name: n, rating: 1800 + (i*20) }));
-      s.rounds = Scheduler.generateSchedule(s.players, false);
-      if(s.rounds[0]){
-        s.rounds[0][0].result='1-0';
-        s.rounds[0][1].result='0.5-0.5';
-      }
-      State.set(s); bindBasics(); renderPlayers(); renderRounds(); renderStandings();
-    });
-
-    els.btnGenerate.addEventListener('click', ()=>{
-      const s = State.get();
-      if(s.players.length<2) return alert('Přidejte alespoň 2 hráče');
-      const doubleRR = (els.tType.value==='DRR');
-      s.rounds = Scheduler.generateSchedule(s.players, doubleRR);
-      State.set(s); renderRounds(); renderStandings();
-      els.tabBtns.find(b=>b.dataset.tab==='rounds').click();
-    });
-
-    els.roundsList.addEventListener('change', (e)=>{
-      const t = e.target; if(t.name && t.type==='radio'){
-        const m = t.name.match(/^r(\d+)m(\d+)$/); if(!m) return; const ri=+m[1], mi=+m[2];
-        const s = State.get(); s.rounds[ri][mi].result = t.value; State.set(s); renderStandings();
-      }
-    });
-
-    els.btnSave.addEventListener('click', ()=>{ State.save(); alert('Uloženo do tohoto zařízení.'); });
-    els.btnExport.addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(State.get(), null, 2)], {type:'application/json'});
-      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'chess-pairings.json' });
-      document.body.appendChild(a); a.click(); a.remove();
-    });
-    els.fileImport.addEventListener('change', async (e)=>{
-      const file = e.target.files?.[0]; if(!file) return;
-      try{
-        const txt = await file.text(); const data = JSON.parse(txt);
-        if(!data || !Array.isArray(data.players)) throw new Error('Neplatný soubor');
-        State.set(data); bindBasics(); renderPlayers(); renderRounds(); renderStandings();
-      }catch(err){ alert('Import selhal: '+(err.message||err)); }
-      finally { e.target.value=''; }
-    });
-    els.btnReset.addEventListener('click', ()=>{
-      if(confirm('Opravdu vymazat všechna data?')){ State.reset(); bindBasics(); renderPlayers(); renderRounds(); renderStandings(); }
-    });
-
-    function bindBasics(){
-      const s = State.get();
-      els.tName.value = s.tournament?.name||'';
-      els.tType.value = s.tournament?.type||'RR';
-    }
-    els.tName.addEventListener('input', ()=>{ const s=State.get(); s.tournament.name = els.tName.value; State.set(s); });
-    els.tType.addEventListener('change', ()=>{ const s=State.get(); s.tournament.type = els.tType.value; State.set(s); });
-
-    (function init(){
-      State.load(); bindBasics(); renderPlayers(); renderRounds(); renderStandings();
-    })();
-
-    return { renderPlayers, renderRounds, renderStandings };
-  })();
-
-  // ===== PWA (single-file) =====
-  (function setupPWA(){
-    const manifest = {
-      name: 'Šachové párování', short_name: 'Šachy RR', start_url: '.', scope: '.',
-      display: 'standalone', background_color:'#ffffff', theme_color:'#0d6efd',
-      icons: [
-        { src:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><rect width=%22128%22 height=%22128%22 rx=%2226%22 fill=%22%230d6efd%22/><text x=%2264%22 y=%2282%22 font-size=%2284%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Segoe UI,Arial%22>♟</text></svg>', sizes:'128x128', type:'image/svg+xml', purpose:'any maskable' }
-      ]
-    };
-    const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-    const link = document.createElement('link'); link.rel='manifest'; link.href = URL.createObjectURL(blob);
-    document.head.appendChild(link);
-
-    const swCode = `
-      const CACHE='rr-chess-cache-v1';
-      self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./']))); self.skipWaiting(); });
-      self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
-      self.addEventListener('fetch', e=>{ e.respondWith(caches.match(e.request).then(r=> r || fetch(e.request).then(resp=>resp))); });
-    `;
-    if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-      try{
-        const swBlob = new Blob([swCode], {type:'text/javascript'});
-        const swUrl = URL.createObjectURL(swBlob);
-        navigator.serviceWorker.register(swUrl).catch(()=>{/* ignore */});
-      }catch(err){ /* ignore */ }
-    }
-  })();
-  </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
