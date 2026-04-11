@@ -1,4 +1,4 @@
-import { generateSwissPairings } from '../tournament.js';
+import { generateSwissPairings, getSwissRoundLimit } from '../tournament.js';
 import { assert, assertEqual, test } from './harness.js';
 
 function makePlayer(id, rating) {
@@ -293,3 +293,13 @@ test('Svicar: barevna bilance neblokuje', () => {
   assert(hasImbalance, 'Expected color imbalance when no balanced pairing exists.');
 });
 
+
+
+test('Swiss: round limit is half rounded up', () => {
+  assertEqual(getSwissRoundLimit(0), 0);
+  assertEqual(getSwissRoundLimit(1), 1);
+  assertEqual(getSwissRoundLimit(2), 1);
+  assertEqual(getSwissRoundLimit(3), 2);
+  assertEqual(getSwissRoundLimit(12), 6);
+  assertEqual(getSwissRoundLimit(13), 7);
+});

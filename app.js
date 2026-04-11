@@ -9,6 +9,7 @@
 import {
   createRoundRobinSchedule,
   generateSwissPairings,
+  getSwissRoundLimit,
   getStandings
 } from './tournament.js';
 
@@ -831,6 +832,14 @@ function createNextRound() {
     return;
   }
 
+  const roundLimit = getSwissRoundLimit(players.length);
+  if (roundLimit > 0 && tournament.round >= roundLimit) {
+    setTournamentStatus(
+      `Nelze vytvorit dalsi kolo: maximalni pocet kol pro svycarsky system je ${roundLimit}.`
+    );
+    return;
+  }
+
   const result = generateSwissPairings(players, tournament.rounds, { allowRematch: allowRematch.checked });
   if (!result.success) {
     setTournamentStatus(getSwissFailureMessage(result, allowRematch.checked));
@@ -925,6 +934,11 @@ function isTournamentFinished(current) {
     const finalRound = current.rounds.length;
     const currentRound = getCurrentRound(current);
     return current.round >= finalRound && currentRound && isRoundComplete(currentRound);
+  }
+  if (current.system === 'swiss') {
+    const roundLimit = getSwissRoundLimit(players.length);
+    const currentRound = getCurrentRound(current);
+    return roundLimit > 0 && current.round >= roundLimit && currentRound && isRoundComplete(currentRound);
   }
   return false;
 }

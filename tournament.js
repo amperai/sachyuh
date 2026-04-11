@@ -485,3 +485,8 @@ export function generateSwissPairings(playerList, rounds, options = {}) {
     hasRematch
   };
 }
+
+export function getSwissRoundLimit(playerCount) {
+  const count = Number.isFinite(playerCount) ? Math.max(0, Math.floor(playerCount)) : 0;
+  return Math.ceil(count / 2);
+}
