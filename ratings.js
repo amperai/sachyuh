@@ -1,4 +1,4 @@
-﻿const CHESS_COM_CATEGORIES = [
+const CHESS_COM_CATEGORIES = [
   { key: 'chess_blitz', label: 'blitz' },
   { key: 'chess_rapid', label: 'rapid' },
   { key: 'chess_daily', label: 'daily' }
@@ -497,3 +497,4 @@ export const STATUS_LABELS = {
   no_account: 'Bez účtu',
   error: 'Chyba načítání'
 };
+

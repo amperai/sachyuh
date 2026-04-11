@@ -61,7 +61,7 @@
       <div class="hero-copy reveal">
         <span class="eyebrow">Nová sezóna</span>
         <h1>Turnaj Koruna</h1>
-        <p class="lead">Otevřená registrace pro klubový šachový turnaj. Stačí jméno a případný účet na chess.com nebo lichess.org - nejvyšší rating dohledáme za vás.</p>
+        <p class="lead">Otevřená registrace pro klubový šachový turnaj. Stačí jméno a případně účet na chess.com nebo lichess.org - nejvyšší rating dohledáme za vás.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#registrace">Zaregistrovat hráče</a>
           <a class="btn btn-ghost" href="#jak-to-funguje">Jak to funguje</a>
@@ -168,15 +168,26 @@
         </div>
       </div>
       <div id="tournamentControls" class="tournament-controls">
-        <div>
-          <label for="tournamentSystem">Systém</label>
-          <select id="tournamentSystem">
-            <option value="round-robin">Každý s každým</option>
-            <option value="swiss">Švýcarský systém</option>
-          </select>
+        <div class="tournament-options">
+          <div>
+            <label for="tournamentSystem">Systém</label>
+            <select id="tournamentSystem">
+              <option value="round-robin">Každý s každým</option>
+              <option value="swiss">Švýcarský systém</option>
+            </select>
+          </div>
+          <label id="allowRematchWrap" class="checkbox" hidden>
+            <input id="allowRematch" type="checkbox">
+            <span>Povolit opakování soupeřů</span>
+          </label>
+          <div id="roundSelectWrap" class="round-select" hidden>
+            <label for="roundSelect">Zobrazené kolo</label>
+            <select id="roundSelect"></select>
+          </div>
         </div>
         <div class="tournament-buttons">
           <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvořit 1. kolo</button>
+          <button id="btnCancelRound" class="btn btn-ghost" type="button">Zrušit kolo</button>
           <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
         </div>
       </div>

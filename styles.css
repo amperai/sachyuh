@@ -621,6 +621,33 @@ tbody tr:last-child td{
   margin-bottom:12px;
 }
 
+.tournament-options{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  align-items:flex-end;
+}
+
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-weight:600;
+  font-size:14px;
+}
+
+.checkbox input{
+  accent-color:var(--accent);
+}
+
+.round-select{
+  min-width:180px;
+}
+
 .tournament-buttons{
   display:flex;
   flex-wrap:wrap;

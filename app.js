@@ -6,6 +6,11 @@
   fetchChessComRating,
   fetchLichessRating
 } from './ratings.js';
+import {
+  createRoundRobinSchedule,
+  generateSwissPairings,
+  getStandings
+} from './tournament.js';
 
 const form = document.getElementById('registration-form');
 const nameInput = document.getElementById('playerName');
@@ -35,6 +40,11 @@ const tournamentStatus = document.getElementById('tournamentStatus');
 const tournamentSystem = document.getElementById('tournamentSystem');
 const tournamentCreateBtn = document.getElementById('btnCreateTournament');
 const tournamentCancelBtn = document.getElementById('btnCancelTournament');
+const tournamentCancelRoundBtn = document.getElementById('btnCancelRound');
+const allowRematch = document.getElementById('allowRematch');
+const allowRematchWrap = document.getElementById('allowRematchWrap');
+const roundSelect = document.getElementById('roundSelect');
+const roundSelectWrap = document.getElementById('roundSelectWrap');
 const pairingsBody = document.getElementById('pairingsBody');
 const pairingsEmpty = document.getElementById('pairingsEmpty');
 
@@ -52,7 +62,7 @@ const REFEREE_KEY = 'turnaj-koruna-referee';
 const REFEREE_PASSWORD = 'g';
 
 const RESULT_OPTIONS = [
-  { value: '', label: '—' },
+  { value: '', label: '-' },
   { value: '1-0', label: '1 : 0' },
   { value: '0.5-0.5', label: '0.5 : 0.5' },
   { value: '0-1', label: '0 : 1' }
@@ -72,7 +82,7 @@ const providerHelp = {
   },
   lichess: {
     placeholder: 'např. oselposel',
-    help: 'Načteme nejvyšší rating z lichess.org (blitz, rapid, korespondenční).'
+    help: 'Načteme nejvyšší rating z lichess.org (blitz, rapid, korespondence).'
   },
   none: {
     placeholder: '',
@@ -92,6 +102,7 @@ let players = loadPlayers();
 let tournament = loadTournament();
 let isReferee = loadReferee();
 let selectedPlayerId = null;
+let viewRoundNumber = tournament?.round || 0;
 
 renderPlayers();
 renderTournament();
@@ -227,6 +238,11 @@ playerDetailClear.addEventListener('click', () => {
   renderPlayerDetail();
 });
 
+roundSelect.addEventListener('change', () => {
+  viewRoundNumber = Number.parseInt(roundSelect.value, 10) || 0;
+  renderTournament();
+});
+
 tournamentCreateBtn.addEventListener('click', () => {
   if (!isReferee) {
     setTournamentStatus('Přihlaste se jako rozhodčí pro vytvoření turnaje.');
@@ -244,7 +260,12 @@ tournamentCreateBtn.addEventListener('click', () => {
   }
 
   const currentRound = getCurrentRound(tournament);
-  if (!currentRound || !isRoundComplete(currentRound)) {
+  if (!currentRound) {
+    createNextRound();
+    return;
+  }
+
+  if (!isRoundComplete(currentRound)) {
     setTournamentStatus('Nejdříve zadejte všechny výsledky tohoto kola.');
     return;
   }
@@ -268,9 +289,46 @@ tournamentCancelBtn.addEventListener('click', () => {
   }
 
   tournament = null;
+  viewRoundNumber = 0;
   saveTournament(tournament);
   renderTournament();
   setTournamentStatus('Turnaj byl zrušen.');
+});
+
+tournamentCancelRoundBtn.addEventListener('click', () => {
+  if (!isReferee || !tournament || !tournament.rounds.length) {
+    return;
+  }
+
+  const confirmed = window.confirm('Opravdu chcete zrušit aktuální kolo?');
+  if (!confirmed) {
+    return;
+  }
+
+  if (tournament.system === 'swiss') {
+    tournament.rounds.pop();
+    if (tournament.rounds.length === 0) {
+      tournament.round = 0;
+    } else {
+      tournament.round = tournament.rounds[tournament.rounds.length - 1].round;
+    }
+    viewRoundNumber = tournament.round;
+    setTournamentStatus('Aktuální kolo bylo zrušeno.');
+  } else {
+    const currentRound = getCurrentRound(tournament);
+    if (currentRound) {
+      currentRound.pairings.forEach((pairing) => {
+        if (!pairing.byeId) {
+          pairing.result = null;
+        }
+      });
+    }
+    viewRoundNumber = tournament.round;
+    setTournamentStatus('Výsledky aktuálního kola byly vymazány.');
+  }
+
+  saveTournament(tournament);
+  renderTournament();
 });
 
 window.addEventListener('keydown', (event) => {
@@ -455,12 +513,15 @@ function renderTournament() {
   pairingsBody.textContent = '';
   standingsBody.textContent = '';
 
-  if (!tournament) {
+  const hasTournament = Boolean(tournament);
+  const hasRounds = hasTournament && tournament.rounds && tournament.rounds.length > 0;
+
+  updateTournamentControls(hasTournament, hasRounds);
+
+  if (!hasTournament || !hasRounds) {
     tournamentRoundLabel.textContent = '';
     pairingsEmpty.hidden = false;
     standingsEmpty.hidden = false;
-    tournamentCancelBtn.disabled = true;
-    tournamentSystem.disabled = !isReferee;
     tournamentCreateBtn.disabled = !isReferee || players.length < 2;
     tournamentCreateBtn.textContent = 'Vytvořit 1. kolo';
     tournamentHint.textContent = isReferee
@@ -474,10 +535,18 @@ function renderTournament() {
   const roundComplete = currentRound ? isRoundComplete(currentRound) : false;
   const tournamentFinished = isTournamentFinished(tournament);
 
-  tournamentRoundLabel.textContent = `Kolo ${tournament.round}`;
-  pairingsEmpty.hidden = currentRound && currentRound.pairings.length > 0;
-  tournamentCancelBtn.disabled = !isReferee;
-  tournamentSystem.disabled = true;
+  if (!isReferee) {
+    viewRoundNumber = tournament.round;
+  } else if (!viewRoundNumber || !getRoundByNumber(viewRoundNumber)) {
+    viewRoundNumber = tournament.round;
+  }
+
+  updateRoundSelect();
+
+  const viewRound = getRoundByNumber(viewRoundNumber) || currentRound;
+
+  tournamentRoundLabel.textContent = viewRound ? `Kolo ${viewRound.round}` : '';
+  pairingsEmpty.hidden = viewRound && viewRound.pairings.length > 0;
 
   if (tournamentFinished) {
     tournamentCreateBtn.disabled = true;
@@ -491,12 +560,47 @@ function renderTournament() {
     ? 'Systém: švýcarský.'
     : 'Systém: každý s každým.';
 
-  if (currentRound) {
-    renderPairings(currentRound);
+  if (viewRound) {
+    renderPairings(viewRound);
   }
 
   renderStandings();
   renderPlayerDetail();
+}
+
+function updateTournamentControls(hasTournament, hasRounds) {
+  const systemValue = hasTournament ? tournament.system : tournamentSystem.value;
+  const isSwiss = systemValue === 'swiss';
+  const showRematch = isReferee && isSwiss;
+  allowRematchWrap.hidden = !showRematch;
+  allowRematch.disabled = !showRematch;
+
+  const showRoundSelect = isReferee && hasTournament && hasRounds;
+  roundSelectWrap.hidden = !showRoundSelect;
+  roundSelect.disabled = !showRoundSelect;
+
+  tournamentSystem.disabled = hasTournament || !isReferee;
+  tournamentCancelBtn.disabled = !isReferee || !hasTournament;
+  tournamentCancelRoundBtn.disabled = !isReferee || !hasTournament || !hasRounds;
+}
+
+function updateRoundSelect() {
+  if (!tournament) {
+    return;
+  }
+
+  roundSelect.textContent = '';
+  tournament.rounds.forEach((round) => {
+    const option = document.createElement('option');
+    option.value = String(round.round);
+    option.textContent = `Kolo ${round.round}`;
+    roundSelect.appendChild(option);
+  });
+
+  if (!viewRoundNumber || !getRoundByNumber(viewRoundNumber)) {
+    viewRoundNumber = tournament.round;
+  }
+  roundSelect.value = String(viewRoundNumber);
 }
 
 function renderPairings(round) {
@@ -615,18 +719,20 @@ function createTournament() {
       createdAt: new Date().toISOString()
     };
   } else {
-    const round = {
-      round: 1,
-      pairings: generateSwissPairings(players, [])
-    };
+    const result = generateSwissPairings(players, [], { allowRematch: allowRematch.checked });
+    if (!result.success) {
+      setTournamentStatus(getSwissFailureMessage(result, allowRematch.checked));
+      return;
+    }
     tournament = {
       system,
       round: 1,
-      rounds: [round],
+      rounds: [{ round: 1, pairings: result.pairings }],
       createdAt: new Date().toISOString()
     };
   }
 
+  viewRoundNumber = tournament.round;
   saveTournament(tournament);
   renderTournament();
   setTournamentStatus('Nasazení pro 1. kolo bylo vytvořeno.');
@@ -642,196 +748,40 @@ function createNextRound() {
       return;
     }
     tournament.round += 1;
-  } else {
-    const nextRoundNumber = tournament.round + 1;
-    const pairings = generateSwissPairings(players, tournament.rounds);
-    tournament.rounds.push({ round: nextRoundNumber, pairings });
-    tournament.round = nextRoundNumber;
+    viewRoundNumber = tournament.round;
+    saveTournament(tournament);
+    renderTournament();
+    setTournamentStatus(`Nasazení pro ${tournament.round}. kolo bylo vytvořeno.`);
+    return;
   }
+
+  const result = generateSwissPairings(players, tournament.rounds, { allowRematch: allowRematch.checked });
+  if (!result.success) {
+    setTournamentStatus(getSwissFailureMessage(result, allowRematch.checked));
+    return;
+  }
+
+  const nextRoundNumber = tournament.rounds.length ? tournament.round + 1 : 1;
+  tournament.rounds.push({ round: nextRoundNumber, pairings: result.pairings });
+  tournament.round = nextRoundNumber;
+  viewRoundNumber = tournament.round;
 
   saveTournament(tournament);
   renderTournament();
-  setTournamentStatus(`Nasazení pro ${tournament.round}. kolo bylo vytvořeno.`);
+  const suffix = result.hasRematch ? ' (obsahuje opakování soupeřů)' : '';
+  setTournamentStatus(`Nasazení pro ${tournament.round}. kolo bylo vytvořeno${suffix}.`);
 }
 
-function createRoundRobinSchedule(playerList) {
-  const order = [...playerList].sort((a, b) => {
-    const ratingDiff = (b.ratingFinal ?? 0) - (a.ratingFinal ?? 0);
-    if (ratingDiff !== 0) {
-      return ratingDiff;
-    }
-    return a.name.localeCompare(b.name, 'cs');
-  }).map((player) => player.id);
-
-  if (order.length % 2 === 1) {
-    order.push(null);
+function getSwissFailureMessage(result, allowRepeat) {
+  if (result.reason === 'odd_group') {
+    return 'Nelze vytvořit kolo: některá skupina zůstala lichá (pravděpodobně už všichni měli volno).';
   }
-
-  const rounds = [];
-  const list = [...order];
-  const totalRounds = list.length - 1;
-  const half = list.length / 2;
-
-  for (let roundIndex = 0; roundIndex < totalRounds; roundIndex += 1) {
-    const pairings = [];
-
-    for (let i = 0; i < half; i += 1) {
-      const first = list[i];
-      const second = list[list.length - 1 - i];
-
-      if (!first && !second) {
-        continue;
-      }
-
-      if (!first || !second) {
-        const byeId = first || second;
-        pairings.push({ byeId, result: 'bye' });
-        continue;
-      }
-
-      const isEvenRound = roundIndex % 2 === 0;
-      const whiteId = isEvenRound ? first : second;
-      const blackId = isEvenRound ? second : first;
-
-      pairings.push({ whiteId, blackId, result: null });
-    }
-
-    rounds.push({ round: roundIndex + 1, pairings });
-
-    const fixed = list[0];
-    const rest = list.slice(1);
-    rest.unshift(rest.pop());
-    list.splice(0, list.length, fixed, ...rest);
+  if (result.reason === 'no_match') {
+    return allowRepeat
+      ? 'Nelze vytvořit kolo s aktuálními pravidly (barvy/opakování soupeřů).'
+      : 'Bez opakování soupeřů nelze vytvořit další kolo. Zaškrtněte „Povolit opakování soupeřů“.';
   }
-
-  return rounds;
-}
-
-function generateSwissPairings(playerList, rounds) {
-  const scores = getScoreMap(playerList, rounds);
-  const sorted = [...playerList].sort((a, b) => {
-    const scoreDiff = (scores[b.id] || 0) - (scores[a.id] || 0);
-    if (scoreDiff !== 0) {
-      return scoreDiff;
-    }
-    const ratingDiff = (b.ratingFinal ?? 0) - (a.ratingFinal ?? 0);
-    if (ratingDiff !== 0) {
-      return ratingDiff;
-    }
-    return a.name.localeCompare(b.name, 'cs');
-  });
-
-  const groups = [];
-  sorted.forEach((player) => {
-    const score = scores[player.id] || 0;
-    const current = groups[groups.length - 1];
-    if (!current || current.score !== score) {
-      groups.push({ score, players: [player] });
-    } else {
-      current.players.push(player);
-    }
-  });
-
-  groups.forEach((group) => {
-    group.players.sort(byRatingDesc);
-  });
-
-  for (let i = 0; i < groups.length - 1; i += 1) {
-    if (groups[i].players.length % 2 === 1) {
-      const floater = groups[i].players.pop();
-      groups[i + 1].players.push(floater);
-    }
-  }
-
-  const pairings = [];
-  let byeAssigned = false;
-
-  groups.forEach((group, groupIndex) => {
-    group.players.sort(byRatingDesc);
-
-    if (group.players.length % 2 === 1) {
-      if (!byeAssigned && groupIndex === groups.length - 1) {
-        const byePlayer = group.players.pop();
-        if (byePlayer) {
-          pairings.push({ byeId: byePlayer.id, result: 'bye' });
-          byeAssigned = true;
-        }
-      }
-    }
-
-    const half = Math.floor(group.players.length / 2);
-    for (let i = 0; i < half; i += 1) {
-      const white = group.players[i];
-      const black = group.players[i + half];
-      if (!white || !black) {
-        continue;
-      }
-      pairings.push({ whiteId: white.id, blackId: black.id, result: null });
-    }
-  });
-
-  return pairings;
-}
-
-function byRatingDesc(a, b) {
-  const ratingDiff = (b.ratingFinal ?? 0) - (a.ratingFinal ?? 0);
-  if (ratingDiff !== 0) {
-    return ratingDiff;
-  }
-  return a.name.localeCompare(b.name, 'cs');
-}
-
-function getScoreMap(playerList, rounds) {
-  const scores = {};
-  playerList.forEach((player) => {
-    scores[player.id] = 0;
-  });
-
-  rounds.forEach((round) => {
-    round.pairings.forEach((pairing) => {
-      if (pairing.byeId) {
-        scores[pairing.byeId] = (scores[pairing.byeId] || 0) + 1;
-        return;
-      }
-
-      if (!pairing.result) {
-        return;
-      }
-
-      const [whiteScore, blackScore] = scoreFromResult(pairing.result);
-      scores[pairing.whiteId] = (scores[pairing.whiteId] || 0) + whiteScore;
-      scores[pairing.blackId] = (scores[pairing.blackId] || 0) + blackScore;
-    });
-  });
-
-  return scores;
-}
-
-function scoreFromResult(result) {
-  if (result === '1-0') {
-    return [1, 0];
-  }
-  if (result === '0-1') {
-    return [0, 1];
-  }
-  if (result === '0.5-0.5') {
-    return [0.5, 0.5];
-  }
-  return [0, 0];
-}
-
-function getStandings(playerList, rounds) {
-  const scores = getScoreMap(playerList, rounds);
-  return playerList.map((player) => ({
-    ...player,
-    points: scores[player.id] || 0
-  })).sort((a, b) => {
-    const diff = (b.points || 0) - (a.points || 0);
-    if (diff !== 0) {
-      return diff;
-    }
-    return byRatingDesc(a, b);
-  });
+  return 'Nelze vytvořit kolo s aktuálními pravidly.';
 }
 
 function getPlayerResults(playerId, rounds) {
@@ -843,7 +793,7 @@ function getPlayerResults(playerId, rounds) {
         results.push({
           round: round.round,
           opponent: 'volno',
-          color: '—',
+          color: '-',
           result: '1'
         });
         return;
@@ -909,6 +859,7 @@ function invalidateTournament(message) {
   }
 
   tournament = null;
+  viewRoundNumber = 0;
   saveTournament(tournament);
   selectedPlayerId = null;
   renderTournament();
@@ -1078,4 +1029,11 @@ function getCurrentRound(current) {
     return null;
   }
   return current.rounds[current.round - 1] || null;
+}
+
+function getRoundByNumber(roundNumber) {
+  if (!tournament) {
+    return null;
+  }
+  return tournament.rounds.find((round) => round.round === roundNumber) || null;
 }
