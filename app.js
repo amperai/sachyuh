@@ -47,6 +47,14 @@ const roundSelect = document.getElementById('roundSelect');
 const roundSelectWrap = document.getElementById('roundSelectWrap');
 const pairingsBody = document.getElementById('pairingsBody');
 const pairingsEmpty = document.getElementById('pairingsEmpty');
+const tournamentAdminSection = document.getElementById('turnaj-admin');
+const publicRoundLabel = document.getElementById('publicRoundLabel');
+const publicPairingsBody = document.getElementById('publicPairingsBody');
+const publicPairingsEmpty = document.getElementById('publicPairingsEmpty');
+const tabPlayers = document.getElementById('tabPlayers');
+const tabStandings = document.getElementById('tabStandings');
+const panelPlayers = document.getElementById('panelPlayers');
+const panelStandings = document.getElementById('panelStandings');
 
 const standingsBody = document.getElementById('standingsBody');
 const standingsEmpty = document.getElementById('standingsEmpty');
@@ -103,6 +111,7 @@ let tournament = loadTournament();
 let isReferee = loadReferee();
 let selectedPlayerId = null;
 let viewRoundNumber = tournament?.round || 0;
+let publicActiveTab = 'players';
 
 renderPlayers();
 renderTournament();
@@ -243,6 +252,9 @@ roundSelect.addEventListener('change', () => {
   renderTournament();
 });
 
+tabPlayers.addEventListener('click', () => setPublicTab('players'));
+tabStandings.addEventListener('click', () => setPublicTab('standings'));
+
 tournamentCreateBtn.addEventListener('click', () => {
   if (!isReferee) {
     setTournamentStatus('Přihlaste se jako rozhodčí pro vytvoření turnaje.');
@@ -279,7 +291,7 @@ tournamentCreateBtn.addEventListener('click', () => {
 });
 
 tournamentCancelBtn.addEventListener('click', () => {
-  if (!tournament) {
+  if (!isReferee || !tournament) {
     return;
   }
 
@@ -510,8 +522,16 @@ function renderPlayers() {
 }
 
 function renderTournament() {
+  renderTournamentAdmin();
+  renderPublicView();
+}
+
+function renderTournamentAdmin() {
+  if (tournamentAdminSection) {
+    tournamentAdminSection.hidden = !isReferee;
+  }
+
   pairingsBody.textContent = '';
-  standingsBody.textContent = '';
 
   const hasTournament = Boolean(tournament);
   const hasRounds = hasTournament && tournament.rounds && tournament.rounds.length > 0;
@@ -521,13 +541,11 @@ function renderTournament() {
   if (!hasTournament || !hasRounds) {
     tournamentRoundLabel.textContent = '';
     pairingsEmpty.hidden = false;
-    standingsEmpty.hidden = false;
     tournamentCreateBtn.disabled = !isReferee || players.length < 2;
     tournamentCreateBtn.textContent = 'Vytvořit 1. kolo';
     tournamentHint.textContent = isReferee
       ? 'Vyberte systém a vytvořte první kolo.'
       : 'Pro práci s turnajem je potřeba přihlášení rozhodčího.';
-    renderPlayerDetail();
     return;
   }
 
@@ -561,11 +579,33 @@ function renderTournament() {
     : 'Systém: každý s každým.';
 
   if (viewRound) {
-    renderPairings(viewRound);
+    renderPairings(viewRound, pairingsBody, true);
+  }
+}
+
+function renderPublicView() {
+  if (!publicPairingsBody) {
+    return;
+  }
+
+  publicPairingsBody.textContent = '';
+
+  const hasTournament = Boolean(tournament);
+  const hasRounds = hasTournament && tournament.rounds && tournament.rounds.length > 0;
+  const currentRound = hasRounds ? getCurrentRound(tournament) : null;
+
+  if (!hasTournament || !hasRounds || !currentRound) {
+    publicRoundLabel.textContent = '';
+    publicPairingsEmpty.hidden = false;
+  } else {
+    publicRoundLabel.textContent = `Kolo ${currentRound.round}`;
+    renderPairings(currentRound, publicPairingsBody, false);
+    publicPairingsEmpty.hidden = currentRound.pairings.length > 0;
   }
 
   renderStandings();
   renderPlayerDetail();
+  setPublicTab(publicActiveTab);
 }
 
 function updateTournamentControls(hasTournament, hasRounds) {
@@ -603,8 +643,24 @@ function updateRoundSelect() {
   roundSelect.value = String(viewRoundNumber);
 }
 
-function renderPairings(round) {
-  pairingsBody.textContent = '';
+function setPublicTab(tab) {
+  publicActiveTab = tab === 'standings' ? 'standings' : 'players';
+  if (tabPlayers) {
+    tabPlayers.classList.toggle('active', publicActiveTab === 'players');
+  }
+  if (tabStandings) {
+    tabStandings.classList.toggle('active', publicActiveTab === 'standings');
+  }
+  if (panelPlayers) {
+    panelPlayers.hidden = publicActiveTab !== 'players';
+  }
+  if (panelStandings) {
+    panelStandings.hidden = publicActiveTab !== 'standings';
+  }
+}
+
+function renderPairings(round, body, editable) {
+  body.textContent = '';
 
   round.pairings.forEach((pairing, index) => {
     const row = document.createElement('tr');
@@ -615,7 +671,7 @@ function renderPairings(round) {
       row.appendChild(createCellWithNode(createPlayerButton(player)));
       row.appendChild(createCell('volno'));
       row.appendChild(createCellWithNode(createResultTag(RESULT_LABELS.bye)));
-      pairingsBody.appendChild(row);
+      body.appendChild(row);
       return;
     }
 
@@ -626,7 +682,7 @@ function renderPairings(round) {
     row.appendChild(createCellWithNode(createPlayerButton(black)));
 
     const resultCell = document.createElement('td');
-    if (isReferee) {
+    if (editable) {
       const select = document.createElement('select');
       select.className = 'result-select';
 
@@ -651,7 +707,7 @@ function renderPairings(round) {
     }
 
     row.appendChild(resultCell);
-    pairingsBody.appendChild(row);
+    body.appendChild(row);
   });
 }
 
@@ -933,10 +989,11 @@ function createPlayerButton(player) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'player-link';
-  button.textContent = player ? player.name : 'neznámý hráč';
+  button.textContent = player ? player.name : 'nezn?m? hr??';
   if (player) {
     button.addEventListener('click', () => {
       selectedPlayerId = player.id;
+      setPublicTab('standings');
       renderPlayerDetail();
     });
   }

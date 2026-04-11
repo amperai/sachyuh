@@ -50,7 +50,7 @@
     </div>
     <nav class="drawer-links">
       <a href="#registrace">Registrace</a>
-      <a href="#turnaj">Řízení turnaje</a>
+      <a href="#turnaj">Turnaj</a>
       <a href="#jak-to-funguje">Jak to funguje</a>
     </nav>
   </aside>
@@ -139,11 +139,40 @@
           </div>
         </form>
       </div>
+    </section>
 
-      <div class="card reveal delay-1">
+    <section id="turnaj" class="card reveal delay-2">
+      <div class="list-header">
+        <div>
+          <h2>Aktuální kolo</h2>
+          <p class="hint">Nasazení aktuálního kola a přehled hráčů.</p>
+        </div>
+      </div>
+      <p id="publicRoundLabel" class="tournament-round"></p>
+      <div class="table-wrap">
+        <table class="pairings-table">
+          <thead>
+            <tr>
+              <th>Šachovnice</th>
+              <th>Bílý</th>
+              <th>Černý</th>
+              <th>Výsledek</th>
+            </tr>
+          </thead>
+          <tbody id="publicPairingsBody"></tbody>
+        </table>
+      </div>
+      <p id="publicPairingsEmpty" class="empty">Turnaj zatím není založen.</p>
+
+      <div class="tabs">
+        <button id="tabPlayers" class="tab active" type="button">Přihlášení hráči</button>
+        <button id="tabStandings" class="tab" type="button">Pořadí hráčů</button>
+      </div>
+
+      <div id="panelPlayers" class="tab-panel">
         <div class="list-header">
           <div>
-            <h2>Registrovaní hráči</h2>
+            <h3>Přihlášení hráči</h3>
             <p class="hint">Seznam se ukládá lokálně ve vašem prohlížeči.</p>
           </div>
           <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
@@ -158,9 +187,56 @@
         </div>
         <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
       </div>
+
+      <div id="panelStandings" class="tab-panel" hidden>
+        <div class="list-header">
+          <div>
+            <h3>Pořadí hráčů</h3>
+            <p class="hint">Průběžné body a ratingy.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="standings-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Body</th>
+                <th>Rating</th>
+              </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+          </table>
+        </div>
+        <p id="standingsEmpty" class="empty">Zatím nejsou k dispozici žádné výsledky.</p>
+
+        <div class="player-detail">
+          <div class="list-header">
+            <div>
+              <h3 id="playerDetailTitle">Detail hráče</h3>
+              <p class="hint">Klikněte na jméno hráče v nasazení nebo tabulce pořadí.</p>
+            </div>
+            <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">Zavřít detail</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kolo</th>
+                  <th>Soupeř</th>
+                  <th>Barva</th>
+                  <th>Výsledek</th>
+                </tr>
+              </thead>
+              <tbody id="playerDetailBody"></tbody>
+            </table>
+          </div>
+          <p id="playerDetailEmpty" class="empty">Vyberte hráče pro zobrazení detailu.</p>
+        </div>
+      </div>
     </section>
 
-    <section id="turnaj" class="card reveal delay-2">
+    <section id="turnaj-admin" class="card reveal delay-3">
       <div class="list-header">
         <div>
           <h2>Řízení turnaje</h2>
@@ -209,46 +285,6 @@
         </table>
       </div>
       <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
-
-      <h3 class="section-title">Průběžné výsledky</h3>
-      <div class="table-wrap">
-        <table class="standings-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Hráč</th>
-              <th>Body</th>
-              <th>Rating</th>
-            </tr>
-          </thead>
-          <tbody id="standingsBody"></tbody>
-        </table>
-      </div>
-      <p id="standingsEmpty" class="empty">Zatím nejsou k dispozici žádné výsledky.</p>
-
-      <div class="player-detail">
-        <div class="list-header">
-          <div>
-            <h3 id="playerDetailTitle">Detail hráče</h3>
-            <p class="hint">Klikněte na jméno hráče v nasazení nebo tabulce pořadí.</p>
-          </div>
-          <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">Zavřít detail</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Kolo</th>
-                <th>Soupeř</th>
-                <th>Barva</th>
-                <th>Výsledek</th>
-              </tr>
-            </thead>
-            <tbody id="playerDetailBody"></tbody>
-          </table>
-        </div>
-        <p id="playerDetailEmpty" class="empty">Vyberte hráče pro zobrazení detailu.</p>
-      </div>
     </section>
   </main>
 
