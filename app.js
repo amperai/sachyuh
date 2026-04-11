@@ -114,6 +114,7 @@ const statusClassMap = {
   error: 'error'
 };
 
+let localUpdatedAt = loadLocalUpdatedAt();
 let players = loadPlayers();
 let tournament = loadTournament();
 if (!localUpdatedAt && (players.length || tournament)) {
@@ -130,7 +131,6 @@ let queuedSharedSave = false;
 let sharedSaveTimer = null;
 let sharedSyncReady = false;
 let lastSharedUpdateAt = loadSharedUpdatedAt();
-let localUpdatedAt = loadLocalUpdatedAt();
 
 renderPlayers();
 renderTournament();
