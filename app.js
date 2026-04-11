@@ -75,6 +75,7 @@ const SUPABASE_ROW_ID = 'turnaj-koruna';
 const SHARED_SYNC_INTERVAL_MS = 5000;
 const SHARED_SAVE_DEBOUNCE_MS = 500;
 const SHARED_UPDATED_KEY = 'turnaj-koruna-shared-updated-at';
+const LOCAL_UPDATED_KEY = 'turnaj-koruna-local-updated-at';
 
 const RESULT_OPTIONS = [
   { value: '', label: '-' },
@@ -115,6 +116,10 @@ const statusClassMap = {
 
 let players = loadPlayers();
 let tournament = loadTournament();
+if (!localUpdatedAt && (players.length || tournament)) {
+  localUpdatedAt = Date.now();
+  saveLocalUpdatedAt(localUpdatedAt);
+}
 let isReferee = loadReferee();
 let selectedPlayerId = null;
 let viewRoundNumber = tournament?.round || 0;
@@ -125,6 +130,7 @@ let queuedSharedSave = false;
 let sharedSaveTimer = null;
 let sharedSyncReady = false;
 let lastSharedUpdateAt = loadSharedUpdatedAt();
+let localUpdatedAt = loadLocalUpdatedAt();
 
 renderPlayers();
 renderTournament();
@@ -1071,6 +1077,7 @@ function loadPlayers() {
 
 function savePlayers(data) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  markLocalUpdate();
   scheduleSharedSave();
 }
 
@@ -1087,11 +1094,33 @@ function loadTournament() {
 function saveTournament(data) {
   if (!data) {
     window.localStorage.removeItem(TOURNAMENT_KEY);
+    markLocalUpdate();
     scheduleSharedSave();
     return;
   }
   window.localStorage.setItem(TOURNAMENT_KEY, JSON.stringify(data));
+  markLocalUpdate();
   scheduleSharedSave();
+}
+
+function markLocalUpdate() {
+  localUpdatedAt = Date.now();
+  saveLocalUpdatedAt(localUpdatedAt);
+  return localUpdatedAt;
+}
+
+function loadLocalUpdatedAt() {
+  try {
+    const raw = window.localStorage.getItem(LOCAL_UPDATED_KEY);
+    const value = raw ? Number.parseInt(raw, 10) : 0;
+    return Number.isFinite(value) ? value : 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function saveLocalUpdatedAt(value) {
+  window.localStorage.setItem(LOCAL_UPDATED_KEY, String(value));
 }
 
 function getSupabaseHeaders() {
@@ -1146,7 +1175,7 @@ async function pushSharedState() {
     pendingSharedSave = false;
     return;
   }
-  const updatedAt = Date.now();
+  const updatedAt = localUpdatedAt || Date.now();
   const payload = {
     players,
     tournament,
@@ -1196,8 +1225,17 @@ async function fetchSharedState() {
     const hasPlayers = isObject && Object.prototype.hasOwnProperty.call(payload, 'players');
     const hasTournament = isObject && Object.prototype.hasOwnProperty.call(payload, 'tournament');
     const hasData = hasPlayers || hasTournament;
+    const localHasData = players.length > 0 || Boolean(tournament);
+    const remotePlayers = Array.isArray(payload?.players) ? payload.players.length : 0;
+    const remoteHasMeaningfulData = remotePlayers > 0 || Boolean(payload?.tournament);
 
     if (pendingSharedSave) {
+      return { hasData, remoteUpdatedAt, data: payload };
+    }
+    if (localHasData && localUpdatedAt && remoteUpdatedAt && localUpdatedAt > remoteUpdatedAt) {
+      return { hasData, remoteUpdatedAt, data: payload };
+    }
+    if (localHasData && localUpdatedAt && !remoteUpdatedAt && !remoteHasMeaningfulData) {
       return { hasData, remoteUpdatedAt, data: payload };
     }
     if (remoteUpdatedAt && remoteUpdatedAt <= lastSharedUpdateAt) {
@@ -1255,6 +1293,7 @@ async function initSharedSync() {
     return;
   }
   let snapshot = null;
+  const localHasData = players.length > 0 || Boolean(tournament);
   try {
     snapshot = await fetchSharedState();
   } finally {
@@ -1263,8 +1302,12 @@ async function initSharedSync() {
   if (queuedSharedSave) {
     queuedSharedSave = false;
     scheduleSharedSave();
-  } else if (snapshot && !snapshot.hasData && (players.length || tournament)) {
+  } else if (snapshot && !snapshot.hasData && localHasData) {
     scheduleSharedSave();
+  } else if (snapshot && localHasData && localUpdatedAt && snapshot.remoteUpdatedAt) {
+    if (localUpdatedAt > snapshot.remoteUpdatedAt) {
+      scheduleSharedSave();
+    }
   }
   window.setInterval(fetchSharedState, SHARED_SYNC_INTERVAL_MS);
 }
