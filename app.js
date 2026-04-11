@@ -52,10 +52,22 @@ const tournamentAdminSection = document.getElementById('turnaj-admin');
 const publicRoundLabel = document.getElementById('publicRoundLabel');
 const publicPairingsBody = document.getElementById('publicPairingsBody');
 const publicPairingsEmpty = document.getElementById('publicPairingsEmpty');
-const tabPlayers = document.getElementById('tabPlayers');
+const publicPairingsWrap = document.getElementById('publicPairingsWrap');
+const publicPlayersWrap = document.getElementById('publicPlayersWrap');
+const publicResultsSelect = document.getElementById('publicResultsSelect');
+const publicResultsSelectWrap = document.getElementById('publicResultsSelectWrap');
+const publicResultsBody = document.getElementById('publicResultsBody');
+const publicResultsEmpty = document.getElementById('publicResultsEmpty');
+const publicResultsLabel = document.getElementById('publicResultsLabel');
 const tabStandings = document.getElementById('tabStandings');
-const panelPlayers = document.getElementById('panelPlayers');
+const tabPairings = document.getElementById('tabPairings');
+const tabResults = document.getElementById('tabResults');
+const tabAdmin = document.getElementById('tabAdmin');
+const panelPairings = document.getElementById('panelPairings');
 const panelStandings = document.getElementById('panelStandings');
+const panelResults = document.getElementById('panelResults');
+const mainView = document.getElementById('mainView');
+const registrationView = document.getElementById('registrationView');
 
 const standingsBody = document.getElementById('standingsBody');
 const standingsEmpty = document.getElementById('standingsEmpty');
@@ -125,7 +137,8 @@ if (!localUpdatedAt && (players.length || tournament)) {
 let isReferee = loadReferee();
 let selectedPlayerId = null;
 let viewRoundNumber = tournament?.round || 0;
-let publicActiveTab = 'players';
+let publicActiveTab = 'pairings';
+let publicResultsRound = 0;
 let suppressSharedSave = false;
 let pendingSharedSave = false;
 let queuedSharedSave = false;
@@ -138,6 +151,8 @@ renderTournament();
 updateProviderUI(getSelectedProvider());
 updateRefereeUI();
 initSharedSync();
+updatePageView();
+window.addEventListener('hashchange', updatePageView);
 
 providerInputs.forEach((input) => {
   input.addEventListener('change', () => updateProviderUI(getSelectedProvider()));
@@ -273,8 +288,17 @@ roundSelect.addEventListener('change', () => {
   renderTournament();
 });
 
-tabPlayers.addEventListener('click', () => setPublicTab('players'));
 tabStandings.addEventListener('click', () => setPublicTab('standings'));
+tabPairings.addEventListener('click', () => setPublicTab('pairings'));
+tabResults.addEventListener('click', () => setPublicTab('results'));
+tabAdmin.addEventListener('click', () => setPublicTab('admin'));
+
+if (publicResultsSelect) {
+  publicResultsSelect.addEventListener('change', () => {
+    publicResultsRound = Number.parseInt(publicResultsSelect.value, 10) || 0;
+    renderPublicView();
+  });
+}
 
 tournamentCreateBtn.addEventListener('click', () => {
   if (!isReferee) {
@@ -548,8 +572,11 @@ function renderTournament() {
 }
 
 function renderTournamentAdmin() {
-  if (tournamentAdminSection) {
-    tournamentAdminSection.hidden = !isReferee;
+  if (tabAdmin) {
+    tabAdmin.hidden = !isReferee;
+  }
+  if (!isReferee && publicActiveTab === 'admin') {
+    publicActiveTab = 'pairings';
   }
 
   pairingsBody.textContent = '';
@@ -615,18 +642,84 @@ function renderPublicView() {
   const hasRounds = hasTournament && tournament.rounds && tournament.rounds.length > 0;
   const currentRound = hasRounds ? getCurrentRound(tournament) : null;
 
-  if (!hasTournament || !hasRounds || !currentRound) {
-    publicRoundLabel.textContent = '';
-    publicPairingsEmpty.hidden = false;
-  } else {
+  if (currentRound) {
+    if (publicPairingsWrap) {
+      publicPairingsWrap.hidden = false;
+    }
+    if (publicPlayersWrap) {
+      publicPlayersWrap.hidden = true;
+    }
     publicRoundLabel.textContent = `Kolo ${currentRound.round}`;
     renderPairings(currentRound, publicPairingsBody, false);
     publicPairingsEmpty.hidden = currentRound.pairings.length > 0;
+  } else {
+    publicRoundLabel.textContent = '';
+    publicPairingsEmpty.hidden = true;
+    if (publicPairingsWrap) {
+      publicPairingsWrap.hidden = true;
+    }
+    if (publicPlayersWrap) {
+      publicPlayersWrap.hidden = false;
+    }
   }
 
+  renderResultsPanel();
   renderStandings();
   renderPlayerDetail();
   setPublicTab(publicActiveTab);
+}
+
+function renderResultsPanel() {
+  if (!publicResultsBody) {
+    return;
+  }
+
+  publicResultsBody.textContent = '';
+
+  const rounds = tournament && tournament.rounds ? tournament.rounds : [];
+  const completedRounds = rounds.filter((round) => isRoundComplete(round));
+
+  if (completedRounds.length === 0) {
+    publicResultsEmpty.hidden = false;
+    if (publicResultsSelectWrap) {
+      publicResultsSelectWrap.hidden = true;
+    }
+    if (publicResultsLabel) {
+      publicResultsLabel.textContent = '';
+    }
+    return;
+  }
+
+  publicResultsEmpty.hidden = true;
+  if (publicResultsSelectWrap) {
+    publicResultsSelectWrap.hidden = false;
+  }
+
+  if (publicResultsSelect) {
+    publicResultsSelect.textContent = '';
+    completedRounds.forEach((round) => {
+      const option = document.createElement('option');
+      option.value = String(round.round);
+      option.textContent = `Kolo ${round.round}`;
+      publicResultsSelect.appendChild(option);
+    });
+  }
+
+  if (!publicResultsRound || !completedRounds.some((round) => round.round === publicResultsRound)) {
+    publicResultsRound = completedRounds[completedRounds.length - 1].round;
+  }
+
+  if (publicResultsSelect) {
+    publicResultsSelect.value = String(publicResultsRound);
+  }
+
+  const selectedRound = completedRounds.find((round) => round.round === publicResultsRound);
+  if (publicResultsLabel) {
+    publicResultsLabel.textContent = selectedRound ? `Kolo ${selectedRound.round}` : '';
+  }
+  if (selectedRound) {
+    renderPairings(selectedRound, publicResultsBody, false);
+  }
 }
 
 function updateTournamentControls(hasTournament, hasRounds) {
@@ -665,18 +758,38 @@ function updateRoundSelect() {
 }
 
 function setPublicTab(tab) {
-  publicActiveTab = tab === 'standings' ? 'standings' : 'players';
-  if (tabPlayers) {
-    tabPlayers.classList.toggle('active', publicActiveTab === 'players');
+  const allowedTabs = new Set(['standings', 'pairings', 'results', 'admin']);
+  let nextTab = allowedTabs.has(tab) ? tab : 'pairings';
+
+  if (nextTab === 'admin' && !isReferee) {
+    nextTab = 'pairings';
   }
+
+  publicActiveTab = nextTab;
+
   if (tabStandings) {
     tabStandings.classList.toggle('active', publicActiveTab === 'standings');
   }
-  if (panelPlayers) {
-    panelPlayers.hidden = publicActiveTab !== 'players';
+  if (tabPairings) {
+    tabPairings.classList.toggle('active', publicActiveTab === 'pairings');
+  }
+  if (tabResults) {
+    tabResults.classList.toggle('active', publicActiveTab === 'results');
+  }
+  if (tabAdmin) {
+    tabAdmin.classList.toggle('active', publicActiveTab === 'admin');
   }
   if (panelStandings) {
     panelStandings.hidden = publicActiveTab !== 'standings';
+  }
+  if (panelPairings) {
+    panelPairings.hidden = publicActiveTab !== 'pairings';
+  }
+  if (panelResults) {
+    panelResults.hidden = publicActiveTab !== 'results';
+  }
+  if (tournamentAdminSection) {
+    tournamentAdminSection.hidden = publicActiveTab !== 'admin' || !isReferee;
   }
 }
 
@@ -996,6 +1109,15 @@ function toggleDrawer(open) {
     menuBackdrop.hidden = true;
     document.body.classList.remove('drawer-open');
   }
+}
+
+function updatePageView() {
+  if (!mainView || !registrationView) {
+    return;
+  }
+  const isRegistration = window.location.hash === '#registrace';
+  mainView.hidden = isRegistration;
+  registrationView.hidden = !isRegistration;
 }
 
 function createCell(text) {

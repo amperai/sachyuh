@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Turnaj Koruna</title>
-  <meta name="description" content="Registrace do šachového turnaje Turnaj Koruna. Ověříme nejvyšší rating z chess.com a lichess.org.">
+  <meta name="description" content="Turnaj Koruna">
   <meta name="theme-color" content="#c58b2a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,13 +13,12 @@
 </head>
 <body>
   <header class="site-header reveal">
-    <div class="brand">
+    <a class="brand brand-link" href="#turnaj">
       <div class="brand-mark">TK</div>
       <div>
         <p class="brand-title">Turnaj Koruna</p>
-        <p class="brand-subtitle">šachový turnaj</p>
       </div>
-    </div>
+    </a>
     <div class="header-actions">
       <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
       <button class="menu-toggle" id="menuToggle" type="button" aria-label="Otevřít menu" aria-expanded="false" aria-controls="menuDrawer">
@@ -49,150 +48,69 @@
       <p id="refStatus" class="status-text"></p>
     </div>
     <nav class="drawer-links">
-      <a href="#registrace">Registrace</a>
       <a href="#turnaj">Turnaj</a>
-      <a href="#jak-to-funguje">Jak to funguje</a>
+      <a href="#registrace">Registrace do turnaje</a>
     </nav>
   </aside>
   <div id="menuBackdrop" class="backdrop" hidden></div>
 
-  <main class="page">
-    <section class="hero">
-      <div class="hero-copy reveal">
-        <span class="eyebrow">Nová sezóna</span>
-        <h1>Turnaj Koruna</h1>
-        <p class="lead">Otevřená registrace pro klubový šachový turnaj. Stačí jméno a případně účet na chess.com nebo lichess.org - nejvyšší rating dohledáme za vás.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#registrace">Zaregistrovat hráče</a>
-          <a class="btn btn-ghost" href="#jak-to-funguje">Jak to funguje</a>
-        </div>
-        <div class="hero-meta">
-          <div class="meta-card">Blitz / Rapid / Korespondence</div>
-          <div class="meta-card">Automatické načtení ratingu</div>
-        </div>
-      </div>
-      <div class="hero-card reveal delay-1">
-        <h2>Co přijde dál</h2>
-        <ul>
-          <li><span>1</span> Generování kol a párování hráčů</li>
-          <li><span>2</span> Tabulka pořadí a průběžné výsledky</li>
-          <li><span>3</span> Export registrací a statistik</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="jak-to-funguje" class="info">
-      <div class="card info-card reveal">
-        <h3>Výběr účtu</h3>
-        <p>Zvolte chess.com, lichess.org nebo variantu bez účtu. V případě účtu potřebujeme jen přezdívku.</p>
-      </div>
-      <div class="card info-card reveal delay-1">
-        <h3>Výpočet ratingu</h3>
-        <p>Procházíme pouze blitz, rapid a korespondenční tempo. Pokud data chybí, hráč zůstává s ratingem 0.</p>
-      </div>
-      <div class="card info-card reveal delay-2">
-        <h3>Lokální seznam</h3>
-        <p>Registrovaní hráči se ukládají lokálně v prohlížeči. Přesné seznamy později půjde exportovat.</p>
-      </div>
-    </section>
-
-    <section id="registrace" class="registration">
-      <div class="card reveal">
-        <h2>Registrace do turnaje</h2>
-        <p class="lead">Vyplňte jméno hráče a vyberte účet. Ověření ratingu může chvíli trvat.</p>
-        <form id="registration-form">
-          <div>
-            <label for="playerName">Jméno hráče</label>
-            <input id="playerName" type="text" placeholder="např. Jakub Novák" autocomplete="name" required>
-          </div>
-
-          <fieldset>
-            <legend>Účet</legend>
-            <div class="radio-grid">
-              <label class="radio-option">
-                <input type="radio" name="provider" value="chess.com" checked>
-                <span>chess.com</span>
-                <small>nejvyšší rating</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="provider" value="lichess">
-                <span>lichess.org</span>
-                <small>nejvyšší rating</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="provider" value="none">
-                <span>nemám účet</span>
-                <small>rating 0</small>
-              </label>
-            </div>
-          </fieldset>
-
-          <div>
-            <label for="accountHandle">Uživatelské jméno</label>
-            <input id="accountHandle" type="text" placeholder="např. kubaczess" autocomplete="off">
-            <p id="accountHelp" class="hint"></p>
-          </div>
-
-          <div class="form-actions">
-            <button id="submitBtn" class="btn btn-primary" type="submit">Ověřit a registrovat</button>
-            <p id="formStatus" class="status-text" aria-live="polite"></p>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <section id="turnaj" class="card reveal delay-2">
-      <div class="list-header">
-        <div>
-          <h2>Aktuální kolo</h2>
-          <p class="hint">Nasazení aktuálního kola a přehled hráčů.</p>
-        </div>
-      </div>
-      <p id="publicRoundLabel" class="tournament-round"></p>
-      <div class="table-wrap">
-        <table class="pairings-table">
-          <thead>
-            <tr>
-              <th>Šachovnice</th>
-              <th>Bílý</th>
-              <th>Černý</th>
-              <th>Výsledek</th>
-            </tr>
-          </thead>
-          <tbody id="publicPairingsBody"></tbody>
-        </table>
-      </div>
-      <p id="publicPairingsEmpty" class="empty">Turnaj zatím není založen.</p>
-
+  <main class="page" id="mainView">
+    <section id="turnaj" class="card reveal">
+      <h1 class="page-title">Turnaj Koruna</h1>
       <div class="tabs">
-        <button id="tabPlayers" class="tab active" type="button">Přihlášení hráči</button>
         <button id="tabStandings" class="tab" type="button">Pořadí hráčů</button>
+        <button id="tabPairings" class="tab active" type="button">Nasazení na nové kolo</button>
+        <button id="tabResults" class="tab" type="button">Výsledky kol</button>
+        <button id="tabAdmin" class="tab" type="button" hidden>Řízení turnaje</button>
       </div>
 
-      <div id="panelPlayers" class="tab-panel">
-        <div class="list-header">
-          <div>
-            <h3>Přihlášení hráči</h3>
-            <p class="hint">Seznam se ukládá lokálně ve vašem prohlížeči.</p>
+      <div id="panelPairings" class="tab-panel">
+        <div id="publicPairingsWrap">
+          <div class="list-header">
+            <div>
+              <h2>Nasazení na nové kolo</h2>
+              <p id="publicRoundLabel" class="tournament-round"></p>
+            </div>
           </div>
-          <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
+          <div class="table-wrap">
+            <table class="pairings-table">
+              <thead>
+                <tr>
+                  <th>Šachovnice</th>
+                  <th>Bílý</th>
+                  <th>Černý</th>
+                  <th>Výsledek</th>
+                </tr>
+              </thead>
+              <tbody id="publicPairingsBody"></tbody>
+            </table>
+          </div>
+          <p id="publicPairingsEmpty" class="empty">Zatím nebylo vytvořeno žádné kolo.</p>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr id="playersHeader"></tr>
-            </thead>
-            <tbody id="playersBody"></tbody>
-          </table>
+
+        <div id="publicPlayersWrap">
+          <div class="list-header">
+            <div>
+              <h3>Seznam hráčů</h3>
+            </div>
+            <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr id="playersHeader"></tr>
+              </thead>
+              <tbody id="playersBody"></tbody>
+            </table>
+          </div>
+          <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
         </div>
-        <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
       </div>
 
       <div id="panelStandings" class="tab-panel" hidden>
         <div class="list-header">
           <div>
-            <h3>Pořadí hráčů</h3>
-            <p class="hint">Průběžné body a ratingy.</p>
+            <h2>Pořadí hráčů</h2>
           </div>
         </div>
         <div class="table-wrap">
@@ -234,63 +152,134 @@
           <p id="playerDetailEmpty" class="empty">Vyberte hráče pro zobrazení detailu.</p>
         </div>
       </div>
-    </section>
 
-    <section id="turnaj-admin" class="card reveal delay-3">
-      <div class="list-header">
-        <div>
-          <h2>Řízení turnaje</h2>
-          <p id="tournamentHint" class="hint">Pro práci s turnajem je potřeba přihlášení rozhodčího.</p>
-        </div>
-      </div>
-      <div id="tournamentControls" class="tournament-controls">
-        <div class="tournament-options">
+      <div id="panelResults" class="tab-panel" hidden>
+        <div class="list-header">
           <div>
-            <label for="tournamentSystem">Systém</label>
-            <select id="tournamentSystem">
-              <option value="round-robin">Každý s každým</option>
-              <option value="swiss">Švýcarský systém</option>
-            </select>
+            <h2>Výsledky kol</h2>
           </div>
-          <label id="allowRematchWrap" class="checkbox" hidden>
-            <input id="allowRematch" type="checkbox">
-            <span>Povolit opakování soupeřů</span>
-          </label>
-          <div id="roundSelectWrap" class="round-select" hidden>
-            <label for="roundSelect">Zobrazené kolo</label>
-            <select id="roundSelect"></select>
+          <div id="publicResultsSelectWrap" class="round-select">
+            <label for="publicResultsSelect">Kolo</label>
+            <select id="publicResultsSelect"></select>
           </div>
         </div>
-        <div class="tournament-buttons">
-          <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvořit 1. kolo</button>
-          <button id="btnCancelRound" class="btn btn-ghost" type="button">Zrušit kolo</button>
-          <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
+        <p id="publicResultsLabel" class="tournament-round"></p>
+        <div class="table-wrap">
+          <table class="pairings-table">
+            <thead>
+              <tr>
+                <th>Šachovnice</th>
+                <th>Bílý</th>
+                <th>Černý</th>
+                <th>Výsledek</th>
+              </tr>
+            </thead>
+            <tbody id="publicResultsBody"></tbody>
+          </table>
         </div>
+        <p id="publicResultsEmpty" class="empty">Zatím nejsou odehraná kola.</p>
       </div>
-      <p id="tournamentRoundLabel" class="tournament-round"></p>
-      <p id="tournamentStatus" class="status-text"></p>
 
-      <h3 class="section-title">Nasazení</h3>
-      <div class="table-wrap">
-        <table class="pairings-table">
-          <thead>
-            <tr>
-              <th>Šachovnice</th>
-              <th>Bílý</th>
-              <th>Černý</th>
-              <th>Výsledek</th>
-            </tr>
-          </thead>
-          <tbody id="pairingsBody"></tbody>
-        </table>
+      <div id="turnaj-admin" class="tab-panel" hidden>
+        <div class="list-header">
+          <div>
+            <h2>Řízení turnaje</h2>
+            <p id="tournamentHint" class="hint">Pro práci s turnajem je potřeba přihlášení rozhodčího.</p>
+          </div>
+        </div>
+        <div id="tournamentControls" class="tournament-controls">
+          <div class="tournament-options">
+            <div>
+              <label for="tournamentSystem">Systém</label>
+              <select id="tournamentSystem">
+                <option value="round-robin">Každý s každým</option>
+                <option value="swiss">Švýcarský systém</option>
+              </select>
+            </div>
+            <label id="allowRematchWrap" class="checkbox" hidden>
+              <input id="allowRematch" type="checkbox">
+              <span>Povolit opakování soupeřů</span>
+            </label>
+            <div id="roundSelectWrap" class="round-select" hidden>
+              <label for="roundSelect">Zobrazené kolo</label>
+              <select id="roundSelect"></select>
+            </div>
+          </div>
+          <div class="tournament-buttons">
+            <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvořit 1. kolo</button>
+            <button id="btnCancelRound" class="btn btn-ghost" type="button">Zrušit kolo</button>
+            <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
+          </div>
+        </div>
+        <p id="tournamentRoundLabel" class="tournament-round"></p>
+        <p id="tournamentStatus" class="status-text"></p>
+
+        <h3 class="section-title">Nasazení</h3>
+        <div class="table-wrap">
+          <table class="pairings-table">
+            <thead>
+              <tr>
+                <th>Šachovnice</th>
+                <th>Bílý</th>
+                <th>Černý</th>
+                <th>Výsledek</th>
+              </tr>
+            </thead>
+            <tbody id="pairingsBody"></tbody>
+          </table>
+        </div>
+        <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
       </div>
-      <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
     </section>
   </main>
 
-  <footer class="footer">
-    Ratingy načítáme z veřejných API chess.com a lichess.org. Přepočet probíhá podle konverzní tabulky (blitz/rapid/korespondenční).
-  </footer>
+  <section id="registrationView" class="page" hidden>
+    <section id="registrace" class="registration">
+      <div class="card reveal">
+        <h2>Registrace do turnaje</h2>
+        <form id="registration-form">
+          <div>
+            <label for="playerName">Jméno hráče</label>
+            <input id="playerName" type="text" placeholder="např. Jakub Novák" autocomplete="name" required>
+          </div>
+
+          <fieldset>
+            <legend>Účet</legend>
+            <div class="radio-grid">
+              <label class="radio-option">
+                <input type="radio" name="provider" value="chess.com" checked>
+                <span>chess.com</span>
+                <small>nejvyšší rating</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="provider" value="lichess">
+                <span>lichess.org</span>
+                <small>nejvyšší rating</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="provider" value="none">
+                <span>nemám účet</span>
+                <small>rating 0</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <div>
+            <label for="accountHandle">Uživatelské jméno</label>
+            <input id="accountHandle" type="text" placeholder="např. kubaczess" autocomplete="off">
+            <p id="accountHelp" class="hint"></p>
+          </div>
+
+          <div class="form-actions">
+            <button id="submitBtn" class="btn btn-primary" type="submit">Ověřit a registrovat</button>
+            <p id="formStatus" class="status-text" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </section>
+
+  <footer class="footer">Turnaj Koruna</footer>
 
   <script type="module" src="app.js"></script>
 </body>
