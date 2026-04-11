@@ -20,8 +20,41 @@
         <p class="brand-subtitle">šachový turnaj</p>
       </div>
     </div>
-    <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
+    <div class="header-actions">
+      <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Otevřít menu" aria-expanded="false" aria-controls="menuDrawer">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </header>
+
+  <aside id="menuDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h2>Menu</h2>
+      <button class="drawer-close" id="menuClose" type="button" aria-label="Zavřít menu">×</button>
+    </div>
+    <div class="drawer-section">
+      <p class="drawer-title">Přihlášení rozhodčího</p>
+      <form id="refLoginForm" class="drawer-form">
+        <label for="refPassword">Heslo</label>
+        <input id="refPassword" type="password" placeholder="Zadejte heslo" autocomplete="current-password">
+        <button class="btn btn-primary" type="submit">Přihlásit</button>
+      </form>
+      <div id="refLogged" class="drawer-logged" hidden>
+        <p class="drawer-text">Přihlášen jako rozhodčí.</p>
+        <button class="btn btn-ghost" id="refLogout" type="button">Odhlásit</button>
+      </div>
+      <p id="refStatus" class="status-text"></p>
+    </div>
+    <nav class="drawer-links">
+      <a href="#registrace">Registrace</a>
+      <a href="#turnaj">Řízení turnaje</a>
+      <a href="#jak-to-funguje">Jak to funguje</a>
+    </nav>
+  </aside>
+  <div id="menuBackdrop" class="backdrop" hidden></div>
 
   <main class="page">
     <section class="hero">
@@ -118,14 +151,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Jméno</th>
-                <th>Účet</th>
-                <th>Uživatel</th>
-                <th>Rating</th>
-                <th>Kategorie</th>
-                <th>Stav</th>
-              </tr>
+              <tr id="playersHeader"></tr>
             </thead>
             <tbody id="playersBody"></tbody>
           </table>
@@ -133,10 +159,46 @@
         <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
       </div>
     </section>
+
+    <section id="turnaj" class="card reveal delay-2">
+      <div class="list-header">
+        <div>
+          <h2>Řízení turnaje</h2>
+          <p id="tournamentHint" class="hint">Pro práci s turnajem je potřeba přihlášení rozhodčího.</p>
+        </div>
+      </div>
+      <div id="tournamentControls" class="tournament-controls">
+        <div>
+          <label for="tournamentSystem">Systém</label>
+          <select id="tournamentSystem">
+            <option value="round-robin">Každý s každým</option>
+            <option value="swiss">Švýcarský systém</option>
+          </select>
+        </div>
+        <div class="tournament-buttons">
+          <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvořit 1. kolo</button>
+          <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
+        </div>
+      </div>
+      <p id="tournamentStatus" class="status-text"></p>
+      <div class="table-wrap">
+        <table class="pairings-table">
+          <thead>
+            <tr>
+              <th>Šachovnice</th>
+              <th>Bílý</th>
+              <th>Černý</th>
+            </tr>
+          </thead>
+          <tbody id="pairingsBody"></tbody>
+        </table>
+      </div>
+      <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
+    </section>
   </main>
 
   <footer class="footer">
-    Ratingy načítáme z veřejných API chess.com a lichess.org. Pro lichess používáme historii ratingu (blitz/rapid/korespondenční).
+    Ratingy načítáme z veřejných API chess.com a lichess.org. Přepočet probíhá podle konverzní tabulky (blitz/rapid/korespondenční).
   </footer>
 
   <script type="module" src="app.js"></script>

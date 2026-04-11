@@ -1,8 +1,10 @@
 ﻿import {
   chessComRatingsFromStats,
+  convertToTournamentRating,
   fetchChessComRating,
   fetchLichessRating,
   getMaxRating,
+  interpolatePairs,
   lichessRatingsFromHistory,
   resultFromHttpStatus,
   resultFromRatings
@@ -23,6 +25,12 @@ function assert(condition, message) {
 function assertEqual(actual, expected, message) {
   if (!Object.is(actual, expected)) {
     throw new Error(message || `Expected ${expected}, got ${actual}`);
+  }
+}
+
+function assertClose(actual, expected, epsilon = 1e-6) {
+  if (Math.abs(actual - expected) > epsilon) {
+    throw new Error(`Expected ${expected}, got ${actual}`);
   }
 }
 
@@ -68,6 +76,42 @@ function createStatusFetch(status) {
     json: async () => ({})
   });
 }
+
+test('interpolatePairs: lineární interpolace', () => {
+  const pairs = [
+    [1000, 1230],
+    [1100, 1320]
+  ];
+  const value = interpolatePairs(pairs, 1050);
+  assertClose(value, 1275);
+});
+
+test('konverze: chess.com rapid -> blitz', () => {
+  const value = convertToTournamentRating({
+    provider: 'chess.com',
+    category: 'rapid',
+    rating: 1230
+  });
+  assertEqual(value, 1000);
+});
+
+test('konverze: lichess blitz -> blitz', () => {
+  const value = convertToTournamentRating({
+    provider: 'lichess',
+    category: 'blitz',
+    rating: 1200
+  });
+  assertEqual(value, 800);
+});
+
+test('konverze: lichess correspondence -> rapid', () => {
+  const value = convertToTournamentRating({
+    provider: 'lichess',
+    category: 'correspondence',
+    rating: 1615
+  });
+  assertEqual(value, 1000);
+});
 
 test('chess.com: vybere nejvyšší rating', () => {
   const stats = {
