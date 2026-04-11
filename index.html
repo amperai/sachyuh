@@ -180,7 +180,10 @@
           <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
         </div>
       </div>
+      <p id="tournamentRoundLabel" class="tournament-round"></p>
       <p id="tournamentStatus" class="status-text"></p>
+
+      <h3 class="section-title">Nasazení</h3>
       <div class="table-wrap">
         <table class="pairings-table">
           <thead>
@@ -188,12 +191,53 @@
               <th>Šachovnice</th>
               <th>Bílý</th>
               <th>Černý</th>
+              <th>Výsledek</th>
             </tr>
           </thead>
           <tbody id="pairingsBody"></tbody>
         </table>
       </div>
       <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
+
+      <h3 class="section-title">Průběžné výsledky</h3>
+      <div class="table-wrap">
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Hráč</th>
+              <th>Body</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody id="standingsBody"></tbody>
+        </table>
+      </div>
+      <p id="standingsEmpty" class="empty">Zatím nejsou k dispozici žádné výsledky.</p>
+
+      <div class="player-detail">
+        <div class="list-header">
+          <div>
+            <h3 id="playerDetailTitle">Detail hráče</h3>
+            <p class="hint">Klikněte na jméno hráče v nasazení nebo tabulce pořadí.</p>
+          </div>
+          <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">Zavřít detail</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kolo</th>
+                <th>Soupeř</th>
+                <th>Barva</th>
+                <th>Výsledek</th>
+              </tr>
+            </thead>
+            <tbody id="playerDetailBody"></tbody>
+          </table>
+        </div>
+        <p id="playerDetailEmpty" class="empty">Vyberte hráče pro zobrazení detailu.</p>
+      </div>
     </section>
   </main>
 

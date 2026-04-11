@@ -35,7 +35,7 @@ function assertClose(actual, expected, epsilon = 1e-6) {
 }
 
 function logResult(status, name, error) {
-  const line = `${status === 'pass' ? '✓' : '✗'} ${name}`;
+  const line = `${status === 'pass' ? 'PASS' : 'FAIL'} ${name}`;
   if (typeof document !== 'undefined') {
     const list = document.getElementById('results');
     if (list) {
