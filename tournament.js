@@ -369,6 +369,28 @@ function buildCandidateList(player, remaining, history, scores, allowRematch) {
   return candidates;
 }
 
+function tryDirectPairing(top, bottom, history, allowRematch) {
+  const pairings = [];
+
+  for (let i = 0; i < top.length; i += 1) {
+    const player = top[i];
+    const opponent = bottom[i];
+    if (!player || !opponent) {
+      return null;
+    }
+    if (!allowRematch && hasPlayed(history, player.id, opponent.id)) {
+      return null;
+    }
+    const picked = pickColorAssignment(history, player, opponent);
+    if (!picked) {
+      return null;
+    }
+    pairings.push({ ...picked.option, result: null });
+  }
+
+  return pairings;
+}
+
 function findSwissPairings(ordered, history, scores, allowRematch) {
   if (!ordered.length) {
     return [];
@@ -450,6 +472,74 @@ function matchGroup(top, bottom, history, allowRematch) {
   return result ? result.pairs : null;
 }
 
+function pairGroup(players, history, allowRematch) {
+  if (!players.length) {
+    return [];
+  }
+
+  const half = players.length / 2;
+  const top = players.slice(0, half);
+  const bottom = players.slice(half);
+
+  const direct = tryDirectPairing(top, bottom, history, allowRematch);
+  if (direct) {
+    return direct;
+  }
+
+  return matchGroup(top, bottom, history, allowRematch);
+}
+
+function buildGroupOptions(players, history, allowRematch) {
+  if (!players.length) {
+    return [{ pairings: [], carry: null }];
+  }
+
+  if (players.length % 2 === 0) {
+    const pairings = pairGroup(players, history, allowRematch);
+    return pairings ? [{ pairings, carry: null }] : [];
+  }
+
+  const options = [];
+  for (let index = players.length - 1; index >= 0; index -= 1) {
+    const carry = players[index];
+    const remaining = players.slice(0, index).concat(players.slice(index + 1));
+    const pairings = pairGroup(remaining, history, allowRematch);
+    if (pairings) {
+      options.push({ pairings, carry });
+    }
+  }
+
+  return options;
+}
+
+function pairScoreGroups(groups, history, allowRematch) {
+  function dfs(index, carry) {
+    if (index >= groups.length) {
+      return carry ? { pairings: null, reason: 'odd_group' } : { pairings: [] };
+    }
+
+    const basePlayers = carry
+      ? [carry, ...groups[index].players]
+      : [...groups[index].players];
+    const options = buildGroupOptions(basePlayers, history, allowRematch);
+    let fallbackReason = 'no_match';
+
+    for (const option of options) {
+      const next = dfs(index + 1, option.carry);
+      if (next.pairings) {
+        return { pairings: [...option.pairings, ...next.pairings] };
+      }
+      if (next.reason === 'odd_group') {
+        fallbackReason = 'odd_group';
+      }
+    }
+
+    return { pairings: null, reason: fallbackReason };
+  }
+
+  return dfs(0, null);
+}
+
 function isRematchPair(history, pairing) {
   return hasPlayed(history, pairing.whiteId, pairing.blackId);
 }
@@ -457,19 +547,20 @@ function isRematchPair(history, pairing) {
 export function generateSwissPairings(playerList, rounds, options = {}) {
   const allowRematch = options.allowRematch === true;
   const history = buildHistory(playerList, rounds);
-  const scores = getScoreMap(playerList, rounds);
   const byePlayer = selectByePlayer(playerList, rounds, history);
 
   const pool = byePlayer
     ? playerList.filter((player) => player.id !== byePlayer.id)
     : [...playerList];
 
-  const ordered = sortPlayersByScore(pool, scores);
-  const pairings = findSwissPairings(ordered, history, scores, allowRematch);
+  const groups = groupByScore(pool, rounds);
+  const grouped = pairScoreGroups(groups, history, allowRematch);
 
-  if (!pairings) {
-    return { success: false, pairings: [], reason: 'no_match' };
+  if (!grouped.pairings) {
+    return { success: false, pairings: [], reason: grouped.reason || 'no_match' };
   }
+
+  const pairings = grouped.pairings;
 
   if (byePlayer) {
     pairings.push({ byeId: byePlayer.id, result: 'bye' });

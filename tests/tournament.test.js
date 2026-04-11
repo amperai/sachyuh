@@ -303,3 +303,27 @@ test('Swiss: round limit is half rounded up', () => {
   assertEqual(getSwissRoundLimit(12), 6);
   assertEqual(getSwissRoundLimit(13), 7);
 });
+
+
+test('Svicar: skupina pari top half vs bottom half', () => {
+  const players = [
+    makePlayer('a', 2000),
+    makePlayer('b', 1900),
+    makePlayer('c', 1800),
+    makePlayer('d', 1700),
+    makePlayer('e', 1600),
+    makePlayer('f', 1500)
+  ];
+
+  const result = generateSwissPairings(players, []);
+  assertEqual(result.success, true);
+
+  const pairs = result.pairings
+    .filter((pairing) => !pairing.byeId)
+    .map((pairing) => [pairing.whiteId, pairing.blackId].sort().join('-'));
+
+  const expected = ['a-d', 'b-e', 'c-f'];
+  expected.forEach((pair) => {
+    assert(pairs.includes(pair), 'Chybi parovani ' + pair + '.');
+  });
+});
