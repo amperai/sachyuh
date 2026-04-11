@@ -1,4 +1,4 @@
-﻿import { generateSwissPairings } from '../tournament.js';
+import { generateSwissPairings } from '../tournament.js';
 import { assert, assertEqual, test } from './harness.js';
 
 function makePlayer(id, rating) {
@@ -57,7 +57,7 @@ function getLastColors(players, rounds) {
   return last;
 }
 
-test('Švýcar: bez opakování defaultně', () => {
+test('�v�car: bez opakov�n� defaultne', () => {
   const players = [makePlayer('a', 1600), makePlayer('b', 1500)];
   const rounds = [makeRound(1, [
     { whiteId: 'a', blackId: 'b', result: '1-0' }
@@ -68,7 +68,7 @@ test('Švýcar: bez opakování defaultně', () => {
   assertEqual(result.reason, 'no_match');
 });
 
-test('Švýcar: opakování povoleno, když je potřeba', () => {
+test('�v�car: opakov�n� povoleno, kdy� je potreba', () => {
   const players = [makePlayer('a', 1600), makePlayer('b', 1500)];
   const rounds = [makeRound(1, [
     { whiteId: 'a', blackId: 'b', result: '1-0' }
@@ -80,15 +80,15 @@ test('Švýcar: opakování povoleno, když je potřeba', () => {
   assertEqual(result.pairings.length, 1);
 
   const pairing = result.pairings[0];
-  assert(pairing.whiteId && pairing.blackId, 'Chybí hráči v párování.');
+  assert(pairing.whiteId && pairing.blackId, 'Chyb� hr�ci v p�rov�n�.');
   assert(
     (pairing.whiteId === 'a' && pairing.blackId === 'b')
       || (pairing.whiteId === 'b' && pairing.blackId === 'a'),
-    'Párování neobsahuje očekávané hráče.'
+    'P�rov�n� neobsahuje ocek�van� hr�ce.'
   );
 });
 
-test('Švýcar: bye jde nejníže postavenému bez bye', () => {
+test('�v�car: bye jde nejn�e postaven�mu bez bye', () => {
   const players = [
     makePlayer('a', 2000),
     makePlayer('b', 1900),
@@ -114,11 +114,11 @@ test('Švýcar: bye jde nejníže postavenému bez bye', () => {
   assertEqual(result.success, true);
 
   const bye = result.pairings.find((pairing) => pairing.byeId);
-  assert(bye, 'Bye nebylo přiděleno.');
+  assert(bye, 'Bye nebylo prideleno.');
   assertEqual(bye.byeId, 'c');
 });
 
-test('Švýcar: bye nesmí být dvakrát', () => {
+test('�v�car: bye nesm� b�t dvakr�t', () => {
   const players = [
     makePlayer('a', 1500),
     makePlayer('b', 1400),
@@ -145,7 +145,7 @@ test('Švýcar: bye nesmí být dvakrát', () => {
   assertEqual(result.pairings.length, 0);
 });
 
-test('Švýcar: párování top half vs bottom half', () => {
+test('Svicar: top hrac bere nejblizsi bodoveho soupere', () => {
   const players = [
     makePlayer('a', 2000),
     makePlayer('b', 1900),
@@ -153,29 +153,57 @@ test('Švýcar: párování top half vs bottom half', () => {
     makePlayer('d', 1700)
   ];
 
-  const result = generateSwissPairings(players, []);
+  const rounds = [
+    makeRound(1, [
+      { whiteId: 'a', blackId: 'd', result: '1-0' },
+      { whiteId: 'b', blackId: 'c', result: '0.5-0.5' }
+    ]),
+    makeRound(2, [
+      { whiteId: 'a', blackId: 'c', result: '1-0' },
+      { whiteId: 'b', blackId: 'd', result: '1-0' }
+    ])
+  ];
+
+  const result = generateSwissPairings(players, rounds);
   assertEqual(result.success, true);
 
-  const sorted = sortByRating(players);
-  const half = sorted.length / 2;
-  const topIds = new Set(sorted.slice(0, half).map((player) => player.id));
-  const bottomIds = new Set(sorted.slice(half).map((player) => player.id));
-
-  result.pairings.forEach((pairing) => {
-    if (pairing.byeId) {
-      return;
-    }
-    const whiteTop = topIds.has(pairing.whiteId);
-    const blackTop = topIds.has(pairing.blackId);
-    assert(
-      (whiteTop && bottomIds.has(pairing.blackId))
-        || (blackTop && bottomIds.has(pairing.whiteId)),
-      'Párování není mezi top a bottom half.'
-    );
-  });
+  const pairing = result.pairings.find((item) => (
+    (item.whiteId === 'a' && item.blackId === 'b')
+      || (item.whiteId === 'b' && item.blackId === 'a')
+  ));
+  assert(pairing, 'Missing pairing for A vs B.');
 });
 
-test('Švýcar: barvy se neopakují, pokud je to možné', () => {
+test('Svicar: bez opakovani preskoci do vzdalenjsi skupiny', () => {
+  const players = [
+    makePlayer('a', 2000),
+    makePlayer('b', 1900),
+    makePlayer('c', 1800),
+    makePlayer('d', 1700)
+  ];
+
+  const rounds = [
+    makeRound(1, [
+      { whiteId: 'a', blackId: 'b', result: '1-0' },
+      { whiteId: 'c', blackId: 'd', result: '1-0' }
+    ]),
+    makeRound(2, [
+      { whiteId: 'a', blackId: 'c', result: '1-0' },
+      { whiteId: 'b', blackId: 'd', result: '1-0' }
+    ])
+  ];
+
+  const result = generateSwissPairings(players, rounds);
+  assertEqual(result.success, true);
+
+  const pairing = result.pairings.find((item) => (
+    (item.whiteId === 'a' && item.blackId === 'd')
+      || (item.whiteId === 'd' && item.blackId === 'a')
+  ));
+  assert(pairing, 'Expected A vs D to avoid rematch.');
+});
+
+test('�v�car: barvy se neopakuj�, pokud je to mo�n�', () => {
   const players = [
     makePlayer('a', 2000),
     makePlayer('b', 1900),
@@ -198,8 +226,8 @@ test('Švýcar: barvy se neopakují, pokud je to možné', () => {
     if (pairing.byeId) {
       return;
     }
-    assert(lastColors[pairing.whiteId] !== 'white', 'Bílý opakuje barvu.');
-    assert(lastColors[pairing.blackId] !== 'black', 'Černý opakuje barvu.');
+    assert(lastColors[pairing.whiteId] !== 'white', 'B�l� opakuje barvu.');
+    assert(lastColors[pairing.blackId] !== 'black', 'Cern� opakuje barvu.');
   });
 });
 

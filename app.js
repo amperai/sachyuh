@@ -68,7 +68,10 @@ const STORAGE_KEY_LEGACY = 'turnaj-koruna-registrations-v1';
 const TOURNAMENT_KEY = 'turnaj-koruna-tournament-v2';
 const REFEREE_KEY = 'turnaj-koruna-referee';
 const REFEREE_PASSWORD = 'g';
-const SHARED_STATE_URL = 'https://jsonblob.com/api/jsonBlob/019d7d08-fbe0-7507-afc9-288473e5bb1e';
+const SUPABASE_URL = 'https://ltbfmxhlxebcdcbebrnc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0YmZteGhseGViY2RjYmVicm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTg1NDUsImV4cCI6MjA5MTQ5NDU0NX0.JxALCCsu6C4qpjzVbWoxLOtp4ndGCl8jT3lGFnbca7E';
+const SUPABASE_TABLE = 'shared_state';
+const SUPABASE_ROW_ID = 'turnaj-koruna';
 const SHARED_SYNC_INTERVAL_MS = 5000;
 const SHARED_SAVE_DEBOUNCE_MS = 500;
 const SHARED_UPDATED_KEY = 'turnaj-koruna-shared-updated-at';
@@ -1091,6 +1094,22 @@ function saveTournament(data) {
   scheduleSharedSave();
 }
 
+function getSupabaseHeaders() {
+  return {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+function getSupabaseSelectUrl() {
+  return `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+}
+
+function getSupabaseUpsertUrl() {
+  return `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
+}
+
 function loadSharedUpdatedAt() {
   try {
     const raw = window.localStorage.getItem(SHARED_UPDATED_KEY);
@@ -1106,7 +1125,7 @@ function saveSharedUpdatedAt(value) {
 }
 
 function scheduleSharedSave() {
-  if (!SHARED_STATE_URL || suppressSharedSave) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || suppressSharedSave) {
     return;
   }
   if (!sharedSyncReady) {
@@ -1123,7 +1142,7 @@ function scheduleSharedSave() {
 }
 
 async function pushSharedState() {
-  if (!SHARED_STATE_URL || suppressSharedSave || !sharedSyncReady) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || suppressSharedSave || !sharedSyncReady) {
     pendingSharedSave = false;
     return;
   }
@@ -1134,10 +1153,16 @@ async function pushSharedState() {
     updatedAt
   };
   try {
-    const response = await fetch(SHARED_STATE_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    const response = await fetch(getSupabaseUpsertUrl(), {
+      method: 'POST',
+      headers: {
+        ...getSupabaseHeaders(),
+        Prefer: 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        id: SUPABASE_ROW_ID,
+        payload
+      })
     });
     if (!response.ok) {
       throw new Error(`Shared save failed: ${response.status}`);
@@ -1152,32 +1177,37 @@ async function pushSharedState() {
 }
 
 async function fetchSharedState() {
-  if (!SHARED_STATE_URL) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return null;
   }
   try {
-    const response = await fetch(SHARED_STATE_URL, { method: 'GET' });
+    const response = await fetch(getSupabaseSelectUrl(), {
+      method: 'GET',
+      headers: getSupabaseHeaders()
+    });
     if (!response.ok) {
       return null;
     }
-    const data = await response.json();
-    const remoteUpdatedAt = Number.isFinite(data.updatedAt) ? data.updatedAt : 0;
-    const isObject = data && typeof data === 'object';
-    const hasPlayers = isObject && Object.prototype.hasOwnProperty.call(data, 'players');
-    const hasTournament = isObject && Object.prototype.hasOwnProperty.call(data, 'tournament');
+    const rows = await response.json();
+    const row = Array.isArray(rows) ? rows[0] : null;
+    const payload = row && row.payload && typeof row.payload === 'object' ? row.payload : null;
+    const remoteUpdatedAt = payload && Number.isFinite(payload.updatedAt) ? payload.updatedAt : 0;
+    const isObject = payload && typeof payload === 'object';
+    const hasPlayers = isObject && Object.prototype.hasOwnProperty.call(payload, 'players');
+    const hasTournament = isObject && Object.prototype.hasOwnProperty.call(payload, 'tournament');
     const hasData = hasPlayers || hasTournament;
 
     if (pendingSharedSave) {
-      return { hasData, remoteUpdatedAt, data };
+      return { hasData, remoteUpdatedAt, data: payload };
     }
     if (remoteUpdatedAt && remoteUpdatedAt <= lastSharedUpdateAt) {
-      return { hasData, remoteUpdatedAt, data };
+      return { hasData, remoteUpdatedAt, data: payload };
     }
     if (!remoteUpdatedAt && lastSharedUpdateAt) {
-      return { hasData, remoteUpdatedAt, data };
+      return { hasData, remoteUpdatedAt, data: payload };
     }
 
-    applySharedState(data);
+    applySharedState(payload);
 
     const nextUpdatedAt = remoteUpdatedAt || Date.now();
     lastSharedUpdateAt = nextUpdatedAt;
@@ -1220,7 +1250,7 @@ function applySharedState(data) {
 }
 
 async function initSharedSync() {
-  if (!SHARED_STATE_URL) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     sharedSyncReady = true;
     return;
   }

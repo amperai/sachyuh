@@ -199,6 +199,24 @@ function groupByScore(playerList, rounds) {
   return groups;
 }
 
+function sortPlayersByScore(playerList, scores) {
+  return [...playerList].sort((a, b) => {
+    const scoreDiff = (scores[b.id] || 0) - (scores[a.id] || 0);
+    if (scoreDiff !== 0) {
+      return scoreDiff;
+    }
+    const ratingDiff = (b.ratingFinal ?? 0) - (a.ratingFinal ?? 0);
+    if (ratingDiff !== 0) {
+      return ratingDiff;
+    }
+    return a.name.localeCompare(b.name, 'cs');
+  });
+}
+
+function getScoreDiff(scores, playerA, playerB) {
+  return Math.abs((scores[playerA.id] || 0) - (scores[playerB.id] || 0));
+}
+
 function hasPlayed(history, playerId, opponentId) {
   return history[playerId]?.opponents.has(opponentId);
 }
@@ -256,6 +274,121 @@ function pickColorAssignment(history, playerA, playerB) {
   });
 
   return scored[0];
+}
+
+function applyPairingUpdate(history, pairing) {
+  const whiteData = history[pairing.whiteId];
+  const blackData = history[pairing.blackId];
+  const snapshot = {
+    whiteId: pairing.whiteId,
+    blackId: pairing.blackId,
+    white: { white: whiteData.white, black: whiteData.black, lastColor: whiteData.lastColor },
+    black: { white: blackData.white, black: blackData.black, lastColor: blackData.lastColor },
+    whiteAdded: !whiteData.opponents.has(pairing.blackId),
+    blackAdded: !blackData.opponents.has(pairing.whiteId)
+  };
+
+  whiteData.white += 1;
+  blackData.black += 1;
+  whiteData.lastColor = 'white';
+  blackData.lastColor = 'black';
+  whiteData.opponents.add(pairing.blackId);
+  blackData.opponents.add(pairing.whiteId);
+
+  return snapshot;
+}
+
+function revertPairingUpdate(history, snapshot) {
+  const whiteData = history[snapshot.whiteId];
+  const blackData = history[snapshot.blackId];
+  whiteData.white = snapshot.white.white;
+  whiteData.black = snapshot.white.black;
+  whiteData.lastColor = snapshot.white.lastColor;
+  blackData.white = snapshot.black.white;
+  blackData.black = snapshot.black.black;
+  blackData.lastColor = snapshot.black.lastColor;
+  if (snapshot.whiteAdded) {
+    whiteData.opponents.delete(snapshot.blackId);
+  }
+  if (snapshot.blackAdded) {
+    blackData.opponents.delete(snapshot.whiteId);
+  }
+}
+
+function buildCandidateList(player, remaining, history, scores, allowRematch) {
+  const candidates = [];
+
+  for (const opponent of remaining) {
+    if (opponent.id === player.id) {
+      continue;
+    }
+    const isRematch = hasPlayed(history, player.id, opponent.id);
+    if (!allowRematch && isRematch) {
+      continue;
+    }
+
+    const picked = pickColorAssignment(history, player, opponent);
+    if (!picked) {
+      continue;
+    }
+
+    candidates.push({
+      opponent,
+      pairing: { ...picked.option, result: null },
+      scoreDiff: getScoreDiff(scores, player, opponent),
+      rematch: isRematch ? 1 : 0,
+      overLimitPenalty: picked.overLimitPenalty,
+      repeatPenalty: picked.repeatPenalty,
+      balancePenalty: picked.balancePenalty,
+      ratingDiff: Math.abs((player.ratingFinal ?? 0) - (opponent.ratingFinal ?? 0))
+    });
+  }
+
+  candidates.sort((a, b) => {
+    if (a.rematch !== b.rematch) {
+      return a.rematch - b.rematch;
+    }
+    if (a.scoreDiff !== b.scoreDiff) {
+      return a.scoreDiff - b.scoreDiff;
+    }
+    if (a.overLimitPenalty !== b.overLimitPenalty) {
+      return a.overLimitPenalty - b.overLimitPenalty;
+    }
+    if (a.repeatPenalty !== b.repeatPenalty) {
+      return a.repeatPenalty - b.repeatPenalty;
+    }
+    if (a.balancePenalty !== b.balancePenalty) {
+      return a.balancePenalty - b.balancePenalty;
+    }
+    if (a.ratingDiff !== b.ratingDiff) {
+      return a.ratingDiff - b.ratingDiff;
+    }
+    return a.opponent.name.localeCompare(b.opponent.name, 'cs');
+  });
+
+  return candidates;
+}
+
+function findSwissPairings(ordered, history, scores, allowRematch) {
+  if (!ordered.length) {
+    return [];
+  }
+
+  const player = ordered[0];
+  const remaining = ordered.slice(1);
+  const candidates = buildCandidateList(player, remaining, history, scores, allowRematch);
+
+  for (const candidate of candidates) {
+    const nextRemaining = remaining.filter((item) => item.id !== candidate.opponent.id);
+    const snapshot = applyPairingUpdate(history, candidate.pairing);
+    const nextPairings = findSwissPairings(nextRemaining, history, scores, allowRematch);
+    revertPairingUpdate(history, snapshot);
+    if (nextPairings) {
+      return [candidate.pairing, ...nextPairings];
+    }
+  }
+
+  return null;
 }
 
 function matchGroup(top, bottom, history, allowRematch) {
@@ -324,59 +457,27 @@ function isRematchPair(history, pairing) {
 export function generateSwissPairings(playerList, rounds, options = {}) {
   const allowRematch = options.allowRematch === true;
   const history = buildHistory(playerList, rounds);
+  const scores = getScoreMap(playerList, rounds);
   const byePlayer = selectByePlayer(playerList, rounds, history);
 
   const pool = byePlayer
     ? playerList.filter((player) => player.id !== byePlayer.id)
     : [...playerList];
 
-  const groups = groupByScore(pool, rounds);
+  const ordered = sortPlayersByScore(pool, scores);
+  const pairings = findSwissPairings(ordered, history, scores, allowRematch);
 
-  for (let i = 0; i < groups.length - 1; i += 1) {
-    if (groups[i].players.length % 2 === 1) {
-      const floater = groups[i].players.pop();
-      if (floater) {
-        groups[i + 1].players.push(floater);
-      }
-    }
-  }
-
-  const pairings = [];
-
-  for (const group of groups) {
-    group.players.sort((a, b) => {
-      const ratingDiff = (b.ratingFinal ?? 0) - (a.ratingFinal ?? 0);
-      if (ratingDiff !== 0) {
-        return ratingDiff;
-      }
-      return a.name.localeCompare(b.name, 'cs');
-    });
-
-    if (group.players.length % 2 === 1) {
-      return { success: false, pairings: [], reason: 'odd_group' };
-    }
-
-    const half = group.players.length / 2;
-    const top = group.players.slice(0, half);
-    const bottom = group.players.slice(half);
-
-    let matched = matchGroup(top, bottom, history, false);
-    if (!matched && allowRematch) {
-      matched = matchGroup(top, bottom, history, true);
-    }
-
-    if (!matched) {
-      return { success: false, pairings: [], reason: 'no_match' };
-    }
-
-    pairings.push(...matched);
+  if (!pairings) {
+    return { success: false, pairings: [], reason: 'no_match' };
   }
 
   if (byePlayer) {
     pairings.push({ byeId: byePlayer.id, result: 'bye' });
   }
 
-  const hasRematch = pairings.some((pairing) => pairing.whiteId && isRematchPair(history, pairing));
+  const hasRematch = pairings.some((pairing) => (
+    pairing.whiteId && hasPlayed(history, pairing.whiteId, pairing.blackId)
+  ));
 
   return {
     success: true,
