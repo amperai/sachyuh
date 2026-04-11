@@ -1,0 +1,10 @@
+﻿scenarios: 133
+samples_per_scenario: 200
+total_successes: 0
+total_failures: 26600
+scenarios_with_failures: 133
+fail_no_match: 26600
+fail_odd_group: 0
+fail_rule_violation: 0
+failure_rounds: round_2=21144 round_3=1288 round_4=3941 round_5=126 round_6=99 round_7=1 round_8=1
+worst_scenario: players=12 rounds=7 draw_rate_percent=0 failures=200
