@@ -1232,6 +1232,13 @@ async function fetchSharedState() {
     if (pendingSharedSave) {
       return { hasData, remoteUpdatedAt, data: payload };
     }
+    if (!localHasData && remoteHasMeaningfulData) {
+      applySharedState(payload);
+      const nextUpdatedAt = remoteUpdatedAt || Date.now();
+      lastSharedUpdateAt = nextUpdatedAt;
+      saveSharedUpdatedAt(nextUpdatedAt);
+      return { hasData, remoteUpdatedAt, data: payload };
+    }
     if (localHasData && localUpdatedAt && remoteUpdatedAt && localUpdatedAt > remoteUpdatedAt) {
       return { hasData, remoteUpdatedAt, data: payload };
     }
@@ -1250,7 +1257,7 @@ async function fetchSharedState() {
     const nextUpdatedAt = remoteUpdatedAt || Date.now();
     lastSharedUpdateAt = nextUpdatedAt;
     saveSharedUpdatedAt(nextUpdatedAt);
-    return { hasData, remoteUpdatedAt, data };
+    return { hasData, remoteUpdatedAt, data: payload };
   } catch (error) {
     console.error('Shared state fetch failed.', error);
     return null;
