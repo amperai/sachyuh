@@ -68,6 +68,10 @@ const STORAGE_KEY_LEGACY = 'turnaj-koruna-registrations-v1';
 const TOURNAMENT_KEY = 'turnaj-koruna-tournament-v2';
 const REFEREE_KEY = 'turnaj-koruna-referee';
 const REFEREE_PASSWORD = 'g';
+const SHARED_STATE_URL = 'https://jsonblob.com/api/jsonBlob/019d7d08-fbe0-7507-afc9-288473e5bb1e';
+const SHARED_SYNC_INTERVAL_MS = 5000;
+const SHARED_SAVE_DEBOUNCE_MS = 500;
+const SHARED_UPDATED_KEY = 'turnaj-koruna-shared-updated-at';
 
 const RESULT_OPTIONS = [
   { value: '', label: '-' },
@@ -112,11 +116,18 @@ let isReferee = loadReferee();
 let selectedPlayerId = null;
 let viewRoundNumber = tournament?.round || 0;
 let publicActiveTab = 'players';
+let suppressSharedSave = false;
+let pendingSharedSave = false;
+let queuedSharedSave = false;
+let sharedSaveTimer = null;
+let sharedSyncReady = false;
+let lastSharedUpdateAt = loadSharedUpdatedAt();
 
 renderPlayers();
 renderTournament();
 updateProviderUI(getSelectedProvider());
 updateRefereeUI();
+initSharedSync();
 
 providerInputs.forEach((input) => {
   input.addEventListener('change', () => updateProviderUI(getSelectedProvider()));
@@ -1057,6 +1068,7 @@ function loadPlayers() {
 
 function savePlayers(data) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  scheduleSharedSave();
 }
 
 function loadTournament() {
@@ -1072,9 +1084,150 @@ function loadTournament() {
 function saveTournament(data) {
   if (!data) {
     window.localStorage.removeItem(TOURNAMENT_KEY);
+    scheduleSharedSave();
     return;
   }
   window.localStorage.setItem(TOURNAMENT_KEY, JSON.stringify(data));
+  scheduleSharedSave();
+}
+
+function loadSharedUpdatedAt() {
+  try {
+    const raw = window.localStorage.getItem(SHARED_UPDATED_KEY);
+    const value = raw ? Number.parseInt(raw, 10) : 0;
+    return Number.isFinite(value) ? value : 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function saveSharedUpdatedAt(value) {
+  window.localStorage.setItem(SHARED_UPDATED_KEY, String(value));
+}
+
+function scheduleSharedSave() {
+  if (!SHARED_STATE_URL || suppressSharedSave) {
+    return;
+  }
+  if (!sharedSyncReady) {
+    queuedSharedSave = true;
+    return;
+  }
+  if (sharedSaveTimer) {
+    window.clearTimeout(sharedSaveTimer);
+  }
+  pendingSharedSave = true;
+  sharedSaveTimer = window.setTimeout(() => {
+    pushSharedState();
+  }, SHARED_SAVE_DEBOUNCE_MS);
+}
+
+async function pushSharedState() {
+  if (!SHARED_STATE_URL || suppressSharedSave || !sharedSyncReady) {
+    pendingSharedSave = false;
+    return;
+  }
+  const updatedAt = Date.now();
+  const payload = {
+    players,
+    tournament,
+    updatedAt
+  };
+  try {
+    const response = await fetch(SHARED_STATE_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`Shared save failed: ${response.status}`);
+    }
+    lastSharedUpdateAt = updatedAt;
+    saveSharedUpdatedAt(updatedAt);
+  } catch (error) {
+    console.error('Shared state save failed.', error);
+  } finally {
+    pendingSharedSave = false;
+  }
+}
+
+async function fetchSharedState() {
+  if (!SHARED_STATE_URL) {
+    return;
+  }
+  try {
+    const response = await fetch(SHARED_STATE_URL, { method: 'GET' });
+    if (!response.ok) {
+      return;
+    }
+    const data = await response.json();
+    const remoteUpdatedAt = Number.isFinite(data.updatedAt) ? data.updatedAt : 0;
+
+    if (pendingSharedSave) {
+      return;
+    }
+    if (remoteUpdatedAt && remoteUpdatedAt <= lastSharedUpdateAt) {
+      return;
+    }
+    if (!remoteUpdatedAt && lastSharedUpdateAt) {
+      return;
+    }
+
+    applySharedState(data);
+
+    const nextUpdatedAt = remoteUpdatedAt || Date.now();
+    lastSharedUpdateAt = nextUpdatedAt;
+    saveSharedUpdatedAt(nextUpdatedAt);
+  } catch (error) {
+    console.error('Shared state fetch failed.', error);
+  }
+}
+
+function applySharedState(data) {
+  if (!data || typeof data !== 'object') {
+    return;
+  }
+  const hasPlayers = Object.prototype.hasOwnProperty.call(data, 'players');
+  const hasTournament = Object.prototype.hasOwnProperty.call(data, 'tournament');
+  if (!hasPlayers && !hasTournament) {
+    return;
+  }
+
+  const nextPlayers = hasPlayers
+    ? (Array.isArray(data.players) ? data.players.map(normalizePlayer) : [])
+    : players;
+  const nextTournament = hasTournament
+    ? (data.tournament && typeof data.tournament === 'object' ? data.tournament : null)
+    : tournament;
+
+  suppressSharedSave = true;
+  players = nextPlayers;
+  tournament = nextTournament;
+  viewRoundNumber = tournament?.round || 0;
+  selectedPlayerId = null;
+  savePlayers(players);
+  saveTournament(tournament);
+  suppressSharedSave = false;
+
+  renderPlayers();
+  renderTournament();
+}
+
+async function initSharedSync() {
+  if (!SHARED_STATE_URL) {
+    sharedSyncReady = true;
+    return;
+  }
+  try {
+    await fetchSharedState();
+  } finally {
+    sharedSyncReady = true;
+  }
+  if (queuedSharedSave) {
+    queuedSharedSave = false;
+    scheduleSharedSave();
+  }
+  window.setInterval(fetchSharedState, SHARED_SYNC_INTERVAL_MS);
 }
 
 function findPlayer(id) {

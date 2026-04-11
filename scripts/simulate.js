@@ -1,12 +1,27 @@
 import { generateSwissPairings } from '../tournament.js';
 
 const DRAW_RATES = [0, 5, 10, 15, 20, 25, 30];
-const SAMPLE_SIZE = 200;
+const DEFAULT_SAMPLE_SIZE = 200;
 const RNG_SEED = 123456789;
 
-const outputSummary = document.getElementById('outputSummary');
-const outputCsv = document.getElementById('outputCsv');
-const statusEl = document.getElementById('status');
+const isBrowser = typeof document !== 'undefined';
+const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+const outputSummary = isBrowser ? document.getElementById('outputSummary') : null;
+const outputCsv = isBrowser ? document.getElementById('outputCsv') : null;
+const statusEl = isBrowser ? document.getElementById('status') : null;
+
+function resolveSampleSize() {
+  if (isBrowser && typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const value = Number.parseInt(params.get('samples'), 10);
+    if (Number.isFinite(value) && value > 0) {
+      return value;
+    }
+  }
+  return DEFAULT_SAMPLE_SIZE;
+}
+
+const SAMPLE_SIZE = resolveSampleSize();
 
 function makeRng(seed) {
   let state = seed >>> 0;
@@ -62,14 +77,16 @@ function initHistory(players) {
 }
 
 function applyRound(history, round) {
+  let colorImbalance = 0;
+
   for (const pairing of round.pairings) {
     if (pairing.byeId) {
       const data = history[pairing.byeId];
       if (!data) {
-        return 'unknown_player';
+        return { violation: 'unknown_player', colorImbalance };
       }
       if (data.hadBye) {
-        return 'bye_repeat';
+        return { violation: 'bye_repeat', colorImbalance };
       }
       data.hadBye = true;
       continue;
@@ -78,45 +95,46 @@ function applyRound(history, round) {
     const white = history[pairing.whiteId];
     const black = history[pairing.blackId];
     if (!white || !black) {
-      return 'unknown_player';
+      return { violation: 'unknown_player', colorImbalance };
     }
     if (white.opponents.has(pairing.blackId) || black.opponents.has(pairing.whiteId)) {
-      return 'rematch';
+      return { violation: 'rematch', colorImbalance };
     }
 
     const nextWhite = white.white + 1;
     const nextBlack = white.black;
-    if (Math.abs(nextWhite - nextBlack) > 1) {
-      return 'color_balance';
-    }
-
     const nextBlackWhite = black.white;
     const nextBlackBlack = black.black + 1;
-    if (Math.abs(nextBlackWhite - nextBlackBlack) > 1) {
-      return 'color_balance';
-    }
 
     white.white = nextWhite;
     black.black = nextBlackBlack;
     white.opponents.add(pairing.blackId);
     black.opponents.add(pairing.whiteId);
+
+    if (Math.abs(nextWhite - nextBlack) > 1) {
+      colorImbalance += 1;
+    }
+    if (Math.abs(nextBlackWhite - nextBlackBlack) > 1) {
+      colorImbalance += 1;
+    }
   }
 
-  return null;
+  return { violation: null, colorImbalance };
 }
 
 function simulateTournament(playerCount, roundCount, drawRate, rng) {
   const players = buildPlayers(playerCount);
   const rounds = [];
   const history = initHistory(players);
+  let colorImbalanceEvents = 0;
 
   for (let round = 1; round <= roundCount; round += 1) {
     const result = generateSwissPairings(players, rounds, { allowRematch: false });
     if (!result.success) {
-      return { success: false, reason: result.reason, round };
+      return { success: false, reason: result.reason, round, colorImbalanceEvents };
     }
     if (result.hasRematch) {
-      return { success: false, reason: 'rule_violation', detail: 'rematch', round };
+      return { success: false, reason: 'rule_violation', detail: 'rematch', round, colorImbalanceEvents };
     }
 
     const pairings = result.pairings.map((pairing) => {
@@ -127,20 +145,27 @@ function simulateTournament(playerCount, roundCount, drawRate, rng) {
     });
 
     const roundData = { round, pairings };
-    const violation = applyRound(history, roundData);
-    if (violation) {
-      return { success: false, reason: 'rule_violation', detail: violation, round };
+    const outcome = applyRound(history, roundData);
+    colorImbalanceEvents += outcome.colorImbalance;
+    if (outcome.violation) {
+      return {
+        success: false,
+        reason: 'rule_violation',
+        detail: outcome.violation,
+        round,
+        colorImbalanceEvents
+      };
     }
     rounds.push(roundData);
   }
 
-  return { success: true };
+  return { success: true, colorImbalanceEvents };
 }
 
-function runSimulation() {
+async function runSimulation() {
   const rng = makeRng(RNG_SEED);
   const csvLines = [
-    'players,rounds,draw_rate_percent,samples,successes,failures,fail_no_match,fail_odd_group,fail_rule_violation'
+    'players,rounds,draw_rate_percent,samples,successes,failures,fail_no_match,fail_odd_group,fail_rule_violation,color_imbalance_tournaments,color_imbalance_events'
   ];
 
   const summary = {
@@ -151,6 +176,8 @@ function runSimulation() {
     failNoMatch: 0,
     failOddGroup: 0,
     failRuleViolation: 0,
+    colorImbalanceTournaments: 0,
+    colorImbalanceEvents: 0,
     failureRounds: {},
     worstScenario: null
   };
@@ -166,9 +193,15 @@ function runSimulation() {
       let failNoMatch = 0;
       let failOddGroup = 0;
       let failRuleViolation = 0;
+      let colorImbalanceTournaments = 0;
+      let colorImbalanceEvents = 0;
 
       for (let sample = 0; sample < SAMPLE_SIZE; sample += 1) {
         const result = simulateTournament(players, rounds, drawRate, rng);
+        colorImbalanceEvents += result.colorImbalanceEvents || 0;
+        if (result.colorImbalanceEvents > 0) {
+          colorImbalanceTournaments += 1;
+        }
         if (result.success) {
           successes += 1;
           continue;
@@ -189,6 +222,8 @@ function runSimulation() {
       summary.failNoMatch += failNoMatch;
       summary.failOddGroup += failOddGroup;
       summary.failRuleViolation += failRuleViolation;
+      summary.colorImbalanceTournaments += colorImbalanceTournaments;
+      summary.colorImbalanceEvents += colorImbalanceEvents;
       if (failures > 0) {
         summary.scenariosWithFailures += 1;
       }
@@ -212,7 +247,9 @@ function runSimulation() {
         failures,
         failNoMatch,
         failOddGroup,
-        failRuleViolation
+        failRuleViolation,
+        colorImbalanceTournaments,
+        colorImbalanceEvents
       ].join(','));
     }
   }
@@ -230,16 +267,37 @@ function runSimulation() {
     `fail_no_match: ${summary.failNoMatch}`,
     `fail_odd_group: ${summary.failOddGroup}`,
     `fail_rule_violation: ${summary.failRuleViolation}`,
+    `color_imbalance_tournaments: ${summary.colorImbalanceTournaments}`,
+    `color_imbalance_events: ${summary.colorImbalanceEvents}`,
     `failure_rounds: ${failureRoundEntries || 'none'}`,
     summary.worstScenario
       ? `worst_scenario: players=${summary.worstScenario.players} rounds=${summary.worstScenario.rounds} draw_rate_percent=${summary.worstScenario.drawRatePercent} failures=${summary.worstScenario.failures}`
       : 'worst_scenario: none'
   ];
 
-  outputSummary.textContent = summaryLines.join('\n');
-  outputCsv.textContent = csvLines.join('\n');
-  statusEl.textContent = 'Done';
-  document.body.dataset.status = 'done';
+  const summaryText = summaryLines.join('\n');
+  const csvText = csvLines.join('\n');
+
+  if (outputSummary) {
+    outputSummary.textContent = summaryText;
+  }
+  if (outputCsv) {
+    outputCsv.textContent = csvText;
+  }
+  if (statusEl) {
+    statusEl.textContent = 'Done';
+  }
+  if (isBrowser && document.body) {
+    document.body.dataset.status = 'done';
+  }
+  if (isNode) {
+    const fs = await import('fs/promises');
+    const summaryPath = new URL('../reports/simulation-summary.txt', import.meta.url);
+    const csvPath = new URL('../reports/simulation-summary.csv', import.meta.url);
+    await fs.writeFile(summaryPath, summaryText, { encoding: 'ascii' });
+    await fs.writeFile(csvPath, csvText, { encoding: 'ascii' });
+    console.log(summaryText);
+  }
 }
 
-runSimulation();
+void runSimulation();

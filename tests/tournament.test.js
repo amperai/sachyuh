@@ -203,7 +203,7 @@ test('Švýcar: barvy se neopakují, pokud je to možné', () => {
   });
 });
 
-test('Švýcar: barevná bilance se drží v limitu', () => {
+test('Svicar: barevna bilance se preferuje', () => {
   const players = [
     makePlayer('a', 2000),
     makePlayer('b', 1900),
@@ -213,11 +213,41 @@ test('Švýcar: barevná bilance se drží v limitu', () => {
 
   const rounds = [
     makeRound(1, [
-      { whiteId: 'a', blackId: 'b', result: '1-0' },
-      { whiteId: 'c', blackId: 'd', result: '1-0' }
+      { whiteId: 'a', blackId: 'c', result: '1-0' },
+      { whiteId: 'd', blackId: 'b', result: '1-0' }
     ]),
     makeRound(2, [
-      { whiteId: 'd', blackId: 'a', result: '1-0' },
+      { whiteId: 'a', blackId: 'd', result: '1-0' },
+      { whiteId: 'c', blackId: 'b', result: '1-0' }
+    ])
+  ];
+
+  const result = generateSwissPairings(players, rounds);
+  assertEqual(result.success, true);
+
+  const pairing = result.pairings.find((item) => (
+    (item.whiteId === 'a' && item.blackId === 'b')
+      || (item.whiteId === 'b' && item.blackId === 'a')
+  ));
+  assert(pairing, 'Missing pairing for A vs B.');
+  assertEqual(pairing.whiteId, 'b');
+});
+
+test('Svicar: barevna bilance neblokuje', () => {
+  const players = [
+    makePlayer('a', 2000),
+    makePlayer('b', 1900),
+    makePlayer('c', 1800),
+    makePlayer('d', 1700)
+  ];
+
+  const rounds = [
+    makeRound(1, [
+      { whiteId: 'a', blackId: 'c', result: '1-0' },
+      { whiteId: 'b', blackId: 'd', result: '1-0' }
+    ]),
+    makeRound(2, [
+      { whiteId: 'a', blackId: 'd', result: '1-0' },
       { whiteId: 'b', blackId: 'c', result: '1-0' }
     ])
   ];
@@ -227,9 +257,11 @@ test('Švýcar: barevná bilance se drží v limitu', () => {
 
   const allRounds = [...rounds, makeRound(3, result.pairings)];
   const counts = getColorCounts(players, allRounds);
-
-  players.forEach((player) => {
+  const hasImbalance = players.some((player) => {
     const record = counts[player.id];
-    assert(Math.abs(record.white - record.black) <= 1, 'Barvy jsou mimo limit.');
+    return Math.abs(record.white - record.black) > 1;
   });
+
+  assert(hasImbalance, 'Expected color imbalance when no balanced pairing exists.');
 });
+

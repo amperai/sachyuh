@@ -203,41 +203,52 @@ function hasPlayed(history, playerId, opponentId) {
   return history[playerId]?.opponents.has(opponentId);
 }
 
-function canAssignColor(history, playerId, color) {
-  const data = history[playerId];
-  if (!data) {
-    return false;
-  }
+const COLOR_OVERLIMIT_WEIGHT = 100;
+const REPEAT_COLOR_WEIGHT = 10;
+
+function colorDiffAfter(data, color) {
   const nextWhite = data.white + (color === 'white' ? 1 : 0);
   const nextBlack = data.black + (color === 'black' ? 1 : 0);
-  return Math.abs(nextWhite - nextBlack) <= 1;
+  return Math.abs(nextWhite - nextBlack);
 }
 
 function pickColorAssignment(history, playerA, playerB) {
   const options = [
     { whiteId: playerA.id, blackId: playerB.id },
     { whiteId: playerB.id, blackId: playerA.id }
-  ].filter((option) => (
-    canAssignColor(history, option.whiteId, 'white')
-    && canAssignColor(history, option.blackId, 'black')
-  ));
-
-  if (!options.length) {
-    return null;
-  }
+  ];
 
   const scored = options.map((option) => {
     const whiteData = history[option.whiteId];
     const blackData = history[option.blackId];
+    if (!whiteData || !blackData) {
+      return null;
+    }
+
     const repeatPenalty = (whiteData.lastColor === 'white' ? 1 : 0)
       + (blackData.lastColor === 'black' ? 1 : 0);
-    const whiteDiff = Math.abs((whiteData.white + 1) - whiteData.black);
-    const blackDiff = Math.abs(blackData.white - (blackData.black + 1));
+    const whiteDiff = colorDiffAfter(whiteData, 'white');
+    const blackDiff = colorDiffAfter(blackData, 'black');
+    const overLimitPenalty = Math.max(0, whiteDiff - 1) + Math.max(0, blackDiff - 1);
     const balancePenalty = whiteDiff + blackDiff;
-    return { option, repeatPenalty, balancePenalty };
-  });
+    const colorPenalty = overLimitPenalty * COLOR_OVERLIMIT_WEIGHT + balancePenalty;
+    return {
+      option,
+      repeatPenalty,
+      balancePenalty,
+      overLimitPenalty,
+      colorPenalty
+    };
+  }).filter(Boolean);
+
+  if (!scored.length) {
+    return null;
+  }
 
   scored.sort((a, b) => {
+    if (a.overLimitPenalty !== b.overLimitPenalty) {
+      return a.overLimitPenalty - b.overLimitPenalty;
+    }
     if (a.repeatPenalty !== b.repeatPenalty) {
       return a.repeatPenalty - b.repeatPenalty;
     }
@@ -249,45 +260,61 @@ function pickColorAssignment(history, playerA, playerB) {
 
 function matchGroup(top, bottom, history, allowRematch) {
   const REMATCH_WEIGHT = 100;
-  let bestPairs = null;
-  let bestScore = Number.POSITIVE_INFINITY;
+  const size = top.length;
+  const matrix = top.map((player) => bottom.map((candidate) => {
+    const isRematch = hasPlayed(history, player.id, candidate.id);
+    if (!allowRematch && isRematch) {
+      return null;
+    }
+    const picked = pickColorAssignment(history, player, candidate);
+    if (!picked) {
+      return null;
+    }
+    const score = picked.colorPenalty
+      + picked.repeatPenalty * REPEAT_COLOR_WEIGHT
+      + (isRematch ? REMATCH_WEIGHT : 0);
+    return {
+      pairing: { ...picked.option, result: null },
+      score
+    };
+  }));
 
-  function backtrack(index, remaining, current, score) {
-    if (score >= bestScore) {
-      return;
+  const memo = new Map();
+
+  function dfs(index, usedMask) {
+    if (index >= size) {
+      return { score: 0, pairs: [] };
+    }
+    const key = `${index}|${usedMask}`;
+    if (memo.has(key)) {
+      return memo.get(key);
     }
 
-    if (index >= top.length) {
-      bestPairs = [...current];
-      bestScore = score;
-      return;
-    }
-
-    const player = top[index];
-
-    for (let i = 0; i < remaining.length; i += 1) {
-      const candidate = remaining[i];
-      const isRematch = hasPlayed(history, player.id, candidate.id);
-      if (!allowRematch && isRematch) {
+    let best = null;
+    for (let j = 0; j < size; j += 1) {
+      if (usedMask & (1 << j)) {
         continue;
       }
-
-      const picked = pickColorAssignment(history, player, candidate);
-      if (!picked) {
+      const candidate = matrix[index][j];
+      if (!candidate) {
         continue;
       }
-
-      const nextRemaining = [...remaining.slice(0, i), ...remaining.slice(i + 1)];
-      const nextScore = score + picked.repeatPenalty + (isRematch ? REMATCH_WEIGHT : 0);
-      const pairing = { ...picked.option, result: null };
-      current.push(pairing);
-      backtrack(index + 1, nextRemaining, current, nextScore);
-      current.pop();
+      const next = dfs(index + 1, usedMask | (1 << j));
+      if (!next) {
+        continue;
+      }
+      const totalScore = candidate.score + next.score;
+      if (!best || totalScore < best.score) {
+        best = { score: totalScore, pairs: [candidate.pairing, ...next.pairs] };
+      }
     }
+
+    memo.set(key, best);
+    return best;
   }
 
-  backtrack(0, bottom, [], 0);
-  return bestPairs;
+  const result = dfs(0, 0);
+  return result ? result.pairs : null;
 }
 
 function isRematchPair(history, pairing) {
