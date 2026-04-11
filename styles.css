@@ -243,6 +243,16 @@ a{color:inherit;text-decoration:none}
   letter-spacing:.04em;
 }
 
+.status-banner{
+  margin:0 0 12px;
+  padding:10px 14px;
+  border-radius:14px;
+  border:1px solid #c9e1c0;
+  background:rgba(229,244,223,.8);
+  color:#2b5b2b;
+  font-weight:600;
+}
+
 .hero{
   display:grid;
   grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);

@@ -68,6 +68,7 @@ const panelStandings = document.getElementById('panelStandings');
 const panelResults = document.getElementById('panelResults');
 const mainView = document.getElementById('mainView');
 const registrationView = document.getElementById('registrationView');
+const registrationSuccess = document.getElementById('registrationSuccess');
 
 const standingsBody = document.getElementById('standingsBody');
 const standingsEmpty = document.getElementById('standingsEmpty');
@@ -139,6 +140,7 @@ let selectedPlayerId = null;
 let viewRoundNumber = tournament?.round || 0;
 let publicActiveTab = 'pairings';
 let publicResultsRound = 0;
+let registrationSuccessTimer = null;
 let suppressSharedSave = false;
 let pendingSharedSave = false;
 let queuedSharedSave = false;
@@ -235,6 +237,9 @@ form.addEventListener('submit', async (event) => {
   }
 
   setLoading(false);
+  window.location.hash = '#turnaj';
+  updatePageView();
+  showRegistrationSuccess();
 });
 
 clearBtn.addEventListener('click', () => {
@@ -1118,6 +1123,23 @@ function updatePageView() {
   const isRegistration = window.location.hash === '#registrace';
   mainView.hidden = isRegistration;
   registrationView.hidden = !isRegistration;
+  if (registrationSuccess && isRegistration) {
+    registrationSuccess.hidden = true;
+  }
+}
+
+function showRegistrationSuccess() {
+  if (!registrationSuccess) {
+    return;
+  }
+  registrationSuccess.textContent = 'Registrace proběhla úspěšně.';
+  registrationSuccess.hidden = false;
+  if (registrationSuccessTimer) {
+    window.clearTimeout(registrationSuccessTimer);
+  }
+  registrationSuccessTimer = window.setTimeout(() => {
+    registrationSuccess.hidden = true;
+  }, 6000);
 }
 
 function createCell(text) {
