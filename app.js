@@ -1153,24 +1153,28 @@ async function pushSharedState() {
 
 async function fetchSharedState() {
   if (!SHARED_STATE_URL) {
-    return;
+    return null;
   }
   try {
     const response = await fetch(SHARED_STATE_URL, { method: 'GET' });
     if (!response.ok) {
-      return;
+      return null;
     }
     const data = await response.json();
     const remoteUpdatedAt = Number.isFinite(data.updatedAt) ? data.updatedAt : 0;
+    const isObject = data && typeof data === 'object';
+    const hasPlayers = isObject && Object.prototype.hasOwnProperty.call(data, 'players');
+    const hasTournament = isObject && Object.prototype.hasOwnProperty.call(data, 'tournament');
+    const hasData = hasPlayers || hasTournament;
 
     if (pendingSharedSave) {
-      return;
+      return { hasData, remoteUpdatedAt, data };
     }
     if (remoteUpdatedAt && remoteUpdatedAt <= lastSharedUpdateAt) {
-      return;
+      return { hasData, remoteUpdatedAt, data };
     }
     if (!remoteUpdatedAt && lastSharedUpdateAt) {
-      return;
+      return { hasData, remoteUpdatedAt, data };
     }
 
     applySharedState(data);
@@ -1178,8 +1182,10 @@ async function fetchSharedState() {
     const nextUpdatedAt = remoteUpdatedAt || Date.now();
     lastSharedUpdateAt = nextUpdatedAt;
     saveSharedUpdatedAt(nextUpdatedAt);
+    return { hasData, remoteUpdatedAt, data };
   } catch (error) {
     console.error('Shared state fetch failed.', error);
+    return null;
   }
 }
 
@@ -1218,13 +1224,16 @@ async function initSharedSync() {
     sharedSyncReady = true;
     return;
   }
+  let snapshot = null;
   try {
-    await fetchSharedState();
+    snapshot = await fetchSharedState();
   } finally {
     sharedSyncReady = true;
   }
   if (queuedSharedSave) {
     queuedSharedSave = false;
+    scheduleSharedSave();
+  } else if (snapshot && !snapshot.hasData && (players.length || tournament)) {
     scheduleSharedSave();
   }
   window.setInterval(fetchSharedState, SHARED_SYNC_INTERVAL_MS);
