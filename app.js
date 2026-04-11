@@ -1211,10 +1211,12 @@ function loadPlayers() {
   }
 }
 
-function savePlayers(data) {
+function savePlayers(data, options = {}) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  markLocalUpdate();
-  scheduleSharedSave();
+  if (!options.skipLocalUpdate) {
+    markLocalUpdate();
+    scheduleSharedSave();
+  }
 }
 
 function loadTournament() {
@@ -1227,20 +1229,29 @@ function loadTournament() {
   }
 }
 
-function saveTournament(data) {
+function saveTournament(data, options = {}) {
   if (!data) {
     window.localStorage.removeItem(TOURNAMENT_KEY);
-    markLocalUpdate();
-    scheduleSharedSave();
+    if (!options.skipLocalUpdate) {
+      markLocalUpdate();
+      scheduleSharedSave();
+    }
     return;
   }
   window.localStorage.setItem(TOURNAMENT_KEY, JSON.stringify(data));
-  markLocalUpdate();
-  scheduleSharedSave();
+  if (!options.skipLocalUpdate) {
+    markLocalUpdate();
+    scheduleSharedSave();
+  }
 }
 
 function markLocalUpdate() {
-  localUpdatedAt = Date.now();
+  const now = Date.now();
+  const baseline = Math.max(
+    Number.isFinite(lastSharedUpdateAt) ? lastSharedUpdateAt : 0,
+    Number.isFinite(localUpdatedAt) ? localUpdatedAt : 0
+  );
+  localUpdatedAt = Math.max(now, baseline + 1);
   saveLocalUpdatedAt(localUpdatedAt);
   return localUpdatedAt;
 }
@@ -1369,7 +1380,7 @@ async function fetchSharedState() {
       return { hasData, remoteUpdatedAt, data: payload };
     }
     if (!localHasData && remoteHasMeaningfulData) {
-      applySharedState(payload);
+      applySharedState(payload, remoteUpdatedAt);
       const nextUpdatedAt = remoteUpdatedAt || Date.now();
       lastSharedUpdateAt = nextUpdatedAt;
       saveSharedUpdatedAt(nextUpdatedAt);
@@ -1388,7 +1399,7 @@ async function fetchSharedState() {
       return { hasData, remoteUpdatedAt, data: payload };
     }
 
-    applySharedState(payload);
+    applySharedState(payload, remoteUpdatedAt);
 
     const nextUpdatedAt = remoteUpdatedAt || Date.now();
     lastSharedUpdateAt = nextUpdatedAt;
@@ -1400,7 +1411,7 @@ async function fetchSharedState() {
   }
 }
 
-function applySharedState(data) {
+function applySharedState(data, remoteUpdatedAt) {
   if (!data || typeof data !== 'object') {
     return;
   }
@@ -1422,8 +1433,12 @@ function applySharedState(data) {
   tournament = nextTournament;
   viewRoundNumber = tournament?.round || 0;
   selectedPlayerId = null;
-  savePlayers(players);
-  saveTournament(tournament);
+  savePlayers(players, { skipLocalUpdate: true });
+  saveTournament(tournament, { skipLocalUpdate: true });
+  if (Number.isFinite(remoteUpdatedAt) && remoteUpdatedAt > 0) {
+    localUpdatedAt = remoteUpdatedAt;
+    saveLocalUpdatedAt(localUpdatedAt);
+  }
   suppressSharedSave = false;
 
   renderPlayers();
