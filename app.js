@@ -1,4 +1,4 @@
-ï»¿import {
+import {
   CATEGORY_LABELS,
   PROVIDER_LABELS,
   STATUS_LABELS,
@@ -42,6 +42,8 @@ const tournamentSystem = document.getElementById('tournamentSystem');
 const tournamentCreateBtn = document.getElementById('btnCreateTournament');
 const tournamentCancelBtn = document.getElementById('btnCancelTournament');
 const tournamentCancelRoundBtn = document.getElementById('btnCancelRound');
+const tournamentExportRoundBtn = document.getElementById('btnExportRound');
+const tournamentExportTournamentBtn = document.getElementById('btnExportTournament');
 const allowRematch = document.getElementById('allowRematch');
 const allowRematchWrap = document.getElementById('allowRematchWrap');
 const roundSelect = document.getElementById('roundSelect');
@@ -107,16 +109,16 @@ const RESULT_LABELS = {
 
 const providerHelp = {
   'chess.com': {
-    placeholder: 'napÅ™. kubaczess',
-    help: 'NaÄteme nejvyÅ¡Å¡Ã­ rating z chess.com (blitz, rapid, daily).'
+    placeholder: 'napr. kubaczess',
+    help: 'Nacteme nejvyšší rating z chess.com (blitz, rapid, daily).'
   },
   lichess: {
-    placeholder: 'napÅ™. oselposel',
-    help: 'NaÄteme nejvyÅ¡Å¡Ã­ rating z lichess.org (blitz, rapid, korespondence).'
+    placeholder: 'napr. oselposel',
+    help: 'Nacteme nejvyšší rating z lichess.org (blitz, rapid, korespondence).'
   },
   none: {
     placeholder: '',
-    help: 'NemÃ¡te ÃºÄet? Rating bude 0.'
+    help: 'Nemáte úcet? Rating bude 0.'
   }
 };
 
@@ -168,13 +170,13 @@ form.addEventListener('submit', async (event) => {
   const username = handleInput.value.trim();
 
   if (!name) {
-    setStatus('Zadejte jmÃ©no hrÃ¡Äe.');
+    setStatus('Zadejte jméno hráce.');
     nameInput.focus();
     return;
   }
 
   if (provider !== 'none' && !username) {
-    setStatus('Zadejte uÅ¾ivatelskÃ© jmÃ©no k ÃºÄtu.');
+    setStatus('Zadejte uivatelské jméno k úctu.');
     handleInput.focus();
     return;
   }
@@ -229,7 +231,7 @@ form.addEventListener('submit', async (event) => {
   savePlayers(players);
   renderPlayers();
   setStatus(buildStatusMessage(entry));
-  invalidateTournament('Seznam hrÃ¡ÄÅ¯ se zmÄ›nil, turnaj byl zruÅ¡en.');
+  invalidateTournament('Seznam hrácu se zmenil, turnaj byl zrušen.');
 
   nameInput.value = '';
   if (provider !== 'none') {
@@ -247,7 +249,7 @@ clearBtn.addEventListener('click', () => {
     return;
   }
 
-  const confirmed = window.confirm('Opravdu chcete smazat seznam registrovanÃ½ch hrÃ¡ÄÅ¯?');
+  const confirmed = window.confirm('Opravdu chcete smazat seznam registrovanıch hrácu?');
   if (!confirmed) {
     return;
   }
@@ -255,8 +257,8 @@ clearBtn.addEventListener('click', () => {
   players = [];
   savePlayers(players);
   renderPlayers();
-  setStatus('Seznam byl vymazÃ¡n.');
-  invalidateTournament('Turnaj byl zruÅ¡en.');
+  setStatus('Seznam byl vymazán.');
+  invalidateTournament('Turnaj byl zrušen.');
 });
 
 menuToggle.addEventListener('click', () => toggleDrawer(true));
@@ -268,7 +270,7 @@ refLoginForm.addEventListener('submit', (event) => {
   const password = refPassword.value.trim();
 
   if (password !== REFEREE_PASSWORD) {
-    refStatus.textContent = 'NesprÃ¡vnÃ© heslo.';
+    refStatus.textContent = 'Nesprávné heslo.';
     return;
   }
 
@@ -307,12 +309,12 @@ if (publicResultsSelect) {
 
 tournamentCreateBtn.addEventListener('click', () => {
   if (!isReferee) {
-    setTournamentStatus('PÅ™ihlaste se jako rozhodÄÃ­ pro vytvoÅ™enÃ­ turnaje.');
+    setTournamentStatus('Prihlaste se jako rozhodcí pro vytvorení turnaje.');
     return;
   }
 
   if (players.length < 2) {
-    setTournamentStatus('Pro nasazenÃ­ je potÅ™eba alespoÅˆ 2 hrÃ¡Äe.');
+    setTournamentStatus('Pro nasazení je potreba alespon 2 hráce.');
     return;
   }
 
@@ -328,12 +330,12 @@ tournamentCreateBtn.addEventListener('click', () => {
   }
 
   if (!isRoundComplete(currentRound)) {
-    setTournamentStatus('NejdÅ™Ã­ve zadejte vÅ¡echny vÃ½sledky tohoto kola.');
+    setTournamentStatus('Nejdríve zadejte všechny vısledky tohoto kola.');
     return;
   }
 
   if (isTournamentFinished(tournament)) {
-    setTournamentStatus('Turnaj je dokonÄen.');
+    setTournamentStatus('Turnaj je dokoncen.');
     return;
   }
 
@@ -345,7 +347,7 @@ tournamentCancelBtn.addEventListener('click', () => {
     return;
   }
 
-  const confirmed = window.confirm('Opravdu chcete zruÅ¡it turnaj?');
+  const confirmed = window.confirm('Opravdu chcete zrušit turnaj?');
   if (!confirmed) {
     return;
   }
@@ -354,7 +356,7 @@ tournamentCancelBtn.addEventListener('click', () => {
   viewRoundNumber = 0;
   saveTournament(tournament);
   renderTournament();
-  setTournamentStatus('Turnaj byl zruÅ¡en.');
+  setTournamentStatus('Turnaj byl zrušen.');
 });
 
 tournamentCancelRoundBtn.addEventListener('click', () => {
@@ -362,7 +364,7 @@ tournamentCancelRoundBtn.addEventListener('click', () => {
     return;
   }
 
-  const confirmed = window.confirm('Opravdu chcete zruÅ¡it aktuÃ¡lnÃ­ kolo?');
+  const confirmed = window.confirm('Opravdu chcete zrušit aktuální kolo?');
   if (!confirmed) {
     return;
   }
@@ -375,7 +377,7 @@ tournamentCancelRoundBtn.addEventListener('click', () => {
       tournament.round = tournament.rounds[tournament.rounds.length - 1].round;
     }
     viewRoundNumber = tournament.round;
-    setTournamentStatus('AktuÃ¡lnÃ­ kolo bylo zruÅ¡eno.');
+    setTournamentStatus('Aktuální kolo bylo zrušeno.');
   } else {
     const currentRound = getCurrentRound(tournament);
     if (currentRound) {
@@ -386,13 +388,45 @@ tournamentCancelRoundBtn.addEventListener('click', () => {
       });
     }
     viewRoundNumber = tournament.round;
-    setTournamentStatus('VÃ½sledky aktuÃ¡lnÃ­ho kola byly vymazÃ¡ny.');
+    setTournamentStatus('Vısledky aktuálního kola byly vymazány.');
   }
 
   saveTournament(tournament);
   renderTournament();
 });
 
+if (tournamentExportRoundBtn) {
+  tournamentExportRoundBtn.addEventListener('click', () => {
+    if (!isReferee) {
+      setTournamentStatus('Prihlaste se jako rozhodcí pro export.');
+      return;
+    }
+    if (!tournament || !tournament.rounds || tournament.rounds.length === 0) {
+      setTournamentStatus('Není co exportovat.');
+      return;
+    }
+    const round = getRoundByNumber(viewRoundNumber) || getCurrentRound(tournament);
+    if (!round) {
+      setTournamentStatus('Vyberte kolo k exportu.');
+      return;
+    }
+    exportRoundPdf(round);
+  });
+}
+
+if (tournamentExportTournamentBtn) {
+  tournamentExportTournamentBtn.addEventListener('click', () => {
+    if (!isReferee) {
+      setTournamentStatus('Prihlaste se jako rozhodcí pro export.');
+      return;
+    }
+    if (!tournament) {
+      setTournamentStatus('Turnaj není zaloen.');
+      return;
+    }
+    exportTournamentPdf();
+  });
+}
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     toggleDrawer(false);
@@ -422,7 +456,7 @@ function setStatus(message) {
 
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
-  submitBtn.textContent = isLoading ? 'HledÃ¡m rating...' : 'OvÄ›Å™it a registrovat';
+  submitBtn.textContent = isLoading ? 'Hledám rating...' : 'Overit a registrovat';
 }
 
 function setTournamentStatus(message) {
@@ -433,26 +467,26 @@ function buildStatusMessage(entry) {
   if (entry.status === 'ok') {
     const category = entry.category ? CATEGORY_LABELS[entry.category] : '';
     const original = entry.ratingOriginal ? ` ${entry.ratingOriginal}${category ? ` (${category})` : ''}` : '';
-    return `Rating${original} byl naÄten. PÅ™epoÄtenÃ½ rating: ${entry.ratingFinal}.`;
+    return `Rating${original} byl nacten. Prepoctenı rating: ${entry.ratingFinal}.`;
   }
   if (entry.status === 'no_rating') {
-    return 'ÃšÄet byl nalezen, ale bez ratingu.';
+    return 'Úcet byl nalezen, ale bez ratingu.';
   }
   if (entry.status === 'not_found') {
-    return 'HrÃ¡Ä nebyl nalezen, registrovÃ¡n s ratingem 0.';
+    return 'Hrác nebyl nalezen, registrován s ratingem 0.';
   }
   if (entry.status === 'no_account') {
-    return 'HrÃ¡Ä byl registrovÃ¡n bez ÃºÄtu.';
+    return 'Hrác byl registrován bez úctu.';
   }
-  return 'NepodaÅ™ilo se naÄÃ­st rating. Zkuste to prosÃ­m pozdÄ›ji.';
+  return 'Nepodarilo se nacíst rating. Zkuste to prosím pozdeji.';
 }
 
 function renderPlayersHeader() {
   playersHeader.textContent = '';
 
   const labels = isReferee
-    ? ['JmÃ©no', 'Rating', 'PÅ¯vodnÃ­ rating', 'Kategorie', 'ÃšÄet', 'Stav', 'Akce']
-    : ['JmÃ©no', 'Rating'];
+    ? ['Jméno', 'Rating', 'Puvodní rating', 'Kategorie', 'Úcet', 'Stav', 'Akce']
+    : ['Jméno', 'Rating'];
 
   for (const label of labels) {
     const th = document.createElement('th');
@@ -523,18 +557,18 @@ function renderPlayers() {
     const saveBtn = document.createElement('button');
     saveBtn.type = 'button';
     saveBtn.className = 'btn btn-small';
-    saveBtn.textContent = 'UloÅ¾it';
+    saveBtn.textContent = 'Uloit';
     saveBtn.addEventListener('click', () => {
       const nextName = nameInputEl.value.trim();
       const nextRating = Number.parseInt(ratingInputEl.value, 10);
 
       if (!nextName) {
-        setStatus('JmÃ©no nesmÃ­ bÃ½t prÃ¡zdnÃ©.');
+        setStatus('Jméno nesmí bıt prázdné.');
         return;
       }
 
       if (!Number.isFinite(nextRating) || nextRating < 0) {
-        setStatus('Rating musÃ­ bÃ½t nezÃ¡pornÃ© ÄÃ­slo.');
+        setStatus('Rating musí bıt nezáporné císlo.');
         return;
       }
 
@@ -544,7 +578,7 @@ function renderPlayers() {
 
       savePlayers(players);
       renderPlayers();
-      invalidateTournament('Seznam hrÃ¡ÄÅ¯ se zmÄ›nil, turnaj byl zruÅ¡en.');
+      invalidateTournament('Seznam hrácu se zmenil, turnaj byl zrušen.');
     });
 
     const deleteBtn = document.createElement('button');
@@ -552,14 +586,14 @@ function renderPlayers() {
     deleteBtn.className = 'btn btn-danger btn-small';
     deleteBtn.textContent = 'Smazat';
     deleteBtn.addEventListener('click', () => {
-      const confirmed = window.confirm(`Opravdu chcete smazat hrÃ¡Äe ${player.name}?`);
+      const confirmed = window.confirm(`Opravdu chcete smazat hráce ${player.name}?`);
       if (!confirmed) {
         return;
       }
       players = players.filter((item) => item.id !== player.id);
       savePlayers(players);
       renderPlayers();
-      invalidateTournament('Seznam hrÃ¡ÄÅ¯ se zmÄ›nil, turnaj byl zruÅ¡en.');
+      invalidateTournament('Seznam hrácu se zmenil, turnaj byl zrušen.');
     });
 
     actions.appendChild(saveBtn);
@@ -595,10 +629,10 @@ function renderTournamentAdmin() {
     tournamentRoundLabel.textContent = '';
     pairingsEmpty.hidden = false;
     tournamentCreateBtn.disabled = !isReferee || players.length < 2;
-    tournamentCreateBtn.textContent = 'VytvoÅ™it 1. kolo';
+    tournamentCreateBtn.textContent = 'Vytvorit 1. kolo';
     tournamentHint.textContent = isReferee
-      ? 'Vyberte systÃ©m a vytvoÅ™te prvnÃ­ kolo.'
-      : 'Pro prÃ¡ci s turnajem je potÅ™eba pÅ™ihlÃ¡Å¡enÃ­ rozhodÄÃ­ho.';
+      ? 'Vyberte systém a vytvorte první kolo.'
+      : 'Pro práci s turnajem je potreba prihlášení rozhodcího.';
     return;
   }
 
@@ -621,15 +655,15 @@ function renderTournamentAdmin() {
 
   if (tournamentFinished) {
     tournamentCreateBtn.disabled = true;
-    tournamentCreateBtn.textContent = 'Turnaj dokonÄen';
+    tournamentCreateBtn.textContent = 'Turnaj dokoncen';
   } else {
-    tournamentCreateBtn.textContent = 'VytvoÅ™it dalÅ¡Ã­ kolo';
+    tournamentCreateBtn.textContent = 'Vytvorit další kolo';
     tournamentCreateBtn.disabled = !isReferee || !roundComplete;
   }
 
   tournamentHint.textContent = tournament.system === 'swiss'
-    ? 'SystÃ©m: Å¡vÃ½carskÃ½.'
-    : 'SystÃ©m: kaÅ¾dÃ½ s kaÅ¾dÃ½m.';
+    ? 'Systém: švıcarskı.'
+    : 'Systém: kadı s kadım.';
 
   if (viewRound) {
     renderPairings(viewRound, pairingsBody, true);
@@ -741,6 +775,12 @@ function updateTournamentControls(hasTournament, hasRounds) {
   tournamentSystem.disabled = hasTournament || !isReferee;
   tournamentCancelBtn.disabled = !isReferee || !hasTournament;
   tournamentCancelRoundBtn.disabled = !isReferee || !hasTournament || !hasRounds;
+  if (tournamentExportRoundBtn) {
+    tournamentExportRoundBtn.disabled = !isReferee || !hasTournament || !hasRounds;
+  }
+  if (tournamentExportTournamentBtn) {
+    tournamentExportTournamentBtn.disabled = !isReferee || !hasTournament;
+  }
 }
 
 function updateRoundSelect() {
@@ -841,7 +881,7 @@ function renderPairings(round, body, editable) {
 
       resultCell.appendChild(select);
     } else {
-      const label = pairing.result ? RESULT_LABELS[pairing.result] || pairing.result : 'ÄekÃ¡ se';
+      const label = pairing.result ? RESULT_LABELS[pairing.result] || pairing.result : 'ceká se';
       resultCell.appendChild(createResultTag(label));
     }
 
@@ -850,6 +890,168 @@ function renderPairings(round, body, editable) {
   });
 }
 
+function getPdfDoc() {
+  if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
+    return null;
+  }
+  return new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+}
+
+function formatExportDate(date) {
+  return date.toLocaleDateString('cs-CZ');
+}
+
+function getPairingResultLabel(pairing) {
+  if (pairing.byeId) {
+    return RESULT_LABELS.bye;
+  }
+  if (pairing.result) {
+    return RESULT_LABELS[pairing.result] || pairing.result;
+  }
+  return 'ceká se';
+}
+
+function getPlayerNameById(id) {
+  const player = findPlayer(id);
+  return player ? player.name : 'neznámı hrác';
+}
+
+function buildRoundRows(round) {
+  return round.pairings.map((pairing, index) => {
+    if (pairing.byeId) {
+      return [
+        String(index + 1),
+        getPlayerNameById(pairing.byeId),
+        'volno',
+        RESULT_LABELS.bye
+      ];
+    }
+    return [
+      String(index + 1),
+      getPlayerNameById(pairing.whiteId),
+      getPlayerNameById(pairing.blackId),
+      getPairingResultLabel(pairing)
+    ];
+  });
+}
+
+function buildStandingsRows(standings) {
+  return standings.map((player, index) => ([
+    String(index + 1),
+    player.name,
+    formatPoints(player.points),
+    String(player.ratingFinal ?? 0)
+  ]));
+}
+
+function ensurePdfSpace(doc, startY, needed) {
+  const height = doc.internal.pageSize.getHeight();
+  if (startY + needed > height - 40) {
+    doc.addPage();
+    return 40;
+  }
+  return startY;
+}
+
+function addPdfSectionTitle(doc, text, startY) {
+  const nextY = ensurePdfSpace(doc, startY, 28);
+  doc.setFontSize(13);
+  doc.setTextColor(0);
+  doc.text(text, 40, nextY);
+  return nextY + 16;
+}
+
+function addPdfTable(doc, head, body, startY) {
+  if (typeof doc.autoTable === 'function') {
+    doc.autoTable({
+      head: [head],
+      body,
+      startY,
+      margin: { left: 40, right: 40 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      headStyles: { fillColor: [197, 139, 42], textColor: 255 }
+    });
+    if (doc.lastAutoTable) {
+      return doc.lastAutoTable.finalY + 16;
+    }
+    return startY + 16;
+  }
+
+  let y = startY;
+  const lineHeight = 12;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  doc.setFontSize(10);
+  doc.text(head.join(' | '), 40, y);
+  y += lineHeight;
+  body.forEach((row) => {
+    if (y > pageHeight - 40) {
+      doc.addPage();
+      y = 40;
+    }
+    doc.text(row.join(' | '), 40, y);
+    y += lineHeight;
+  });
+  return y + 8;
+}
+
+function exportRoundPdf(round) {
+  const doc = getPdfDoc();
+  if (!doc) {
+    setTournamentStatus('Export do PDF není dostupnı (chybí knihovna).');
+    return;
+  }
+
+  doc.setFontSize(18);
+  doc.text(`Turnaj Koruna - Kolo ${round.round}`, 40, 52);
+  doc.setFontSize(11);
+  doc.setTextColor(90);
+  doc.text(`Datum exportu: ${formatExportDate(new Date())}`, 40, 70);
+  doc.setTextColor(0);
+
+  const rows = buildRoundRows(round);
+  addPdfTable(doc, ['#', 'Bílı', 'Cernı', 'Vısledek'], rows, 90);
+
+  doc.save(`turnaj-koruna-kolo-${round.round}.pdf`);
+  setTournamentStatus('PDF bylo exportováno.');
+}
+
+function exportTournamentPdf() {
+  if (!tournament) {
+    setTournamentStatus('Turnaj není zaloen.');
+    return;
+  }
+
+  const doc = getPdfDoc();
+  if (!doc) {
+    setTournamentStatus('Export do PDF není dostupnı (chybí knihovna).');
+    return;
+  }
+
+  const systemLabel = tournament.system === 'swiss'
+    ? 'Švıcarskı systém'
+    : 'Kadı s kadım';
+
+  doc.setFontSize(18);
+  doc.text('Turnaj Koruna - Vısledky', 40, 52);
+  doc.setFontSize(11);
+  doc.setTextColor(90);
+  doc.text(`Systém: ${systemLabel}`, 40, 70);
+  doc.text(`Datum exportu: ${formatExportDate(new Date())}`, 40, 86);
+  doc.setTextColor(0);
+
+  let y = 110;
+  const standings = getStandings(players, tournament.rounds);
+  y = addPdfSectionTitle(doc, 'Poradí hrácu', y);
+  y = addPdfTable(doc, ['#', 'Hrác', 'Body', 'Rating'], buildStandingsRows(standings), y);
+
+  tournament.rounds.forEach((round) => {
+    y = addPdfSectionTitle(doc, `Kolo ${round.round}`, y);
+    y = addPdfTable(doc, ['#', 'Bílı', 'Cernı', 'Vısledek'], buildRoundRows(round), y);
+  });
+
+  doc.save('turnaj-koruna-vysledky.pdf');
+  setTournamentStatus('PDF bylo exportováno.');
+}
 function renderStandings() {
   standingsBody.textContent = '';
 
@@ -875,7 +1077,7 @@ function renderPlayerDetail() {
   playerDetailBody.textContent = '';
 
   if (!tournament || !selectedPlayerId) {
-    playerDetailTitle.textContent = 'Detail hrÃ¡Äe';
+    playerDetailTitle.textContent = 'Detail hráce';
     playerDetailEmpty.hidden = false;
     playerDetailClear.hidden = true;
     return;
@@ -889,7 +1091,7 @@ function renderPlayerDetail() {
   }
 
   const results = getPlayerResults(selectedPlayerId, tournament.rounds);
-  playerDetailTitle.textContent = `Detail hrÃ¡Äe: ${player.name}`;
+  playerDetailTitle.textContent = `Detail hráce: ${player.name}`;
   playerDetailEmpty.hidden = results.length > 0;
   playerDetailClear.hidden = false;
 
@@ -930,7 +1132,7 @@ function createTournament() {
   viewRoundNumber = tournament.round;
   saveTournament(tournament);
   renderTournament();
-  setTournamentStatus('NasazenÃ­ pro 1. kolo bylo vytvoÅ™eno.');
+  setTournamentStatus('Nasazení pro 1. kolo bylo vytvoreno.');
 }
 
 function createNextRound() {
@@ -946,7 +1148,7 @@ function createNextRound() {
     viewRoundNumber = tournament.round;
     saveTournament(tournament);
     renderTournament();
-    setTournamentStatus(`NasazenÃ­ pro ${tournament.round}. kolo bylo vytvoÅ™eno.`);
+    setTournamentStatus(`Nasazení pro ${tournament.round}. kolo bylo vytvoreno.`);
     return;
   }
 
@@ -971,20 +1173,20 @@ function createNextRound() {
 
   saveTournament(tournament);
   renderTournament();
-  const suffix = result.hasRematch ? ' (obsahuje opakovÃ¡nÃ­ soupeÅ™Å¯)' : '';
-  setTournamentStatus(`NasazenÃ­ pro ${tournament.round}. kolo bylo vytvoÅ™eno${suffix}.`);
+  const suffix = result.hasRematch ? ' (obsahuje opakování souperu)' : '';
+  setTournamentStatus(`Nasazení pro ${tournament.round}. kolo bylo vytvoreno${suffix}.`);
 }
 
 function getSwissFailureMessage(result, allowRepeat) {
   if (result.reason === 'odd_group') {
-    return 'Nelze vytvoÅ™it kolo: nÄ›kterÃ¡ skupina zÅ¯stala lichÃ¡ (pravdÄ›podobnÄ› uÅ¾ vÅ¡ichni mÄ›li volno).';
+    return 'Nelze vytvorit kolo: nekterá skupina zustala lichá (pravdepodobne u všichni meli volno).';
   }
   if (result.reason === 'no_match') {
     return allowRepeat
-      ? 'Nelze vytvoÅ™it kolo s aktuÃ¡lnÃ­mi pravidly (barvy/opakovÃ¡nÃ­ soupeÅ™Å¯).'
-      : 'Bez opakovÃ¡nÃ­ soupeÅ™Å¯ nelze vytvoÅ™it dalÅ¡Ã­ kolo. ZaÅ¡krtnÄ›te â€Povolit opakovÃ¡nÃ­ soupeÅ™Å¯â€œ.';
+      ? 'Nelze vytvorit kolo s aktuálními pravidly (barvy/opakování souperu).'
+      : 'Bez opakování souperu nelze vytvorit další kolo. Zaškrtnete „Povolit opakování souperu“.';
   }
-  return 'Nelze vytvoÅ™it kolo s aktuÃ¡lnÃ­mi pravidly.';
+  return 'Nelze vytvorit kolo s aktuálními pravidly.';
 }
 
 function getPlayerResults(playerId, rounds) {
@@ -1009,12 +1211,12 @@ function getPlayerResults(playerId, rounds) {
       const isWhite = pairing.whiteId === playerId;
       const opponentId = isWhite ? pairing.blackId : pairing.whiteId;
       const opponent = findPlayer(opponentId);
-      const color = isWhite ? 'bÃ­lÃ¡' : 'ÄernÃ¡';
+      const color = isWhite ? 'bílá' : 'cerná';
       const result = formatPlayerResult(pairing.result, isWhite);
 
       results.push({
         round: round.round,
-        opponent: opponent ? opponent.name : 'neznÃ¡mÃ½ hrÃ¡Ä',
+        opponent: opponent ? opponent.name : 'neznámı hrác',
         color,
         result
       });
@@ -1026,7 +1228,7 @@ function getPlayerResults(playerId, rounds) {
 
 function formatPlayerResult(result, isWhite) {
   if (!result) {
-    return 'ÄekÃ¡ se';
+    return 'ceká se';
   }
   if (result === '0.5-0.5') {
     return '0.5';
@@ -1132,7 +1334,7 @@ function showRegistrationSuccess() {
   if (!registrationSuccess) {
     return;
   }
-  registrationSuccess.textContent = 'Registrace probÄ›hla ÃºspÄ›Å¡nÄ›.';
+  registrationSuccess.textContent = 'Registrace probehla úspešne.';
   registrationSuccess.hidden = false;
   if (registrationSuccessTimer) {
     window.clearTimeout(registrationSuccessTimer);
@@ -1509,3 +1711,4 @@ function getRoundByNumber(roundNumber) {
   }
   return tournament.rounds.find((round) => round.round === roundNumber) || null;
 }
+

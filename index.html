@@ -1,4 +1,4 @@
-ï»¿<!doctype html>
+<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8">
@@ -21,7 +21,7 @@
     </a>
     <div class="header-actions">
       <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-label="OtevÅ™Ã­t menu" aria-expanded="false" aria-controls="menuDrawer">
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Otevrít menu" aria-expanded="false" aria-controls="menuDrawer">
         <span></span>
         <span></span>
         <span></span>
@@ -32,18 +32,18 @@
   <aside id="menuDrawer" class="drawer" aria-hidden="true">
     <div class="drawer-header">
       <h2>Menu</h2>
-      <button class="drawer-close" id="menuClose" type="button" aria-label="ZavÅ™Ã­t menu">Ã—</button>
+      <button class="drawer-close" id="menuClose" type="button" aria-label="Zavrít menu">×</button>
     </div>
     <div class="drawer-section">
-      <p class="drawer-title">PÅ™ihlÃ¡Å¡enÃ­ rozhodÄÃ­ho</p>
+      <p class="drawer-title">Prihlášení rozhodcího</p>
       <form id="refLoginForm" class="drawer-form">
         <label for="refPassword">Heslo</label>
         <input id="refPassword" type="password" placeholder="Zadejte heslo" autocomplete="current-password">
-        <button class="btn btn-primary" type="submit">PÅ™ihlÃ¡sit</button>
+        <button class="btn btn-primary" type="submit">Prihlásit</button>
       </form>
       <div id="refLogged" class="drawer-logged" hidden>
-        <p class="drawer-text">PÅ™ihlÃ¡Å¡en jako rozhodÄÃ­.</p>
-        <button class="btn btn-ghost" id="refLogout" type="button">OdhlÃ¡sit</button>
+        <p class="drawer-text">Prihlášen jako rozhodcí.</p>
+        <button class="btn btn-ghost" id="refLogout" type="button">Odhlásit</button>
       </div>
       <p id="refStatus" class="status-text"></p>
     </div>
@@ -57,19 +57,19 @@
   <main class="page" id="mainView">
     <section id="turnaj" class="card reveal">
       <h1 class="page-title">Turnaj Koruna</h1>
-      <p id="registrationSuccess" class="status-banner" role="status" hidden>Registrace probÄ›hla ÃºspÄ›Å¡nÄ›.</p>
+      <p id="registrationSuccess" class="status-banner" role="status" hidden>Registrace probehla úspešne.</p>
       <div class="tabs">
-        <button id="tabStandings" class="tab" type="button">PoÅ™adÃ­ hrÃ¡ÄÅ¯</button>
-        <button id="tabPairings" class="tab active" type="button">NasazenÃ­ na novÃ© kolo</button>
-        <button id="tabResults" class="tab" type="button">VÃ½sledky kol</button>
-        <button id="tabAdmin" class="tab" type="button" hidden>Å˜Ã­zenÃ­ turnaje</button>
+        <button id="tabStandings" class="tab" type="button">Poradí hrácu</button>
+        <button id="tabPairings" class="tab active" type="button">Nasazení na nové kolo</button>
+        <button id="tabResults" class="tab" type="button">Vısledky kol</button>
+        <button id="tabAdmin" class="tab" type="button" hidden>Rízení turnaje</button>
       </div>
 
       <div id="panelPairings" class="tab-panel">
         <div id="publicPairingsWrap">
           <div class="list-header">
             <div>
-              <h2>NasazenÃ­ na novÃ© kolo</h2>
+              <h2>Nasazení na nové kolo</h2>
               <p id="publicRoundLabel" class="tournament-round"></p>
             </div>
           </div>
@@ -77,22 +77,22 @@
             <table class="pairings-table">
               <thead>
                 <tr>
-                  <th>Å achovnice</th>
-                  <th>BÃ­lÃ½</th>
-                  <th>ÄŒernÃ½</th>
-                  <th>VÃ½sledek</th>
+                  <th>Šachovnice</th>
+                  <th>Bílı</th>
+                  <th>Cernı</th>
+                  <th>Vısledek</th>
                 </tr>
               </thead>
               <tbody id="publicPairingsBody"></tbody>
             </table>
           </div>
-          <p id="publicPairingsEmpty" class="empty">ZatÃ­m nebylo vytvoÅ™eno Å¾Ã¡dnÃ© kolo.</p>
+          <p id="publicPairingsEmpty" class="empty">Zatím nebylo vytvoreno ádné kolo.</p>
         </div>
 
         <div id="publicPlayersWrap">
           <div class="list-header">
             <div>
-              <h3>Seznam hrÃ¡ÄÅ¯</h3>
+              <h3>Seznam hrácu</h3>
             </div>
             <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
           </div>
@@ -104,14 +104,14 @@
               <tbody id="playersBody"></tbody>
             </table>
           </div>
-          <p id="emptyState" class="empty">ZatÃ­m nikdo nenÃ­ registrovÃ¡n.</p>
+          <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
         </div>
       </div>
 
       <div id="panelStandings" class="tab-panel" hidden>
         <div class="list-header">
           <div>
-            <h2>PoÅ™adÃ­ hrÃ¡ÄÅ¯</h2>
+            <h2>Poradí hrácu</h2>
           </div>
         </div>
         <div class="table-wrap">
@@ -119,7 +119,7 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>HrÃ¡Ä</th>
+                <th>Hrác</th>
                 <th>Body</th>
                 <th>Rating</th>
               </tr>
@@ -127,37 +127,37 @@
             <tbody id="standingsBody"></tbody>
           </table>
         </div>
-        <p id="standingsEmpty" class="empty">ZatÃ­m nejsou k dispozici Å¾Ã¡dnÃ© vÃ½sledky.</p>
+        <p id="standingsEmpty" class="empty">Zatím nejsou k dispozici ádné vısledky.</p>
 
         <div class="player-detail">
           <div class="list-header">
             <div>
-              <h3 id="playerDetailTitle">Detail hrÃ¡Äe</h3>
-              <p class="hint">KliknÄ›te na jmÃ©no hrÃ¡Äe v nasazenÃ­ nebo tabulce poÅ™adÃ­.</p>
+              <h3 id="playerDetailTitle">Detail hráce</h3>
+              <p class="hint">Kliknete na jméno hráce v nasazení nebo tabulce poradí.</p>
             </div>
-            <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">ZavÅ™Ã­t detail</button>
+            <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">Zavrít detail</button>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Kolo</th>
-                  <th>SoupeÅ™</th>
+                  <th>Souper</th>
                   <th>Barva</th>
-                  <th>VÃ½sledek</th>
+                  <th>Vısledek</th>
                 </tr>
               </thead>
               <tbody id="playerDetailBody"></tbody>
             </table>
           </div>
-          <p id="playerDetailEmpty" class="empty">Vyberte hrÃ¡Äe pro zobrazenÃ­ detailu.</p>
+          <p id="playerDetailEmpty" class="empty">Vyberte hráce pro zobrazení detailu.</p>
         </div>
       </div>
 
       <div id="panelResults" class="tab-panel" hidden>
         <div class="list-header">
           <div>
-            <h2>VÃ½sledky kol</h2>
+            <h2>Vısledky kol</h2>
           </div>
           <div id="publicResultsSelectWrap" class="round-select">
             <label for="publicResultsSelect">Kolo</label>
@@ -169,67 +169,71 @@
           <table class="pairings-table">
             <thead>
               <tr>
-                <th>Å achovnice</th>
-                <th>BÃ­lÃ½</th>
-                <th>ÄŒernÃ½</th>
-                <th>VÃ½sledek</th>
+                <th>Šachovnice</th>
+                <th>Bílı</th>
+                <th>Cernı</th>
+                <th>Vısledek</th>
               </tr>
             </thead>
             <tbody id="publicResultsBody"></tbody>
           </table>
         </div>
-        <p id="publicResultsEmpty" class="empty">ZatÃ­m nejsou odehranÃ¡ kola.</p>
+        <p id="publicResultsEmpty" class="empty">Zatím nejsou odehraná kola.</p>
       </div>
 
       <div id="turnaj-admin" class="tab-panel" hidden>
         <div class="list-header">
           <div>
-            <h2>Å˜Ã­zenÃ­ turnaje</h2>
-            <p id="tournamentHint" class="hint">Pro prÃ¡ci s turnajem je potÅ™eba pÅ™ihlÃ¡Å¡enÃ­ rozhodÄÃ­ho.</p>
+            <h2>Rízení turnaje</h2>
+            <p id="tournamentHint" class="hint">Pro práci s turnajem je potreba prihlášení rozhodcího.</p>
           </div>
         </div>
         <div id="tournamentControls" class="tournament-controls">
           <div class="tournament-options">
             <div>
-              <label for="tournamentSystem">SystÃ©m</label>
+              <label for="tournamentSystem">Systém</label>
               <select id="tournamentSystem">
-                <option value="round-robin">KaÅ¾dÃ½ s kaÅ¾dÃ½m</option>
-                <option value="swiss">Å vÃ½carskÃ½ systÃ©m</option>
+                <option value="round-robin">Kadı s kadım</option>
+                <option value="swiss">Švıcarskı systém</option>
               </select>
             </div>
             <label id="allowRematchWrap" class="checkbox" hidden>
               <input id="allowRematch" type="checkbox">
-              <span>Povolit opakovÃ¡nÃ­ soupeÅ™Å¯</span>
+              <span>Povolit opakování souperu</span>
             </label>
             <div id="roundSelectWrap" class="round-select" hidden>
-              <label for="roundSelect">ZobrazenÃ© kolo</label>
+              <label for="roundSelect">Zobrazené kolo</label>
               <select id="roundSelect"></select>
             </div>
           </div>
           <div class="tournament-buttons">
-            <button id="btnCreateTournament" class="btn btn-primary" type="button">VytvoÅ™it 1. kolo</button>
-            <button id="btnCancelRound" class="btn btn-ghost" type="button">ZruÅ¡it kolo</button>
-            <button id="btnCancelTournament" class="btn btn-ghost" type="button">ZruÅ¡it turnaj</button>
+            <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvorit 1. kolo</button>
+            <button id="btnCancelRound" class="btn btn-ghost" type="button">Zrušit kolo</button>
+            <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
           </div>
+        </div>
+        <div class="tournament-export">
+          <button id="btnExportRound" class="btn btn-ghost" type="button">Exportovat kolo do PDF</button>
+          <button id="btnExportTournament" class="btn btn-ghost" type="button">Exportovat celı turnaj do PDF</button>
         </div>
         <p id="tournamentRoundLabel" class="tournament-round"></p>
         <p id="tournamentStatus" class="status-text"></p>
 
-        <h3 class="section-title">NasazenÃ­</h3>
+        <h3 class="section-title">Nasazení</h3>
         <div class="table-wrap">
           <table class="pairings-table">
             <thead>
               <tr>
-                <th>Å achovnice</th>
-                <th>BÃ­lÃ½</th>
-                <th>ÄŒernÃ½</th>
-                <th>VÃ½sledek</th>
+                <th>Šachovnice</th>
+                <th>Bílı</th>
+                <th>Cernı</th>
+                <th>Vısledek</th>
               </tr>
             </thead>
             <tbody id="pairingsBody"></tbody>
           </table>
         </div>
-        <p id="pairingsEmpty" class="empty">Turnaj zatÃ­m nenÃ­ zaloÅ¾en.</p>
+        <p id="pairingsEmpty" class="empty">Turnaj zatím není zaloen.</p>
       </div>
     </section>
   </main>
@@ -240,39 +244,39 @@
         <h2>Registrace do turnaje</h2>
         <form id="registration-form">
           <div>
-            <label for="playerName">JmÃ©no hrÃ¡Äe</label>
-            <input id="playerName" type="text" placeholder="napÅ™. Jakub NovÃ¡k" autocomplete="name" required>
+            <label for="playerName">Jméno hráce</label>
+            <input id="playerName" type="text" placeholder="napr. Jakub Novák" autocomplete="name" required>
           </div>
 
           <fieldset>
-            <legend>ÃšÄet</legend>
+            <legend>Úcet</legend>
             <div class="radio-grid">
               <label class="radio-option">
                 <input type="radio" name="provider" value="chess.com" checked>
                 <span>chess.com</span>
-                <small>nejvyÅ¡Å¡Ã­ rating</small>
+                <small>nejvyšší rating</small>
               </label>
               <label class="radio-option">
                 <input type="radio" name="provider" value="lichess">
                 <span>lichess.org</span>
-                <small>nejvyÅ¡Å¡Ã­ rating</small>
+                <small>nejvyšší rating</small>
               </label>
               <label class="radio-option">
                 <input type="radio" name="provider" value="none">
-                <span>nemÃ¡m ÃºÄet</span>
+                <span>nemám úcet</span>
                 <small>rating 0</small>
               </label>
             </div>
           </fieldset>
 
           <div>
-            <label for="accountHandle">UÅ¾ivatelskÃ© jmÃ©no</label>
-            <input id="accountHandle" type="text" placeholder="napÅ™. kubaczess" autocomplete="off">
+            <label for="accountHandle">Uivatelské jméno</label>
+            <input id="accountHandle" type="text" placeholder="napr. kubaczess" autocomplete="off">
             <p id="accountHelp" class="hint"></p>
           </div>
 
           <div class="form-actions">
-            <button id="submitBtn" class="btn btn-primary" type="submit">OvÄ›Å™it a registrovat</button>
+            <button id="submitBtn" class="btn btn-primary" type="submit">Overit a registrovat</button>
             <p id="formStatus" class="status-text" aria-live="polite"></p>
           </div>
         </form>
@@ -282,6 +286,9 @@
 
   <footer class="footer">Turnaj Koruna</footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
+
