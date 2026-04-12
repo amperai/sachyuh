@@ -327,3 +327,49 @@ test('Svicar: skupina pari top half vs bottom half', () => {
     assert(pairs.includes(pair), 'Chybi parovani ' + pair + '.');
   });
 });
+
+
+test('Svicar: merge scoregroup kdyz nejde parovat', () => {
+  const players = [
+    makePlayer('a', 2000),
+    makePlayer('b', 1900),
+    makePlayer('c', 1800),
+    makePlayer('d', 1700),
+    makePlayer('e', 1600),
+    makePlayer('f', 1500),
+    makePlayer('g', 1400),
+    makePlayer('h', 1300)
+  ];
+
+  const rounds = [
+    makeRound(1, [
+      { whiteId: 'a', blackId: 'b', result: '0.5-0.5' },
+      { whiteId: 'c', blackId: 'd', result: '0.5-0.5' }
+    ]),
+    makeRound(2, [
+      { whiteId: 'a', blackId: 'c', result: '0.5-0.5' },
+      { whiteId: 'b', blackId: 'd', result: '0.5-0.5' }
+    ]),
+    makeRound(3, [
+      { whiteId: 'a', blackId: 'd', result: '0.5-0.5' },
+      { whiteId: 'b', blackId: 'c', result: '0.5-0.5' }
+    ])
+  ];
+
+  const result = generateSwissPairings(players, rounds);
+  assertEqual(result.success, true);
+
+  const top = new Set(['a', 'b', 'c', 'd']);
+  const bottom = new Set(['e', 'f', 'g', 'h']);
+  const pairs = result.pairings.filter((pairing) => !pairing.byeId);
+
+  assertEqual(pairs.length, 4);
+  pairs.forEach((pairing) => {
+    const isTopTop = top.has(pairing.whiteId) && top.has(pairing.blackId);
+    const isBottomBottom = bottom.has(pairing.whiteId) && bottom.has(pairing.blackId);
+    assert(!isTopTop, 'Top scoregroup should not pair internally.');
+    assert(!isBottomBottom, 'Lower scoregroup should not pair internally.');
+  });
+});
+
+

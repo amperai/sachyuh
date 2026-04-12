@@ -472,37 +472,69 @@ function matchGroup(top, bottom, history, allowRematch) {
   return result ? result.pairs : null;
 }
 
+function buildExchangeSplit(players, exchangeCount) {
+  const half = players.length / 2;
+  if (!exchangeCount) {
+    return { top: players.slice(0, half), bottom: players.slice(half) };
+  }
+
+  const topBase = players.slice(0, half - exchangeCount);
+  const topExchange = players.slice(half, half + exchangeCount);
+  const bottomExchange = players.slice(half - exchangeCount, half);
+  const bottomBase = players.slice(half + exchangeCount);
+  return {
+    top: [...topBase, ...topExchange],
+    bottom: [...bottomExchange, ...bottomBase]
+  };
+}
+
 function pairGroup(players, history, allowRematch) {
   if (!players.length) {
     return [];
   }
-
-  const half = players.length / 2;
-  const top = players.slice(0, half);
-  const bottom = players.slice(half);
-
-  const direct = tryDirectPairing(top, bottom, history, allowRematch);
-  if (direct) {
-    return direct;
+  if (players.length % 2 !== 0) {
+    return null;
   }
 
-  return matchGroup(top, bottom, history, allowRematch);
+  const half = players.length / 2;
+  for (let exchangeCount = 0; exchangeCount <= half; exchangeCount += 1) {
+    const { top, bottom } = buildExchangeSplit(players, exchangeCount);
+    if (exchangeCount === 0) {
+      const direct = tryDirectPairing(top, bottom, history, allowRematch);
+      if (direct) {
+        return direct;
+      }
+    }
+    const pairs = matchGroup(top, bottom, history, allowRematch);
+    if (pairs) {
+      return pairs;
+    }
+  }
+
+  return null;
 }
 
 function buildGroupOptions(players, history, allowRematch) {
   if (!players.length) {
-    return [{ pairings: [], carry: null }];
+    return [{ pairings: [], carry: [] }];
   }
 
-  if (players.length % 2 === 0) {
-    const pairings = pairGroup(players, history, allowRematch);
-    return pairings ? [{ pairings, carry: null }] : [];
-  }
-
+  const total = players.length;
   const options = [];
-  for (let index = players.length - 1; index >= 0; index -= 1) {
-    const carry = players[index];
-    const remaining = players.slice(0, index).concat(players.slice(index + 1));
+  const minCarry = total % 2 === 0 ? 0 : 1;
+
+  for (let carryCount = minCarry; carryCount <= total; carryCount += 1) {
+    const remainingCount = total - carryCount;
+    if (remainingCount === 0) {
+      options.push({ pairings: [], carry: players.slice(-carryCount) });
+      continue;
+    }
+    if (remainingCount % 2 !== 0) {
+      continue;
+    }
+
+    const remaining = players.slice(0, remainingCount);
+    const carry = players.slice(remainingCount);
     const pairings = pairGroup(remaining, history, allowRematch);
     if (pairings) {
       options.push({ pairings, carry });
@@ -513,13 +545,19 @@ function buildGroupOptions(players, history, allowRematch) {
 }
 
 function pairScoreGroups(groups, history, allowRematch) {
+  const totalPlayers = groups.reduce((sum, group) => sum + group.players.length, 0);
+
   function dfs(index, carry) {
     if (index >= groups.length) {
-      return carry ? { pairings: null, reason: 'odd_group' } : { pairings: [] };
+      if (!carry.length) {
+        return { pairings: [] };
+      }
+      const reason = totalPlayers % 2 === 1 ? 'odd_group' : 'no_match';
+      return { pairings: null, reason };
     }
 
     const basePlayers = carry
-      ? [carry, ...groups[index].players]
+      ? [...carry, ...groups[index].players]
       : [...groups[index].players];
     const options = buildGroupOptions(basePlayers, history, allowRematch);
     let fallbackReason = 'no_match';
@@ -537,7 +575,7 @@ function pairScoreGroups(groups, history, allowRematch) {
     return { pairings: null, reason: fallbackReason };
   }
 
-  return dfs(0, null);
+  return dfs(0, []);
 }
 
 function isRematchPair(history, pairing) {
