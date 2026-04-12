@@ -629,73 +629,48 @@ tournamentCancelBtn.addEventListener('click', () => {
 
 
 tournamentCancelRoundBtn.addEventListener('click', () => {
-
-  if (!isReferee || !tournament || !tournament.rounds.length) {
-
+  if (!isReferee) {
+    setTournamentStatus('Přihlaste se jako rozhodčí pro zrušení kola.');
     return;
-
   }
-
-
+  if (!tournament) {
+    setTournamentStatus('Turnaj není založen.');
+    return;
+  }
+  if (!tournament.rounds.length) {
+    setTournamentStatus('Žádné kolo ke zrušení.');
+    return;
+  }
 
   const confirmed = window.confirm('Opravdu chcete zrušit aktuální kolo?');
-
   if (!confirmed) {
-
     return;
-
   }
-
-
 
   if (tournament.system === 'swiss') {
-
     tournament.rounds.pop();
-
     if (tournament.rounds.length === 0) {
-
       tournament.round = 0;
-
     } else {
-
       tournament.round = tournament.rounds[tournament.rounds.length - 1].round;
-
     }
-
     viewRoundNumber = tournament.round;
-
     setTournamentStatus('Aktuální kolo bylo zrušeno.');
-
   } else {
-
     const currentRound = getCurrentRound(tournament);
-
     if (currentRound) {
-
       currentRound.pairings.forEach((pairing) => {
-
         if (!pairing.byeId) {
-
           pairing.result = null;
-
         }
-
       });
-
     }
-
     viewRoundNumber = tournament.round;
-
     setTournamentStatus('Výsledky aktuálního kola byly vymazány.');
-
   }
 
-
-
   saveTournament(tournament);
-
   renderTournament();
-
 });
 
 
@@ -1327,7 +1302,22 @@ function updateTournamentControls(hasTournament, hasRounds) {
 
   tournamentCancelBtn.disabled = !isReferee || !hasTournament;
 
-  tournamentCancelRoundBtn.disabled = !isReferee || !hasTournament || !hasRounds;
+    if (tournamentCancelRoundBtn) {
+    const canCancelRound = isReferee && hasTournament && hasRounds;
+    tournamentCancelRoundBtn.disabled = false;
+    tournamentCancelRoundBtn.setAttribute('aria-disabled', canCancelRound ? 'false' : 'true');
+    tournamentCancelRoundBtn.classList.toggle('is-disabled', !canCancelRound);
+    if (!canCancelRound) {
+      const reason = !isReferee
+        ? 'Přihlaste se jako rozhodčí.'
+        : !hasTournament
+          ? 'Turnaj není založen.'
+          : 'Žádné kolo ke zrušení.';
+      tournamentCancelRoundBtn.title = reason;
+    } else {
+      tournamentCancelRoundBtn.removeAttribute('title');
+    }
+  }
   if (tournamentExportRoundBtn) {
     tournamentExportRoundBtn.disabled = !isReferee || !hasTournament || !hasRounds;
   }
