@@ -16,7 +16,7 @@
         {
           default = pkgs.stdenvNoCC.mkDerivation {
             pname = "sachyuh-site";
-            version = "0.1.0";
+            version = "0.1.1";
             src = ./.;
             installPhase = ''
               mkdir -p $out
