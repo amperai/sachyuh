@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sachyuh.cz</title>
+  <meta name="theme-color" content="#b8872e">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
+
+    :root {
+      color-scheme: light;
+      --bg: #f7efe1;
+      --card: rgba(255, 252, 245, 0.96);
+      --text: #2b1c0e;
+      --accent: #b8872e;
+      --accent-2: #7b4f18;
+      --line: rgba(43, 28, 14, 0.12);
+      --shadow: 0 24px 70px rgba(89, 58, 22, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(184, 135, 46, 0.18), transparent 32%),
+        linear-gradient(180deg, var(--bg), #efe1c2);
+    }
+
+    main {
+      width: min(520px, 100%);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .layout {
+      display: grid;
+      gap: 18px;
+      justify-items: start;
+    }
+
+    .brandline,
+    .turnaje-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .chess-chip {
+      font-family: "Noto Sans Symbols 2", system-ui, sans-serif;
+      font-weight: 400;
+      color: var(--accent-2);
+    }
+
+    a {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 22px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      text-decoration: none;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      box-shadow: 0 12px 24px rgba(123, 79, 24, 0.22);
+    }
+
+    a:focus,
+    a:hover {
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 22px;
+      }
+
+      a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="layout">
+      <div class="brandline" style="margin-bottom: 14px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7b4f18;">
+        <span class="chess-chip" aria-hidden="true">♛</span>
+        sachyuh.cz
+        <span class="chess-chip" aria-hidden="true">♜</span>
+      </div>
+      <a class="turnaje-link" href="/tournament/">
+        <span class="chess-chip" aria-hidden="true">♞</span>
+        Turnaje
+        <span class="chess-chip" aria-hidden="true">♝</span>
+      </a>
+      <p style="margin: 0; font-size: 0.95rem; line-height: 1.55; color: #6f5a43;">
+        Od října 2026 začnou probíhat šachové lekce pro mládež. Podrobnosti budou upřesněny zde.
+      </p>
+    </div>
+  </main>
+</body>
+</html>
