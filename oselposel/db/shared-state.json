@@ -1,0 +1,13 @@
+{
+  "id": "turnaj-koruna",
+  "payload": {
+    "players": [
+      {
+        "id": "p1",
+        "name": "Test"
+      }
+    ],
+    "tournament": null,
+    "updatedAt": 123
+  }
+}

@@ -1,0 +1,27 @@
+﻿<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testy | Turnaj Koruna</title>
+  <style>
+    body{margin:0;font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;background:#f6f4ef;color:#1f1b16}
+    main{max-width:860px;margin:0 auto;padding:32px}
+    h1{margin:0 0 12px 0;font-size:28px}
+    #summary{margin:0 0 16px 0;font-weight:600}
+    ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+    li{padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #e2ddd5}
+    li.pass{border-color:#b3d6b7;background:#f3fbf4}
+    li.fail{border-color:#e7b4b4;background:#fff5f5}
+    pre{margin:8px 0 0 0;white-space:pre-wrap;font-size:13px;color:#7a3a3a}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Testy Turnaje Koruna</h1>
+    <p id="summary">Spouštím testy...</p>
+    <ul id="results"></ul>
+  </main>
+  <script type="module" src="./runner.js"></script>
+</body>
+</html>
