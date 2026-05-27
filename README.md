@@ -2,7 +2,7 @@
 
 Staticky web pro sachyuh.cz.
 
-Aktualni verze: `0.1.1`.
+Aktualni verze: `0.1.2`.
 
 ## Lokalne
 

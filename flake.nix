@@ -12,15 +12,24 @@
       packages = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; };
-        in
-        {
-          default = pkgs.stdenvNoCC.mkDerivation {
+          site = pkgs.stdenvNoCC.mkDerivation {
             pname = "sachyuh-site";
-            version = "0.1.1";
+            version = "0.1.2";
             src = ./.;
             installPhase = ''
               mkdir -p $out
               cp -r . $out/
+            '';
+          };
+        in
+        {
+          default = site;
+          server = pkgs.writeShellApplication {
+            name = "sachyuh-turnaj-server";
+            runtimeInputs = [ pkgs.nodejs_24 ];
+            text = ''
+              export SACHYUH_DB_DIR="''${SACHYUH_DB_DIR:-$PWD/db}"
+              exec node ${site}/turnaj/server.js
             '';
           };
         });

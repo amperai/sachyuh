@@ -56,6 +56,12 @@
       justify-items: start;
     }
 
+    .links {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+    }
+
     .brandline,
     .turnaje-link {
       display: inline-flex;
@@ -120,15 +126,17 @@
         sachyuh.cz
         <span class="chess-chip" aria-hidden="true">♜</span>
       </div>
-      <a class="turnaje-link" href="/tournament/">
+      <div class="links">
+      <a class="turnaje-link" href="/turnaj/">
         <span class="chess-chip" aria-hidden="true">♞</span>
-        Turnaje
-        <span class="chess-chip" aria-hidden="true">♝</span>
+        Turnaj s lokální DB
+        <span class="chess-chip" aria-hidden="true">♛</span>
       </a>
+      </div>
       <p style="margin: 0; font-size: 0.95rem; line-height: 1.55; color: #6f5a43;">
         Od října 2026 začnou probíhat šachové lekce pro mládež. Podrobnosti budou upřesněny zde.
       </p>
-      <footer class="site-footer">sachyuh.cz v0.1.1</footer>
+      <footer class="site-footer">sachyuh.cz v0.1.2</footer>
     </div>
   </main>
 </body>

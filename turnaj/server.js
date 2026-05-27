@@ -1,14 +1,19 @@
 import { createServer } from 'node:http';
-import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = __dirname;
-const dbDir = path.join(rootDir, 'db');
-const dbFile = path.join(dbDir, 'shared-state.json');
+const dbDir = process.env.SACHYUH_DB_DIR
+  ? path.resolve(process.env.SACHYUH_DB_DIR)
+  : path.join(rootDir, 'db');
+const dbFile = path.join(dbDir, 'shared-state.sqlite');
 const port = Number.parseInt(process.env.PORT ?? '3000', 10);
+const defaultStateId = 'turnaj-koruna';
+let db;
 
 const mimeTypes = new Map([
   ['.html', 'text/html; charset=utf-8'],
@@ -22,34 +27,30 @@ const mimeTypes = new Map([
   ['.ico', 'image/x-icon']
 ]);
 
-async function ensureDbFile() {
-  await mkdir(dbDir, { recursive: true });
-  try {
-    await readFile(dbFile, 'utf8');
-  } catch {
-    const initialState = {
-      id: 'turnaj-koruna',
-      payload: null
-    };
-    await writeFile(dbFile, `${JSON.stringify(initialState, null, 2)}\n`, 'utf8');
-  }
-}
-
 async function readState() {
-  await ensureDbFile();
-  const raw = await readFile(dbFile, 'utf8');
+  const row = db.prepare('SELECT id, payload_json FROM shared_state WHERE id = ?').get(defaultStateId);
+  if (!row) {
+    return { id: defaultStateId, payload: null };
+  }
+
   try {
-    return JSON.parse(raw);
+    return {
+      id: row.id,
+      payload: JSON.parse(row.payload_json)
+    };
   } catch {
-    return { id: 'turnaj-koruna', payload: null };
+    return { id: row.id, payload: null };
   }
 }
 
 async function writeState(state) {
-  await mkdir(dbDir, { recursive: true });
-  const tmpFile = `${dbFile}.tmp`;
-  await writeFile(tmpFile, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
-  await rename(tmpFile, dbFile);
+  db.prepare(`
+    INSERT INTO shared_state (id, payload_json, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      payload_json = excluded.payload_json,
+      updated_at = excluded.updated_at
+  `).run(state.id, JSON.stringify(state.payload ?? null), Date.now());
 }
 
 function sendJson(res, statusCode, body) {
@@ -85,6 +86,23 @@ async function serveStatic(req, res) {
   } catch {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Not found');
+  }
+}
+
+async function initDb() {
+  await mkdir(dbDir, { recursive: true });
+  db = new DatabaseSync(dbFile);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS shared_state (
+      id TEXT PRIMARY KEY,
+      payload_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+  `);
+
+  const existing = db.prepare('SELECT 1 FROM shared_state WHERE id = ?').get(defaultStateId);
+  if (!existing) {
+    await writeState({ id: defaultStateId, payload: null });
   }
 }
 
@@ -143,7 +161,7 @@ const server = createServer(async (req, res) => {
   }
 });
 
-await ensureDbFile();
+await initDb();
 server.listen(port, () => {
   console.log(`Server running on http://127.0.0.1:${port}`);
 });

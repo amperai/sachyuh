@@ -151,7 +151,7 @@ test('fetchLichessRating: ok -> rating', async () => {
     { name: 'Blitz', points: [[2024, 1, 1, 1700]] }
   ];
 
-  const result = await fetchLichessRating('oselposel', createOkFetch(history));
+  const result = await fetchLichessRating('magnus64', createOkFetch(history));
   assertEqual(result.status, 'ok');
   assertEqual(result.rating, 1700);
   assertEqual(result.category, 'blitz');

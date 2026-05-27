@@ -111,7 +111,7 @@ const providerHelp = {
     help: 'Načteme nejvyšší rating z chess.com (blitz, rapid, daily).'
   },
   lichess: {
-    placeholder: 'např. oselposel',
+    placeholder: 'např. Magnus64',
     help: 'Načteme nejvyšší rating z lichess.org (blitz, rapid, korespondence).'
   },
   none: {
