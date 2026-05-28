@@ -82,10 +82,8 @@ const STORAGE_KEY_LEGACY = 'turnaj-koruna-registrations-v1';
 const TOURNAMENT_KEY = 'turnaj-koruna-tournament-v2';
 const REFEREE_KEY = 'turnaj-koruna-referee';
 const REFEREE_PASSWORD = 'g';
-const SUPABASE_URL = 'https://ltbfmxhlxebcdcbebrnc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0YmZteGhseGViY2RjYmVicm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTg1NDUsImV4cCI6MjA5MTQ5NDU0NX0.JxALCCsu6C4qpjzVbWoxLOtp4ndGCl8jT3lGFnbca7E';
-const SUPABASE_TABLE = 'shared_state';
-const SUPABASE_ROW_ID = 'turnaj-koruna';
+const API_URL = '/api/shared-state';
+const API_ROW_ID = 'turnaj-koruna';
 const SHARED_SYNC_INTERVAL_MS = 5000;
 const SHARED_SAVE_DEBOUNCE_MS = 500;
 const SHARED_UPDATED_KEY = 'turnaj-koruna-shared-updated-at';
@@ -1292,20 +1290,18 @@ function saveLocalUpdatedAt(value) {
   window.localStorage.setItem(LOCAL_UPDATED_KEY, String(value));
 }
 
-function getSupabaseHeaders() {
+function getApiHeaders() {
   return {
-    apikey: SUPABASE_ANON_KEY,
-    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
     'Content-Type': 'application/json'
   };
 }
 
-function getSupabaseSelectUrl() {
-  return `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+function getApiSelectUrl() {
+  return API_URL;
 }
 
-function getSupabaseUpsertUrl() {
-  return `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
+function getApiUpsertUrl() {
+  return API_URL;
 }
 
 function loadSharedUpdatedAt() {
@@ -1323,7 +1319,7 @@ function saveSharedUpdatedAt(value) {
 }
 
 function scheduleSharedSave() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || suppressSharedSave) {
+  if (!API_URL || suppressSharedSave) {
     return;
   }
   if (!sharedSyncReady) {
@@ -1340,7 +1336,7 @@ function scheduleSharedSave() {
 }
 
 async function pushSharedState() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || suppressSharedSave || !sharedSyncReady) {
+  if (!API_URL || suppressSharedSave || !sharedSyncReady) {
     pendingSharedSave = false;
     return;
   }
@@ -1351,14 +1347,11 @@ async function pushSharedState() {
     updatedAt
   };
   try {
-    const response = await fetch(getSupabaseUpsertUrl(), {
+    const response = await fetch(getApiUpsertUrl(), {
       method: 'POST',
-      headers: {
-        ...getSupabaseHeaders(),
-        Prefer: 'resolution=merge-duplicates'
-      },
+      headers: getApiHeaders(),
       body: JSON.stringify({
-        id: SUPABASE_ROW_ID,
+        id: API_ROW_ID,
         payload
       })
     });
@@ -1375,13 +1368,13 @@ async function pushSharedState() {
 }
 
 async function fetchSharedState() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!API_URL) {
     return null;
   }
   try {
-    const response = await fetch(getSupabaseSelectUrl(), {
+    const response = await fetch(getApiSelectUrl(), {
       method: 'GET',
-      headers: getSupabaseHeaders()
+      headers: getApiHeaders()
     });
     if (!response.ok) {
       return null;
@@ -1468,7 +1461,7 @@ function applySharedState(data, remoteUpdatedAt) {
 }
 
 async function initSharedSync() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!API_URL) {
     sharedSyncReady = true;
     return;
   }
