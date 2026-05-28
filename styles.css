@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   --bg:#f6f1e7;
   --bg-2:#fbf7ef;
   --ink:#1f1a14;
@@ -484,12 +484,6 @@ legend{
   transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
 }
 
-.btn.is-disabled{
-  opacity:0.55;
-  cursor:not-allowed;
-}
-
-
 .btn:hover{
   transform:translateY(-1px);
 }
@@ -704,13 +698,6 @@ tbody tr:last-child td{
   gap:10px;
 }
 
-.tournament-export{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin:6px 0 12px;
-}
-
 .pairings-table{
   min-width:420px;
 }
@@ -771,4 +758,3 @@ tbody tr:last-child td{
   .btn{transition:none}
   .drawer{transition:none}
 }
-
