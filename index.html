@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>sachyuh.cz</title>
+  <title>sachyuh.cz – Letní šachová tour Uherské Hradiště</title>
+  <meta name="description" content="Letní šachová tour v Uherském Hradišti – série šachových turnajů pro hráče všech věkových kategorií v srdci Slovácka. Přijďte si zahrát šach, poměřit síly s ostatními hráči a prožít nezapomenutelné šachové léto.">
   <meta name="theme-color" content="#b8872e">
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
@@ -56,6 +57,12 @@
       justify-items: start;
     }
 
+    .links {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+    }
+
     .brandline,
     .turnaje-link {
       display: inline-flex;
@@ -69,6 +76,14 @@
       font-family: "Noto Sans Symbols 2", system-ui, sans-serif;
       font-weight: 400;
       color: var(--accent-2);
+    }
+
+    .site-footer {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #7b4f18;
+      opacity: 0.72;
     }
 
     a {
@@ -112,14 +127,22 @@
         sachyuh.cz
         <span class="chess-chip" aria-hidden="true">♜</span>
       </div>
-      <a class="turnaje-link" href="/tournament/">
+      <div class="links">
+      <a class="turnaje-link" href="/turnaj/">
         <span class="chess-chip" aria-hidden="true">♞</span>
-        Turnaje
-        <span class="chess-chip" aria-hidden="true">♝</span>
+        Letní šachová tour
+        <span class="chess-chip" aria-hidden="true">♛</span>
       </a>
+      <a class="turnaje-link" href="/turnaje/koruna.html">
+        <span class="chess-chip" aria-hidden="true">♛</span>
+        Dubnový Koruna Open
+        <span class="chess-chip" aria-hidden="true">♜</span>
+      </a>
+      </div>
       <p style="margin: 0; font-size: 0.95rem; line-height: 1.55; color: #6f5a43;">
         Od října 2026 začnou probíhat šachové lekce pro mládež. Podrobnosti budou upřesněny zde.
       </p>
+      <footer class="site-footer">sachyuh.cz v0.1.5</footer>
     </div>
   </main>
 </body>
