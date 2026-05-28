@@ -14,7 +14,7 @@
           pkgs = import nixpkgs { inherit system; };
           site = pkgs.stdenvNoCC.mkDerivation {
             pname = "sachyuh-site";
-            version = "0.1.6";
+            version = "0.2.0";
             src = ./.;
             installPhase = ''
               mkdir -p $out
