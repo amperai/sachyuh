@@ -20,7 +20,7 @@
 
           site = pkgs.stdenvNoCC.mkDerivation {
             pname = "sachyuh-site";
-            version = "0.2.2";
+            version = "0.2.4";
             src = ./.;
             installPhase = ''
               mkdir -p $out
