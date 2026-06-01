@@ -138,7 +138,7 @@ const STORAGE_KEY_LEGACY = 'turnaj-koruna-registrations-v1';
 const TOURNAMENT_KEY = 'turnaj-koruna-tournament-v2';
 const REFEREE_KEY = 'turnaj-koruna-referee';
 const REFEREE_PASSWORD = 'g';
-const SHARED_STATE_API = window.location.protocol === 'file:' ? '' : '/api/shared-state';
+const SHARED_STATE_API = window.location.protocol === 'file:' ? '' : (window.SACHYUH_SHARED_STATE_API || '/api/shared-state');
 const SHARED_STATE_ROW_ID = 'turnaj-koruna';
 const SHARED_SYNC_INTERVAL_MS = 5000;
 const SHARED_SAVE_DEBOUNCE_MS = 500;

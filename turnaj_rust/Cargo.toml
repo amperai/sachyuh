@@ -1,0 +1,16 @@
+[package]
+name = "sachyuh-turnaj-rust"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "sachyuh-turnaj-rust"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.7"
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.5", features = ["fs"] }

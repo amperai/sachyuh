@@ -98,6 +98,14 @@ async function initDb() {
       payload_json TEXT NOT NULL,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS tournaments (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL,
+      description TEXT,
+      created_at  INTEGER NOT NULL,
+      updated_at  INTEGER NOT NULL
+    );
   `);
 
   const existing = db.prepare('SELECT 1 FROM shared_state WHERE id = ?').get(defaultStateId);
@@ -145,6 +153,57 @@ const server = createServer(async (req, res) => {
 
         await writeState(nextState);
         sendJson(res, 200, { ok: true });
+        return;
+      }
+
+      res.writeHead(405, { Allow: 'GET, POST' });
+      res.end();
+      return;
+    }
+
+    if (req.url.startsWith('/api/tournaments')) {
+      if (req.method === 'GET') {
+        const rows = db.prepare(
+          'SELECT id, name, description, created_at, updated_at FROM tournaments ORDER BY created_at DESC'
+        ).all();
+        sendJson(res, 200, rows);
+        return;
+      }
+
+      if (req.method === 'POST') {
+        let body = '';
+        for await (const chunk of req) {
+          body += chunk;
+        }
+
+        let parsed = {};
+        try {
+          parsed = body ? JSON.parse(body) : {};
+        } catch {
+          sendJson(res, 400, { error: 'Invalid JSON.' });
+          return;
+        }
+
+        if (typeof parsed.name !== 'string' || !parsed.name.trim()) {
+          sendJson(res, 400, { error: 'Pole name je povinné.' });
+          return;
+        }
+
+        const now = Date.now();
+        const id = typeof parsed.id === 'string' && parsed.id
+          ? parsed.id
+          : `t-${now}`;
+
+        db.prepare(`
+          INSERT INTO tournaments (id, name, description, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            name        = excluded.name,
+            description = excluded.description,
+            updated_at  = excluded.updated_at
+        `).run(id, parsed.name.trim(), parsed.description || null, now, now);
+
+        sendJson(res, 200, { ok: true, id });
         return;
       }
 
