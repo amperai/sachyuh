@@ -173,14 +173,29 @@ let sharedSyncIntervalId = null;
 async function init() {
   isReferee = loadReferee();
 
+  // If a page hardcodes window.SACHYUH_TOURNAMENT_ID, lock to that tournament
+  const fixedId = window.SACHYUH_TOURNAMENT_ID || null;
+
   tournamentList = await fetchTournamentList();
 
-  const savedId = window.localStorage.getItem(ACTIVE_TOURNAMENT_KEY);
-  if (savedId && tournamentList.some((t) => t.id === savedId)) {
-    activeTournamentId = savedId;
-  } else if (tournamentList.length > 0) {
-    activeTournamentId = tournamentList[0].id;
-    window.localStorage.setItem(ACTIVE_TOURNAMENT_KEY, activeTournamentId);
+  if (fixedId && tournamentList.some((t) => t.id === fixedId)) {
+    activeTournamentId = fixedId;
+    // Hide the selector – single-tournament page
+    const selectorWrap = document.getElementById('tournamentSelectorWrap');
+    if (selectorWrap) selectorWrap.hidden = true;
+  } else if (fixedId) {
+    // fixed ID not in list yet – still lock to it
+    activeTournamentId = fixedId;
+    const selectorWrap = document.getElementById('tournamentSelectorWrap');
+    if (selectorWrap) selectorWrap.hidden = true;
+  } else {
+    const savedId = window.localStorage.getItem(ACTIVE_TOURNAMENT_KEY);
+    if (savedId && tournamentList.some((t) => t.id === savedId)) {
+      activeTournamentId = savedId;
+    } else if (tournamentList.length > 0) {
+      activeTournamentId = tournamentList[0].id;
+      window.localStorage.setItem(ACTIVE_TOURNAMENT_KEY, activeTournamentId);
+    }
   }
 
   if (activeTournamentId) {

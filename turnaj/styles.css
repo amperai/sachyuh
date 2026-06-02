@@ -874,3 +874,48 @@ tbody tr:last-child td{
   outline-offset:2px;
 }
 
+
+/* ── Tournament navigation list (rozcestník) ──────────────────────────────── */
+.tournament-nav-list{
+  display:grid;
+  gap:10px;
+  width:100%;
+  margin-bottom:18px;
+}
+.tournament-nav-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 18px;
+  border-radius:14px;
+  background:var(--bg-2);
+  border:1.5px solid var(--line);
+  text-decoration:none;
+  color:var(--ink);
+  transition:background .15s, border-color .15s, transform .1s;
+}
+.tournament-nav-item:hover{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  transform:translateY(-1px);
+}
+.tn-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  height:44px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark,#7b4f18));
+  color:#fff;
+  font-family:var(--font-heading,Cinzel,serif);
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:.04em;
+  flex-shrink:0;
+}
+.tn-name{
+  font-size:1rem;
+  font-weight:600;
+  line-height:1.2;
+}

@@ -3,24 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Šachové turnaje – sachyuh.cz</title>
-  <meta name="description" content="Šachové turnaje v Uherském Hradišti – přihlaste se, sledujte nasazení a výsledky. Turnaje Koruna 26, U Pučalíka 26, U Kovaříků 26, Zašívárna U Osla 26.">
+  <title>U Kovaříků 26 – sachyuh.cz</title>
+  <meta name="description" content="Turnaj U Kovaříků 26 v Uherském Hradišti – přihlaste se, sledujte nasazení a výsledky.">
   <meta name="theme-color" content="#c58b2a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../styles.css">
+  <script>window.SACHYUH_TOURNAMENT_ID = 'kovariku-26';</script>
 </head>
 <body>
   <header class="site-header reveal">
     <a class="brand brand-link" href="#turnaj">
-      <div class="brand-mark">TK</div>
+      <div class="brand-mark">UK26</div>
       <div>
-        <p class="brand-title">Šachové turnaje</p>
+        <p class="brand-title">U Kovaříků 26</p>
       </div>
     </a>
     <div class="header-actions">
-      <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
+      <a class="btn btn-ghost btn-small" href="/turnaj/">← Turnaje</a>
+      <a class="btn btn-primary" href="#registrace">Registrace</a>
       <button class="menu-toggle" id="menuToggle" type="button" aria-label="Otevřít menu" aria-expanded="false" aria-controls="menuDrawer">
         <span></span>
         <span></span>
@@ -48,6 +50,7 @@
       <p id="refStatus" class="status-text"></p>
     </div>
     <nav class="drawer-links">
+      <a href="/turnaj/">← Všechny turnaje</a>
       <a href="#turnaj">Turnaj</a>
       <a href="#registrace">Registrace do turnaje</a>
     </nav>
@@ -56,26 +59,7 @@
 
   <main class="page" id="mainView">
     <section id="turnaj" class="card reveal">
-      <h1 class="page-title" id="tournamentPageTitle">Šachové turnaje</h1>
-
-      <nav class="tournament-nav-list">
-        <a class="tournament-nav-item" href="/turnaj/koruna26/">
-          <span class="tn-mark">K26</span>
-          <span class="tn-name">Koruna 26</span>
-        </a>
-        <a class="tournament-nav-item" href="/turnaj/upucalika26/">
-          <span class="tn-mark">UP26</span>
-          <span class="tn-name">U Pučalíka 26</span>
-        </a>
-        <a class="tournament-nav-item" href="/turnaj/ukovariku26/">
-          <span class="tn-mark">UK26</span>
-          <span class="tn-name">U Kovaříků 26</span>
-        </a>
-        <a class="tournament-nav-item" href="/turnaj/zasivarna26/">
-          <span class="tn-mark">ZO26</span>
-          <span class="tn-name">Zašívárna U Osla 26</span>
-        </a>
-      </nav>
+      <h1 class="page-title" id="tournamentPageTitle">U Kovaříků 26</h1>
 
       <div class="tournament-selector-wrap" id="tournamentSelectorWrap" hidden>
         <label class="tournament-selector-label" for="tournamentSelect">Vyberte turnaj:</label>
@@ -276,7 +260,7 @@
   <section id="registrationView" class="page" hidden>
     <section id="registrace" class="registration">
       <div class="card reveal">
-        <h2 id="registrationTitle">Registrace do turnaje</h2>
+        <h2 id="registrationTitle">Registrace – U Kovaříků 26</h2>
         <form id="registration-form">
           <div>
             <label for="playerName">Jméno hráče</label>
@@ -319,10 +303,10 @@
     </section>
   </section>
 
-  <footer class="footer" id="pageFooter">Šachové turnaje</footer>
+  <footer class="footer" id="pageFooter">U Kovaříků 26</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="../app.js"></script>
 </body>
 </html>
