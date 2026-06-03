@@ -1,294 +1,248 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Turnaj Koruna</title>
-  <meta name="description" content="Turnaj Koruna">
-  <meta name="theme-color" content="#c58b2a">
+  <title>Letní šachová tour 2026 | ŠO Mařatice</title>
+  <meta name="description" content="Letní šachová tour 2026 v Uherském Hradišti. Blitz 5+0, otevřeno pro všechny.">
+  <meta name="theme-color" content="#0b2742">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="site-header reveal">
-    <a class="brand brand-link" href="#turnaj">
-      <div class="brand-mark">TK</div>
-      <div>
-        <p class="brand-title">Turnaj Koruna</p>
-      </div>
+  <header class="site-header">
+    <a class="brand" href="#tour" aria-label="Letní šachová tour 2026">
+      <img class="brand-logo" src="assets/logo-so-maratic-horse-mark.png" alt="Logo ŠO Mařatice">
+      <span>
+        <strong>ŠO Mařatice</strong>
+        <small>Letní tour 2026</small>
+      </span>
     </a>
-    <div class="header-actions">
-      <a class="btn btn-primary" href="#registrace">Registrace do turnaje</a>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Otevřít menu" aria-expanded="false" aria-controls="menuDrawer">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
   </header>
 
-  <aside id="menuDrawer" class="drawer" aria-hidden="true">
-    <div class="drawer-header">
-      <h2>Menu</h2>
-      <button class="drawer-close" id="menuClose" type="button" aria-label="Zavřít menu">×</button>
-    </div>
-    <div class="drawer-section">
-      <p class="drawer-title">Přihlášení rozhodčího</p>
-      <form id="refLoginForm" class="drawer-form">
-        <label for="refPassword">Heslo</label>
-        <input id="refPassword" type="password" placeholder="Zadejte heslo" autocomplete="current-password">
-        <button class="btn btn-primary" type="submit">Přihlásit</button>
-      </form>
-      <div id="refLogged" class="drawer-logged" hidden>
-        <p class="drawer-text">Přihlášen jako rozhodčí.</p>
-        <button class="btn btn-ghost" id="refLogout" type="button">Odhlásit</button>
-      </div>
-      <p id="refStatus" class="status-text"></p>
-    </div>
-    <nav class="drawer-links">
-      <a href="#turnaj">Turnaj</a>
-      <a href="#registrace">Registrace do turnaje</a>
-    </nav>
-  </aside>
-  <div id="menuBackdrop" class="backdrop" hidden></div>
-
-  <main class="page" id="mainView">
-    <section id="turnaj" class="card reveal">
-      <h1 class="page-title">Turnaj Koruna</h1>
-      <p id="registrationSuccess" class="status-banner" role="status" hidden>Registrace proběhla úspěšně.</p>
-      <div class="tabs">
-        <button id="tabStandings" class="tab" type="button">Pořadí hráčů</button>
-        <button id="tabPairings" class="tab active" type="button">Nasazení na nové kolo</button>
-        <button id="tabResults" class="tab" type="button">Výsledky kol</button>
-        <button id="tabAdmin" class="tab" type="button" hidden>Řízení turnaje</button>
+  <main>
+    <section class="content" id="tour" aria-labelledby="tabs-title">
+      <div class="section-heading">
+        <p class="eyebrow">Informace</p>
+        <h2 id="tabs-title">Letní šachová tour</h2>
       </div>
 
-      <div id="panelPairings" class="tab-panel">
-        <div id="publicPairingsWrap">
-          <div class="list-header">
-            <div>
-              <h2>Nasazení na nové kolo</h2>
-              <p id="publicRoundLabel" class="tournament-round"></p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="pairings-table">
-              <thead>
-                <tr>
-                  <th>Šachovnice</th>
-                  <th>Bílý</th>
-                  <th>Černý</th>
-                  <th>Výsledek</th>
-                </tr>
-              </thead>
-              <tbody id="publicPairingsBody"></tbody>
-            </table>
-          </div>
-          <p id="publicPairingsEmpty" class="empty">Zatím nebylo vytvořeno žádné kolo.</p>
-        </div>
-
-        <div id="publicPlayersWrap">
-          <div class="list-header">
-            <div>
-              <h3>Seznam hráčů</h3>
-            </div>
-            <button id="btnClear" class="btn btn-ghost" type="button">Smazat seznam</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr id="playersHeader"></tr>
-              </thead>
-              <tbody id="playersBody"></tbody>
-            </table>
-          </div>
-          <p id="emptyState" class="empty">Zatím nikdo není registrován.</p>
-        </div>
+      <div class="tabs" role="tablist" aria-label="Informace o turnajích">
+        <button class="tab active tab-overview" id="tab-tour" type="button" role="tab" aria-selected="true" aria-controls="panel-tour" data-tab="tour">
+          <span class="tab-date">Tour</span>
+          <span class="tab-place">Přehled série</span>
+        </button>
+        <button class="tab" id="tab-koruna" type="button" role="tab" aria-selected="false" aria-controls="panel-koruna" data-tab="koruna">
+          <span class="tab-date">21. 6.</span>
+          <span class="tab-place">Na Koruně</span>
+        </button>
+        <button class="tab" id="tab-pucalik" type="button" role="tab" aria-selected="false" aria-controls="panel-pucalik" data-tab="pucalik">
+          <span class="tab-date">19. 7.</span>
+          <span class="tab-place">U Pučalíka</span>
+        </button>
+        <button class="tab" id="tab-kovarici" type="button" role="tab" aria-selected="false" aria-controls="panel-kovarici" data-tab="kovarici">
+          <span class="tab-date">16. 8.</span>
+          <span class="tab-place">U Kovaříků</span>
+        </button>
+        <button class="tab" id="tab-osel" type="button" role="tab" aria-selected="false" aria-controls="panel-osel" data-tab="osel">
+          <span class="tab-date">6. 9.</span>
+          <span class="tab-place">Zašívárna u Osla</span>
+        </button>
+        <button class="tab" id="tab-simultanka" type="button" role="tab" aria-selected="false" aria-controls="panel-simultanka" data-tab="simultanka">
+          <span class="tab-date">6. 9.</span>
+          <span class="tab-place">Simultánka s GM Zbyňkem Hráčkem</span>
+        </button>
       </div>
 
-      <div id="panelStandings" class="tab-panel" hidden>
-        <div class="list-header">
-          <div>
-            <h2>Pořadí hráčů</h2>
+      <article class="tab-panel active" id="panel-tour" role="tabpanel" aria-labelledby="tab-tour" tabindex="0">
+        <section class="hero" id="nahore">
+          <div class="hero-copy">
+            <p class="lead">Série otevřených bleskových turnajů bude zakončena simultánkou s GM Zbyňkem Hráčkem. Hrát se bude o bohaté věcné ceny:</p>
+            <ul class="prize-list">
+              <li>startovné v simultánce s GM Zbyňkem Hráčkem</li>
+              <li>půldenní půjčení lodě Carolina</li>
+              <li>poukazy na konzumaci</li>
+              <li>tekuté ceny z minipivovarů</li>
+              <li>šachové knihy a další</li>
+            </ul>
+            <p class="lead">Registrace probíhá na místě, startovné je 150 Kč.</p>
           </div>
-        </div>
-        <div class="table-wrap">
-          <table class="standings-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Hráč</th>
-                <th>Body</th>
-                <th>Rating</th>
-              </tr>
-            </thead>
-            <tbody id="standingsBody"></tbody>
-          </table>
-        </div>
-        <p id="standingsEmpty" class="empty">Zatím nejsou k dispozici žádné výsledky.</p>
+          <figure class="poster">
+            <img src="assets/letni-sachove-turnaje.png" alt="Leták Letní šachová tour 2026 s termíny 21. 6., 19. 7., 16. 8., 6. 9. a simultánkou s GM Zbyňkem Hráčkem.">
+          </figure>
+        </section>
+        <div class="overview-grid">
+          <div class="info-block wide">
+            <h3>Obecné informace</h3>
+            <p>Turnaje jsou otevřené pro všechny hráče bez ohledu na věk, oddíl nebo výkonnost. Přijít můžete na jeden vybraný turnaj i na celou sérii. Po turnaji 6. 9. bude Tour zakončena simultánkou s GM Zbyňkem Hráčkem.</p>
+            <dl class="facts">
+              <div>
+                <dt>Tempo hry</dt>
+                <dd>blitz 5+0</dd>
+              </div>
+              <div>
+                <dt>Registrace</dt>
+                <dd>pouze na místě před turnajem</dd>
+              </div>
+              <div>
+                <dt>Startovné</dt>
+                <dd>150 Kč, platí se na místě u pořadatele</dd>
+              </div>
+              <div>
+                <dt>Zakončení Tour</dt>
+                <dd>po turnaji 6. 9. simultánka s GM Zbyňkem Hráčkem</dd>
+              </div>
+              <div>
+                <dt>Ceny</dt>
+                <dd>věcné ceny pro nejlepší a ocenění celkových vítězů</dd>
+              </div>
+              <div>
+                <dt>Atmosféra</dt>
+                <dd>šachy, pohoda, léto</dd>
+              </div>
+            </dl>
+          </div>
 
-        <div class="player-detail">
-          <div class="list-header">
-            <div>
-              <h3 id="playerDetailTitle">Detail hráče</h3>
-              <p class="hint">Klikněte na jméno hráče v nasazení nebo tabulce pořadí.</p>
-            </div>
-            <button id="playerDetailClear" class="btn btn-ghost btn-small" type="button">Zavřít detail</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Kolo</th>
-                  <th>Soupeř</th>
-                  <th>Barva</th>
-                  <th>Výsledek</th>
-                </tr>
-              </thead>
-              <tbody id="playerDetailBody"></tbody>
-            </table>
-          </div>
-          <p id="playerDetailEmpty" class="empty">Vyberte hráče pro zobrazení detailu.</p>
+          <aside class="info-block schedule" aria-label="Termíny turnajů">
+            <h3>Termíny</h3>
+            <a href="#koruna" data-open-tab="koruna">
+              <img class="schedule-logo" src="assets/venue-koruna.png" alt="">
+              <strong>21. 6.</strong>
+              <span>Na Koruně</span>
+            </a>
+            <a href="#pucalik" data-open-tab="pucalik">
+              <img class="schedule-logo" src="assets/venue-pucalik.png" alt="">
+              <strong>19. 7.</strong>
+              <span>U Pučalíka</span>
+            </a>
+            <a href="#kovarici" data-open-tab="kovarici">
+              <img class="schedule-logo" src="assets/venue-kovariku.png" alt="">
+              <strong>16. 8.</strong>
+              <span>U Kovaříků</span>
+            </a>
+            <a href="#osel" data-open-tab="osel">
+              <img class="schedule-logo" src="assets/venue-osel.png" alt="">
+              <strong>6. 9.</strong>
+              <span>Zašívárna u Osla</span>
+            </a>
+            <a href="#simultanka" data-open-tab="simultanka">
+              <img class="schedule-logo" src="assets/event-simultanka.png" alt="">
+              <strong>6. 9.</strong>
+              <span>Simultánka s GM Zbyňkem Hráčkem</span>
+            </a>
+          </aside>
         </div>
-      </div>
+      </article>
 
-      <div id="panelResults" class="tab-panel" hidden>
-        <div class="list-header">
-          <div>
-            <h2>Výsledky kol</h2>
+      <article class="tab-panel" id="panel-koruna" role="tabpanel" aria-labelledby="tab-koruna" tabindex="0" hidden>
+        <div class="tournament-detail" id="koruna">
+          <div class="tournament-copy">
+            <p class="round-label">1. turnaj série</p>
+            <h3>21. 6. 2026 | Na Koruně</h3>
+            <p>Úvodní letní turnaj a první příležitost získat body do celkového hodnocení série.</p>
+            <ul class="detail-list">
+              <li><span>Den</span><strong>neděle 21. června 2026</strong></li>
+              <li><span>Místo</span><strong>Na Koruně</strong></li>
+              <li><span>Tempo</span><strong>blitz 5+0</strong></li>
+              <li><span>Registrace</span><strong>na místě před turnajem</strong></li>
+              <li><span>Platba</span><strong>startovné 150 Kč na místě</strong></li>
+            </ul>
           </div>
-          <div id="publicResultsSelectWrap" class="round-select">
-            <label for="publicResultsSelect">Kolo</label>
-            <select id="publicResultsSelect"></select>
-          </div>
+          <figure class="venue-logo">
+            <img src="assets/venue-koruna.png" alt="Logo Pivnice Koruna">
+          </figure>
         </div>
-        <p id="publicResultsLabel" class="tournament-round"></p>
-        <div class="table-wrap">
-          <table class="pairings-table">
-            <thead>
-              <tr>
-                <th>Šachovnice</th>
-                <th>Bílý</th>
-                <th>Černý</th>
-                <th>Výsledek</th>
-              </tr>
-            </thead>
-            <tbody id="publicResultsBody"></tbody>
-          </table>
-        </div>
-        <p id="publicResultsEmpty" class="empty">Zatím nejsou odehraná kola.</p>
-      </div>
+      </article>
 
-      <div id="turnaj-admin" class="tab-panel" hidden>
-        <div class="list-header">
-          <div>
-            <h2>Řízení turnaje</h2>
-            <p id="tournamentHint" class="hint">Pro práci s turnajem je potřeba přihlášení rozhodčího.</p>
+      <article class="tab-panel" id="panel-pucalik" role="tabpanel" aria-labelledby="tab-pucalik" tabindex="0" hidden>
+        <div class="tournament-detail" id="pucalik">
+          <div class="tournament-copy">
+            <p class="round-label">2. turnaj série</p>
+            <h3>19. 7. 2026 | U Pučalíka</h3>
+            <p>Druhý prázdninový turnaj pokračuje stejným tempem a je otevřený i pro hráče, kteří první termín nestihnou.</p>
+            <ul class="detail-list">
+              <li><span>Den</span><strong>neděle 19. července 2026</strong></li>
+              <li><span>Místo</span><strong>U Pučalíka</strong></li>
+              <li><span>Tempo</span><strong>blitz 5+0</strong></li>
+              <li><span>Registrace</span><strong>na místě před turnajem</strong></li>
+              <li><span>Platba</span><strong>startovné 150 Kč na místě</strong></li>
+            </ul>
           </div>
+          <figure class="venue-logo">
+            <img src="assets/venue-pucalik.png" alt="Logo Hostinec U Pučalíka">
+          </figure>
         </div>
-        <div id="tournamentControls" class="tournament-controls">
-          <div class="tournament-options">
-            <div>
-              <label for="tournamentSystem">Systém</label>
-              <select id="tournamentSystem">
-                <option value="round-robin">Každý s každým</option>
-                <option value="swiss">Švýcarský systém</option>
-              </select>
-            </div>
-            <label id="allowRematchWrap" class="checkbox" hidden>
-              <input id="allowRematch" type="checkbox">
-              <span>Povolit opakování soupeřů</span>
-            </label>
-            <div id="roundSelectWrap" class="round-select" hidden>
-              <label for="roundSelect">Zobrazené kolo</label>
-              <select id="roundSelect"></select>
-            </div>
-          </div>
-          <div class="tournament-buttons">
-            <button id="btnCreateTournament" class="btn btn-primary" type="button">Vytvořit 1. kolo</button>
-            <button id="btnCancelRound" class="btn btn-ghost" type="button">Zrušit kolo</button>
-            <button id="btnCancelTournament" class="btn btn-ghost" type="button">Zrušit turnaj</button>
-          </div>
-        </div>
-        <div class="tournament-export">
-          <button id="btnExportRound" class="btn btn-ghost" type="button">Exportovat kolo do PDF</button>
-          <button id="btnExportTournament" class="btn btn-ghost" type="button">Exportovat celý turnaj do PDF</button>
-        </div>
-        <p id="tournamentRoundLabel" class="tournament-round"></p>
-        <p id="tournamentStatus" class="status-text"></p>
+      </article>
 
-        <h3 class="section-title">Nasazení</h3>
-        <div class="table-wrap">
-          <table class="pairings-table">
-            <thead>
-              <tr>
-                <th>Šachovnice</th>
-                <th>Bílý</th>
-                <th>Černý</th>
-                <th>Výsledek</th>
-              </tr>
-            </thead>
-            <tbody id="pairingsBody"></tbody>
-          </table>
+      <article class="tab-panel" id="panel-kovarici" role="tabpanel" aria-labelledby="tab-kovarici" tabindex="0" hidden>
+        <div class="tournament-detail" id="kovarici">
+          <div class="tournament-copy">
+            <p class="round-label">3. turnaj série</p>
+            <h3>16. 8. 2026 | U Kovaříků</h3>
+            <p>Srpnový turnaj uzavírá letní nedělní část série. Přihlášení proběhne na místě před turnajem.</p>
+            <ul class="detail-list">
+              <li><span>Den</span><strong>neděle 16. srpna 2026</strong></li>
+              <li><span>Místo</span><strong>U Kovaříků</strong></li>
+              <li><span>Tempo</span><strong>blitz 5+0</strong></li>
+              <li><span>Registrace</span><strong>na místě před turnajem</strong></li>
+              <li><span>Platba</span><strong>startovné 150 Kč na místě</strong></li>
+            </ul>
+          </div>
+          <figure class="venue-logo">
+            <img src="assets/venue-kovariku.png" alt="Logo Hospůdka U Kovaříků">
+          </figure>
         </div>
-        <p id="pairingsEmpty" class="empty">Turnaj zatím není založen.</p>
-      </div>
+      </article>
+
+      <article class="tab-panel" id="panel-osel" role="tabpanel" aria-labelledby="tab-osel" tabindex="0" hidden>
+        <div class="tournament-detail" id="osel">
+          <div class="tournament-copy">
+            <p class="round-label">4. turnaj série</p>
+            <h3>6. 9. 2026 | Zašívárna u Osla</h3>
+            <p>Zářijový turnaj v Zašívárně u Osla navazuje na letní sérii a počítá se do závěrečného vyhlášení celkových vítězů.</p>
+            <ul class="detail-list">
+              <li><span>Den</span><strong>neděle 6. září 2026</strong></li>
+              <li><span>Místo</span><strong>Zašívárna u Osla</strong></li>
+              <li><span>Tempo</span><strong>blitz 5+0</strong></li>
+              <li><span>Registrace</span><strong>na místě před turnajem</strong></li>
+              <li><span>Platba</span><strong>startovné 150 Kč na místě</strong></li>
+            </ul>
+          </div>
+          <figure class="venue-logo">
+            <img src="assets/venue-osel.png" alt="Logo Zašívárna u Osla">
+          </figure>
+        </div>
+      </article>
+
+      <article class="tab-panel" id="panel-simultanka" role="tabpanel" aria-labelledby="tab-simultanka" tabindex="0" hidden>
+        <div class="tournament-detail" id="simultanka">
+          <div class="tournament-copy">
+            <p class="round-label">Zakončení Tour</p>
+            <h3>Po turnaji 6. 9. | Simultánka s GM Zbyňkem Hráčkem</h3>
+            <p>Letní šachová tour bude po závěrečném turnaji zakončena simultánkou s GM Zbyňkem Hráčkem.</p>
+            <ul class="detail-list">
+              <li><span>Termín</span><strong>po turnaji 6. září 2026</strong></li>
+              <li><span>Místo</span><strong>bude upřesněno</strong></li>
+              <li><span>Host</span><strong>GM Zbyněk Hráček</strong></li>
+              <li><span>Formát</span><strong>simultánka</strong></li>
+              <li><span>Info</span><strong>navazuje na závěrečný turnaj</strong></li>
+            </ul>
+          </div>
+          <figure class="venue-logo">
+            <img src="assets/event-simultanka.png" alt="Ilustrace krále pro simultánku">
+          </figure>
+        </div>
+      </article>
     </section>
   </main>
 
-  <section id="registrationView" class="page" hidden>
-    <section id="registrace" class="registration">
-      <div class="card reveal">
-        <h2>Registrace do turnaje</h2>
-        <form id="registration-form">
-          <div>
-            <label for="playerName">Jméno hráče</label>
-            <input id="playerName" type="text" placeholder="např. Magnus Carlsen" autocomplete="name" required>
-          </div>
+  <footer class="footer">
+    <span>ŠO Mařatice</span>
+    <a href="#tour">Zpět nahoru</a>
+  </footer>
 
-          <fieldset>
-            <legend>Účet</legend>
-            <div class="radio-grid">
-              <label class="radio-option">
-                <input type="radio" name="provider" value="chess.com" checked>
-                <span>chess.com</span>
-                <small>nejvyšší rating</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="provider" value="lichess">
-                <span>lichess.org</span>
-                <small>nejvyšší rating</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="provider" value="none">
-                <span>nemám účet</span>
-                <small>rating 0</small>
-              </label>
-            </div>
-          </fieldset>
-
-          <div>
-            <label for="accountHandle">Uživatelské jméno</label>
-            <input id="accountHandle" type="text" placeholder="např. Magnus64" autocomplete="off">
-            <p id="accountHelp" class="hint"></p>
-          </div>
-
-          <div class="form-actions">
-            <button id="submitBtn" class="btn btn-primary" type="submit">Ověřit a registrovat</button>
-            <p id="formStatus" class="status-text" aria-live="polite"></p>
-          </div>
-        </form>
-      </div>
-    </section>
-  </section>
-
-  <footer class="footer">Turnaj Koruna</footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
-
