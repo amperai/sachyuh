@@ -3,153 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Šachové dění v Uherském Hradišti – turnaje, výsledky a šachové lekce | sachyuh.cz</title>
-  <meta name="description" content="Sledujte šachové dění v Uherském Hradišti – přihlaste se na letní šachovou tour, prohlédněte výsledky turnajů a zjistěte vše o šachových lekcích pro mládež v srdci Slovácka.">
-  <meta name="theme-color" content="#b8872e">
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
-
-    :root {
-      color-scheme: light;
-      --bg: #f7efe1;
-      --card: rgba(255, 252, 245, 0.96);
-      --text: #2b1c0e;
-      --accent: #b8872e;
-      --accent-2: #7b4f18;
-      --line: rgba(43, 28, 14, 0.12);
-      --shadow: 0 24px 70px rgba(89, 58, 22, 0.14);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-    }
-
-    body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(184, 135, 46, 0.18), transparent 32%),
-        linear-gradient(180deg, var(--bg), #efe1c2);
-    }
-
-    main {
-      width: min(520px, 100%);
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    .layout {
-      display: grid;
-      gap: 18px;
-      justify-items: start;
-    }
-
-    .links {
-      display: grid;
-      gap: 12px;
-      width: 100%;
-    }
-
-    .brandline,
-    .turnaje-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45em;
-      white-space: nowrap;
-      line-height: 1;
-    }
-
-    .chess-chip {
-      font-family: "Noto Sans Symbols 2", system-ui, sans-serif;
-      font-weight: 400;
-      color: var(--accent-2);
-    }
-
-    .site-footer {
-      margin-top: 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #7b4f18;
-      opacity: 0.72;
-    }
-
-    a {
-      margin-top: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 52px;
-      padding: 0 22px;
-      border-radius: 999px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      text-decoration: none;
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: 0.01em;
-      box-shadow: 0 12px 24px rgba(123, 79, 24, 0.22);
-    }
-
-    a:focus,
-    a:hover {
-      transform: translateY(-1px);
-    }
-
-    @media (max-width: 480px) {
-      main {
-        padding: 22px;
-      }
-
-      a {
-        width: 100%;
-      }
-    }
-  </style>
+  <title>sachyuh.cz | Šachy Uherské Hradiště</title>
+  <meta name="description" content="Šachové akce a turnaje v Uherském Hradišti.">
+  <meta name="theme-color" content="#001e32">
+  <link rel="icon" type="image/png" href="assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+  </header>
+
   <main>
-    <div class="layout">
-      <div class="brandline" style="margin-bottom: 4px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7b4f18;">
-        <span class="chess-chip" aria-hidden="true">♛</span>
-        sachyuh.cz
-        <span class="chess-chip" aria-hidden="true">♜</span>
+    <section class="content" aria-labelledby="tour-card-title">
+      <div class="section-heading">
+        <p class="eyebrow">Aktuálně</p>
+        <h2 id="tour-card-title" class="title-stack-mobile">
+          <span>Letní</span>
+          <span>šachová</span>
+          <span>tour 2026</span>
+        </h2>
       </div>
-      <h1 style="margin: 0 0 10px; font-size: 1.15rem; font-weight: 800; line-height: 1.35; color: var(--text);">Šachové dění v Uherském Hradišti – turnaje, výsledky a šachové lekce pro mládež</h1>
-      <div class="links">
-      <a class="turnaje-link" href="/turnaj/">
-        <span class="chess-chip" aria-hidden="true">♞</span>
-        Letní šachová tour
-        <span class="chess-chip" aria-hidden="true">♛</span>
-      </a>
-      <a class="turnaje-link" href="/turnaje/koruna.html">
-        <span class="chess-chip" aria-hidden="true">♛</span>
-        Dubnový Koruna Open
-        <span class="chess-chip" aria-hidden="true">♜</span>
-      </a>
-      <a class="turnaje-link" href="/turnaj_rust/">
-        <span class="chess-chip" aria-hidden="true">⚙</span>
-        Letní tour (Rust backend)
-        <span class="chess-chip" aria-hidden="true">♖</span>
-      </a>
+
+      <article class="tour-card">
+        <div class="tour-card-copy">
+          <p class="lead">Série otevřených bleskových turnajů v letních měsících. Hrát se bude v několika podnicích v Uherském Hradišti a celá Tour vyvrcholí simultánkou s GM Zbyňkem Hráčkem.</p>
+          <a class="button primary" href="tour.html">Podrobnosti k Tour</a>
+        </div>
+        <a class="poster poster-link" href="tour.html" aria-label="Otevřít podrobnosti k Letní šachové tour 2026">
+          <img src="assets/letni-sachove-turnaje.png" alt="Plakát Letní šachová tour 2026">
+        </a>
+      </article>
+    </section>
+
+    <section class="content" aria-labelledby="history-title">
+      <div class="section-heading">
+        <p class="eyebrow">Minulé akce</p>
+        <h2 id="history-title">Historie</h2>
       </div>
-      <p style="margin: 0; font-size: 0.95rem; line-height: 1.55; color: #6f5a43;">
-        Od října 2026 začnou probíhat šachové lekce pro mládež. Podrobnosti budou upřesněny zde.
-      </p>
-      <footer class="site-footer">sachyuh.cz v3.0.0 · DEV · testing DB: /var/lib/sachyuh-turnaj-testing/shared-state.sqlite · dev DB: /var/lib/sachyuh-turnaj-dev/shared-state.sqlite</footer>
-    </div>
+
+      <div class="event-list">
+        <article class="event-item">
+          <img class="event-logo" src="assets/venue-koruna.png" alt="Logo Pivnice Koruna">
+          <div class="event-date">duben<br>2026</div>
+          <div>
+            <h3><a href="turnaje/koruna-open-duben-26.html">Dubnový Koruna Open</a></h3>
+            <p>Bleskový turnaj v Pivnici Koruna &mdash; 16 hráčů, švýcarský systém.<br>🥇 Jarek Sháněl</p>
+          </div>
+        </article>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <span>sachyuh.cz · v3.0.1</span>
+    <a href="tour.html">Letní šachová tour 2026</a>
+  </footer>
 </body>
 </html>

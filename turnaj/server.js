@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { mkdir, readFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -119,6 +120,28 @@ const server = createServer(async (req, res) => {
     if (!req.url) {
       res.writeHead(400);
       res.end('Bad request');
+      return;
+    }
+
+    if (req.url === '/api/db-export') {
+      if (req.method !== 'GET') {
+        res.writeHead(405, { Allow: 'GET' });
+        res.end();
+        return;
+      }
+      if (!existsSync(dbFile)) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Database file not found');
+        return;
+      }
+      const fileData = await readFile(dbFile);
+      res.writeHead(200, {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': 'attachment; filename="sachyuh-databaze.sqlite"',
+        'Content-Length': fileData.length,
+        'Cache-Control': 'no-store'
+      });
+      res.end(fileData);
       return;
     }
 
