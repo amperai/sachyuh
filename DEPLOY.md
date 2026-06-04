@@ -12,13 +12,24 @@ Bezpečná alternativa pokud potřebuješ přepsat historii:
 git push --force-with-lease
 ```
 Selže pokud remote obsahuje commity které nemáš lokálně — ochrana před přepsáním cizí práce.
-Ale i to používej jen na feature větvích, nikdy na `dev` nebo `testing`.
+Ale i to používej jen na feature větvích, nikdy na `release` nebo `testing`.
+
+---
+
+## Větve a prostředí
+
+| Větev | URL | systemd služba | hosting_gaudi input |
+|-------|-----|----------------|---------------------|
+| `release` | sachyuh.cz | `sachyuh-turnaj` | `sachyuh` |
+| `testing` | test1.sachyuh.cz | `sachyuh-turnaj-testing` | `sachyuh-testing` |
+
+**Produkce používá větev `release`** — to je co hosting_gaudi sleduje jako `sachyuh` input v `flake.nix`.
 
 ---
 
 ## Automatická verze
 
-Každý commit **automaticky** zvýší patch verzi (0.1.5 → 0.1.6 → 0.1.7...).
+Každý commit **automaticky** zvýší patch verzi (3.0.4 → 3.0.5 → 3.0.6...).
 
 Dělá to pre-commit hook v `.git/hooks/pre-commit`:
 - přečte `VERSION` soubor
@@ -38,27 +49,33 @@ Uprav soubory, commitni normálně:
 ```sh
 git add <soubory>
 git commit -m "popis změny"
-# hook automaticky bumpe verzi a přidá VERSION + index.html do commitu
-git push
+# hook automaticky zvýší verzi a přidá VERSION + index.html do commitu
+git push origin release   # produkce
+# nebo:
+git push origin testing   # testovací prostředí
 ```
-
-**Dev větev** → `git@github.com:amperai/sachyuh.git` branch `dev`  
-**Testing větev** → `git@github.com:amperai/sachyuh.git` branch `testing`
 
 ### 2. Aktualizace flake.lock v hosting_gaudi
 
-Po každém push do sachyuh musíš aktualizovat `flake.lock` v hosting_gaudi — jinak deploy nasadí starou verzi.
+Po každém push do sachyuh **musíš** aktualizovat `flake.lock` v hosting_gaudi —
+jinak deploy nasadí starý commit, ne nový.
 
 ```sh
 cd /workspace/projects/hosting_gaudi/dev
 
-# aktualizuj sachyuh input (stáhne nejnovější commit z dev/testing)
+# produkce (release větev)
 nix flake update sachyuh
+
+# NEBO testovací prostředí (testing větev)
+nix flake update sachyuh-testing
 
 git add flake.lock
 git commit -m "Update sachyuh flake input"
 git push
 ```
+
+> **Proč?** `flake.lock` zamkne konkrétní commit hash. Bez update by se nasadila stará verze
+> i kdyby v GitHubu byl nový kód.
 
 ### 3. Deploy na server
 
@@ -76,17 +93,25 @@ nixos-rebuild switch \
 ```
 
 Server buildí sám sebe:
-- stáhne sachyuh a battleuh přímo z GitHubu přes SSH
-- zkompiluje (Rust backend, nix deps)
+- stáhne sachyuh přímo z GitHubu (konkrétní commit z `flake.lock`)
+- zkompiluje Rust backend + nix deps
 - restartuje systemd služby + nginx
 
-### 4. Co se nasadí
+---
 
-| Větev | URL | systemd služba | DB |
-|-------|-----|----------------|-----|
-| `dev` | sachyuh.cz | `sachyuh-turnaj` | `/var/lib/sachyuh-turnaj/` |
-| `testing` | test1.sachyuh.cz | `sachyuh-turnaj-testing` | `/var/lib/sachyuh-turnaj-testing/` |
-| `dev` (dev instance) | test2.sachyuh.cz | `sachyuh-turnaj-dev` | `/var/lib/sachyuh-turnaj-dev/` |
+## Shrnutí CI pipeline
+
+```
+sachyuh: commit + push origin release
+         ↓
+hosting_gaudi: nix flake update sachyuh
+               git commit flake.lock
+               git push
+               ↓
+               nix run .#deploy
+                        ↓
+                      sachyuh.cz
+```
 
 ---
 
