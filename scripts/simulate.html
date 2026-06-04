@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulation</title>
+  <style>
+    body{margin:0;font:14px/1.5 system-ui,Segoe UI,Arial,sans-serif;background:#f6f4ef;color:#1f1b16}
+    main{max-width:980px;margin:0 auto;padding:24px}
+    h1{margin:0 0 12px 0;font-size:22px}
+    pre{background:#fff;border:1px solid #e2ddd5;border-radius:8px;padding:12px;white-space:pre-wrap}
+    .muted{color:#6f6252}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Swiss Simulation</h1>
+    <p id="status" class="muted">Running...</p>
+    <h2>Summary</h2>
+    <pre id="outputSummary"></pre>
+    <h2>CSV</h2>
+    <pre id="outputCsv"></pre>
+  </main>
+  <script type="module" src="./simulate.js"></script>
+</body>
+</html>
