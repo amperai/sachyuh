@@ -107,6 +107,14 @@ async function initDb() {
       created_at  INTEGER NOT NULL,
       updated_at  INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS tour_registrations (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      email      TEXT NOT NULL,
+      name       TEXT,
+      tournament TEXT NOT NULL DEFAULT 'koruna-21-6-2026',
+      created_at INTEGER NOT NULL
+    );
   `);
 
   const existing = db.prepare('SELECT 1 FROM shared_state WHERE id = ?').get(defaultStateId);
@@ -227,6 +235,66 @@ const server = createServer(async (req, res) => {
         `).run(id, parsed.name.trim(), parsed.description || null, now, now);
 
         sendJson(res, 200, { ok: true, id });
+        return;
+      }
+
+      res.writeHead(405, { Allow: 'GET, POST' });
+      res.end();
+      return;
+    }
+
+    if (req.url.startsWith('/api/tour-registrations')) {
+      // CORS preflight
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
+        res.end();
+        return;
+      }
+
+      if (req.method === 'POST') {
+        let body = '';
+        for await (const chunk of req) {
+          body += chunk;
+        }
+
+        let parsed = {};
+        try {
+          parsed = body ? JSON.parse(body) : {};
+        } catch {
+          sendJson(res, 400, { ok: false, error: 'Neplatný JSON.' });
+          return;
+        }
+
+        const email = typeof parsed.email === 'string' ? parsed.email.trim().toLowerCase() : '';
+        if (!email || !email.includes('@')) {
+          sendJson(res, 400, { ok: false, error: 'E-mail je povinný.' });
+          return;
+        }
+        if (email.length > 200) {
+          sendJson(res, 400, { ok: false, error: 'E-mail je příliš dlouhý.' });
+          return;
+        }
+
+        const name = typeof parsed.name === 'string' ? parsed.name.trim().slice(0, 100) : null;
+        const tournament = typeof parsed.tournament === 'string' && parsed.tournament
+          ? parsed.tournament.slice(0, 100)
+          : 'koruna-21-6-2026';
+
+        // Check for duplicate
+        const existing = db.prepare('SELECT 1 FROM tour_registrations WHERE email = ? AND tournament = ?').get(email, tournament);
+        if (existing) {
+          sendJson(res, 200, { ok: true, message: 'Tento e-mail je již přihlášen.' });
+          return;
+        }
+
+        db.prepare('INSERT INTO tour_registrations (email, name, tournament, created_at) VALUES (?, ?, ?, ?)').run(email, name || null, tournament, Date.now());
+        sendJson(res, 200, { ok: true, message: 'Přihlášení proběhlo úspěšně!' });
+        return;
+      }
+
+      if (req.method === 'GET') {
+        const rows = db.prepare('SELECT id, email, name, tournament, created_at FROM tour_registrations ORDER BY created_at DESC').all();
+        sendJson(res, 200, rows);
         return;
       }
 

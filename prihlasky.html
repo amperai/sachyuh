@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Přihlášky na turnaj | sachyuh.cz</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" href="assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-wrap { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; color: #001e32; margin-bottom: 0.25rem; }
+    .meta { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .toolbar select, .toolbar input {
+      padding: 7px 12px; border: 1.5px solid #ccd0d5; border-radius: 7px;
+      font-size: 0.9rem; font-family: inherit;
+    }
+    .btn { padding: 8px 20px; background: #001e32; color: #fff; border: none; border-radius: 7px;
+           font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+    .btn:hover { background: #003a5c; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    thead th { background: #001e32; color: #fff; padding: 10px 12px; text-align: left; }
+    tbody tr:nth-child(even) { background: #f4f6f8; }
+    tbody td { padding: 9px 12px; border-bottom: 1px solid #e0e3e7; }
+    .empty { color: #888; text-align: center; padding: 2rem; }
+    #status { font-size: 0.85rem; color: #555; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+    <nav class="top-nav" aria-label="Hlavní navigace">
+      <a href="tour.html">Letní tour</a>
+    </nav>
+  </header>
+
+  <div class="admin-wrap">
+    <h1>Přihlášky na turnaj</h1>
+    <p class="meta">Nezávazné přihlášky přijaté přes web · <span id="status">Načítám…</span></p>
+
+    <div class="toolbar">
+      <select id="filterTournament">
+        <option value="">Všechny turnaje</option>
+        <option value="koruna-21-6-2026">Na Koruně 21. 6. 2026</option>
+        <option value="pucalik-19-7-2026">U Pučalíka 19. 7. 2026</option>
+        <option value="kovariku-16-8-2026">U Kovaříků 16. 8. 2026</option>
+        <option value="osel-6-9-2026">Zašívárna u Osla 6. 9. 2026</option>
+      </select>
+      <input type="search" id="filterText" placeholder="Hledat jméno nebo e-mail…">
+      <button class="btn" id="exportBtn">Exportovat CSV</button>
+      <button class="btn" id="reloadBtn" style="background:#555">Obnovit</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>E-mail</th>
+          <th>Jméno</th>
+          <th>Turnaj</th>
+          <th>Přihlášeno</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="5" class="empty">Načítám data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const tournamentNames = {
+      'koruna-21-6-2026': 'Na Koruně 21. 6.',
+      'pucalik-19-7-2026': 'U Pučalíka 19. 7.',
+      'kovariku-16-8-2026': 'U Kovaříků 16. 8.',
+      'osel-6-9-2026': 'Zašívárna u Osla 6. 9.',
+    };
+
+    let allRows = [];
+
+    function formatDate(ts) {
+      return new Date(ts).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function render() {
+      const filterT = document.getElementById('filterTournament').value;
+      const filterQ = document.getElementById('filterText').value.trim().toLowerCase();
+      const tbody = document.getElementById('tableBody');
+
+      const filtered = allRows.filter(r => {
+        if (filterT && r.tournament !== filterT) return false;
+        if (filterQ) {
+          const hay = ((r.email || '') + ' ' + (r.name || '')).toLowerCase();
+          if (!hay.includes(filterQ)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">Žádné záznamy.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(r.email)}</td>
+          <td>${esc(r.name || '—')}</td>
+          <td>${esc(tournamentNames[r.tournament] || r.tournament)}</td>
+          <td>${formatDate(r.created_at)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function load() {
+      document.getElementById('status').textContent = 'Načítám…';
+      try {
+        const res = await fetch('/api/tour-registrations');
+        allRows = await res.json();
+        document.getElementById('status').textContent = `Celkem: ${allRows.length} přihlášek`;
+        render();
+      } catch {
+        document.getElementById('status').textContent = 'Chyba při načítání dat.';
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="empty">Nepodařilo se načíst data.</td></tr>';
+      }
+    }
+
+    document.getElementById('filterTournament').addEventListener('change', render);
+    document.getElementById('filterText').addEventListener('input', render);
+    document.getElementById('reloadBtn').addEventListener('click', load);
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const filterT = document.getElementById('filterTournament').value;
+      const filterQ = document.getElementById('filterText').value.trim().toLowerCase();
+      const filtered = allRows.filter(r => {
+        if (filterT && r.tournament !== filterT) return false;
+        if (filterQ) {
+          const hay = ((r.email || '') + ' ' + (r.name || '')).toLowerCase();
+          if (!hay.includes(filterQ)) return false;
+        }
+        return true;
+      });
+      const csv = ['#,Email,Jméno,Turnaj,Přihlášeno', ...filtered.map((r, i) =>
+        [i + 1, r.email, r.name || '', tournamentNames[r.tournament] || r.tournament, new Date(r.created_at).toLocaleString('cs-CZ')].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+      )].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'prihlasky.csv';
+      a.click();
+    });
+
+    load();
+  </script>
+</body>
+</html>
