@@ -51,6 +51,7 @@
           <div>
             <h3>Na Koruně</h3>
             <p>Registrace od 15:00<br>Začátek 15:30</p>
+            <a href="prihlasit-koruna.html" class="link-prihlasit">Nezávazně přihlásit →</a>
           </div>
         </article>
 
@@ -89,29 +90,6 @@
             <p>Vrchol celé Tour po závěrečném turnaji.</p>
           </div>
         </article>
-      </div>
-    </section>
-
-    <!-- Nezávazné přihlášení na první turnaj -->
-    <section class="content signup-section" aria-labelledby="signup-title">
-      <div class="signup-inner">
-        <p class="eyebrow">První turnaj · 21. 6. Na Koruně</p>
-        <h2 id="signup-title">Nezávazné přihlášení</h2>
-        <p class="signup-desc">Přihlaste se e-mailem a budeme vědět, že přijdete. Účast je nezávazná — registrace na místě proběhne jako vždy. Pomůže nám to lépe odhadnout počet hráčů.</p>
-        <form id="signupForm" class="signup-form" novalidate>
-          <div class="signup-row">
-            <div class="signup-field">
-              <label for="signupName">Jméno <span class="optional">(nepovinné)</span></label>
-              <input type="text" id="signupName" name="name" placeholder="Vaše jméno" autocomplete="name" maxlength="100">
-            </div>
-            <div class="signup-field">
-              <label for="signupEmail">E-mail <span class="required">*</span></label>
-              <input type="email" id="signupEmail" name="email" placeholder="vas@email.cz" autocomplete="email" required maxlength="200">
-            </div>
-          </div>
-          <button type="submit" class="btn-signup">Přihlásit se</button>
-          <p id="signupMsg" class="signup-msg" aria-live="polite"></p>
-        </form>
       </div>
     </section>
 
@@ -180,78 +158,11 @@
   </footer>
 
   <style>
-    /* Registrační formulář */
-    .signup-section { background: #f4f6f8; border-radius: 12px; }
-    .signup-inner { max-width: 640px; }
-    .signup-desc { color: #555; margin-bottom: 20px; }
-    .signup-form { display: flex; flex-direction: column; gap: 16px; }
-    .signup-row { display: flex; gap: 16px; flex-wrap: wrap; }
-    .signup-field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 200px; }
-    .signup-field label { font-size: 0.875rem; font-weight: 600; color: #001e32; }
-    .optional { font-weight: 400; color: #888; }
-    .required { color: #c00; }
-    .signup-field input {
-      padding: 10px 14px; border: 1.5px solid #ccd0d5; border-radius: 8px;
-      font-size: 1rem; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box;
-      transition: border-color 0.15s;
+    .link-prihlasit {
+      display: inline-block; margin-top: 8px; font-size: 0.9rem; font-weight: 600;
+      color: #001e32; text-decoration: underline; text-underline-offset: 3px;
     }
-    .signup-field input:focus { outline: none; border-color: #001e32; }
-    .btn-signup {
-      align-self: flex-start; padding: 10px 28px; background: #001e32; color: #fff;
-      border: none; border-radius: 8px; font-size: 1rem; font-family: inherit;
-      font-weight: 600; cursor: pointer; transition: background 0.15s;
-    }
-    .btn-signup:hover { background: #003a5c; }
-    .btn-signup:disabled { background: #888; cursor: default; }
-    .signup-msg { font-size: 0.9rem; min-height: 1.2em; color: #1a6e2e; }
-    .signup-msg.err { color: #c00; }
-    @media (max-width: 500px) {
-      .signup-row { flex-direction: column; }
-    }
+    .link-prihlasit:hover { color: #003a5c; }
   </style>
-
-  <script>
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn = this.querySelector('button[type=submit]');
-      const msg = document.getElementById('signupMsg');
-      const email = document.getElementById('signupEmail').value.trim();
-      const name = document.getElementById('signupName').value.trim();
-
-      if (!email || !email.includes('@')) {
-        msg.textContent = 'Zadejte platný e-mail.';
-        msg.className = 'signup-msg err';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Odesílám…';
-      msg.textContent = '';
-      msg.className = 'signup-msg';
-
-      try {
-        const res = await fetch('/api/tour-registrations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, name: name || undefined, tournament: 'koruna-21-6-2026' }),
-        });
-        const data = await res.json();
-        msg.textContent = data.message || (data.ok ? 'Přihlášení proběhlo úspěšně!' : 'Chyba.');
-        msg.className = data.ok ? 'signup-msg' : 'signup-msg err';
-        if (data.ok) {
-          document.getElementById('signupForm').reset();
-          btn.textContent = '✓ Přihlášeno';
-        } else {
-          btn.disabled = false;
-          btn.textContent = 'Přihlásit se';
-        }
-      } catch {
-        msg.textContent = 'Nepodařilo se odeslat přihlášení. Zkuste to prosím znovu.';
-        msg.className = 'signup-msg err';
-        btn.disabled = false;
-        btn.textContent = 'Přihlásit se';
-      }
-    });
-  </script>
 </body>
 </html>
