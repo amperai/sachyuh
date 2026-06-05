@@ -52,30 +52,36 @@
   </footer>
 
   <style>
-    .signup-section { background: #f4f6f8; border-radius: 12px; }
-    .signup-inner { max-width: 540px; }
-    .signup-desc { color: #555; margin-bottom: 24px; line-height: 1.6; }
+    .signup-inner {
+      max-width: 680px;
+      padding: clamp(22px, 4vw, 34px);
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 34px rgba(0, 30, 50, .08);
+    }
+    .signup-desc { color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
     .signup-form { display: flex; flex-direction: column; gap: 16px; }
     .signup-row { display: flex; gap: 16px; flex-wrap: wrap; }
     .signup-field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 200px; }
-    .signup-field label { font-size: 0.875rem; font-weight: 600; color: #001e32; }
-    .optional { font-weight: 400; color: #888; }
-    .required { color: #c00; }
+    .signup-field label { font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+    .optional { font-weight: 400; color: var(--muted); }
+    .required { color: #c0392b; }
     .signup-field input {
-      padding: 10px 14px; border: 1.5px solid #ccd0d5; border-radius: 8px;
+      padding: 10px 14px; border: 1.5px solid rgba(16, 32, 51, .2); border-radius: 8px;
       font-size: 1rem; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box;
       transition: border-color 0.15s;
     }
-    .signup-field input:focus { outline: none; border-color: #001e32; }
+    .signup-field input:focus { outline: none; border-color: var(--ink); }
     .btn-signup {
-      align-self: flex-start; padding: 10px 28px; background: #001e32; color: #fff;
+      align-self: flex-start; padding: 11px 30px; background: var(--ink); color: #fff;
       border: none; border-radius: 8px; font-size: 1rem; font-family: inherit;
-      font-weight: 600; cursor: pointer; transition: background 0.15s;
+      font-weight: 700; cursor: pointer; transition: background 0.15s, opacity 0.15s;
     }
     .btn-signup:hover { background: #003a5c; }
-    .btn-signup:disabled { background: #888; cursor: default; }
-    .signup-msg { font-size: 0.9rem; min-height: 1.2em; color: #1a6e2e; }
-    .signup-msg.err { color: #c00; }
+    .btn-signup:disabled { opacity: .5; cursor: default; }
+    .signup-msg { font-size: 0.9rem; min-height: 1.2em; }
+    .signup-msg.ok { color: #1a7a4a; font-weight: 600; }
+    .signup-msg.err { color: #c0392b; font-weight: 600; }
     @media (max-width: 500px) {
       .signup-row { flex-direction: column; }
     }
@@ -106,9 +112,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, name: name || undefined, tournament: 'koruna-21-6-2026' }),
         });
-        const data = await res.json();
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error('bad_response:' + res.status);
+        }
         msg.textContent = data.message || (data.ok ? 'Přihlášení proběhlo úspěšně!' : 'Chyba.');
-        msg.className = data.ok ? 'signup-msg' : 'signup-msg err';
+        msg.className = data.ok ? 'signup-msg ok' : 'signup-msg err';
         if (data.ok) {
           this.reset();
           btn.textContent = '✓ Přihlášeno';
@@ -116,8 +127,12 @@
           btn.disabled = false;
           btn.textContent = 'Přihlásit se';
         }
-      } catch {
-        msg.textContent = 'Nepodařilo se odeslat. Zkuste to prosím znovu.';
+      } catch (err) {
+        if (err?.message?.startsWith('bad_response:')) {
+          msg.textContent = 'Chyba serveru. Zkuste to prosím znovu.';
+        } else {
+          msg.textContent = 'Nepodařilo se připojit k serveru. Zkuste to prosím znovu.';
+        }
         msg.className = 'signup-msg err';
         btn.disabled = false;
         btn.textContent = 'Přihlásit se';
