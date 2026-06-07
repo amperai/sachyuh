@@ -1,5 +1,18 @@
 # Deploy sachyuh
 
+> 📍 **Kde žijí projekty na serveru gaudi (`92.243.27.144`)**
+>
+> | Repozitář | Web | Dokumentace |
+> |-----------|-----|-------------|
+> | [amperai/sachyuh](https://github.com/amperai/sachyuh) | sachyuh.cz | tento soubor |
+> | [amperai/battleuh](https://github.com/amperai/battleuh) | battleuh.cz | [battleuh/README.md](https://github.com/amperai/battleuh/blob/dev/README.md) |
+> | [amperai/hosting_gaudi](https://github.com/amperai/hosting_gaudi) | *(infra)* | [hosting_gaudi/README.md](https://github.com/amperai/hosting_gaudi/blob/dev/README.md) |
+>
+> Oba weby běží na stejném serveru, konfigurovaném přes `hosting_gaudi`.
+> Deploy obou funguje stejným způsobem — viz níže.
+
+---
+
 ## ⛔ ZAKÁZÁNO
 
 **Nikdy nepoužívej `git push --force`.**
@@ -127,3 +140,49 @@ hosting_gaudi: nix flake update sachyuh
 ### Verze se nezměnila na webu
 → Zkontroluj že hook je spustitelný: `ls -la .git/hooks/pre-commit`  
 → Zkontroluj `VERSION` soubor: `cat VERSION`
+
+---
+
+## Deploy battleuh.cz (companion projekt)
+
+`battleuh.cz` běží na stejném serveru a používá **stejný postup**:
+
+```sh
+# 1. Změny v battleuh repu → commit + push
+cd /workspace/projects/battleuh/dev
+git add <soubory>
+git commit -m "popis změny"
+git push origin dev   # nebo release / testing
+
+# 2. Aktualizace flake.lock v hosting_gaudi
+cd /workspace/projects/hosting_gaudi/dev
+nix flake update battleuh
+git add flake.lock
+git commit -m "Update battleuh flake input"
+git push
+
+# 3. Deploy
+nix run .#deploy
+```
+
+Detailní CI/CD dokumentace battleuh (včetně vysvětlení proč flake.lock nestačí jen pushovat):
+- [battleuh/documentation/ci_deploy.md](https://github.com/amperai/battleuh/blob/dev/documentation/ci_deploy.md)
+- [battleuh/README.md — sekce Deploy](https://github.com/amperai/battleuh/blob/dev/README.md)
+
+---
+
+## Přehled repozitářů
+
+```
+amperai/sachyuh          ← kód sachyuh.cz (turnajový systém)
+amperai/battleuh         ← kód battleuh.cz (GPS hra)
+amperai/hosting_gaudi    ← NixOS konfigurace serveru + deploy skript
+```
+
+Hosting_gaudi odkazuje na oba projekty přes `flake.nix` vstupy:
+
+| Input | Sleduje větev |
+|-------|--------------|
+| `sachyuh` | sachyuh `release` |
+| `sachyuh-testing` | sachyuh `testing` |
+| `battleuh` | battleuh `dev` nebo `release` |
