@@ -1,6 +1,6 @@
 {
   "name": "osel-chess",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Osel Chess - šachový turnajový systém",
   "main": "app.js"
 }

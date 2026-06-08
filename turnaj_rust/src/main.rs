@@ -184,6 +184,99 @@ async fn post_tournament(
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Tour registrations API   POST /api/sachyuh/tour-register
+//                          GET  /api/sachyuh/tour-registrations
+
+#[derive(Deserialize)]
+struct TourRegisterInput {
+    email: String,
+    name: Option<String>,
+    tournament: String,
+}
+
+#[derive(Serialize)]
+struct TourRegistrationRow {
+    id: i64,
+    email: String,
+    name: Option<String>,
+    tournament: String,
+    created_at: i64,
+}
+
+async fn post_tour_register(
+    State(state): State<AppState>,
+    Json(input): Json<TourRegisterInput>,
+) -> HandlerResult<Json<Value>> {
+    if input.email.is_empty() || !input.email.contains('@') {
+        return Ok(Json(json!({
+            "ok": false,
+            "message": "Neplatná e-mailová adresa."
+        })));
+    }
+
+    let db = state.db.lock().unwrap();
+
+    let existing: Option<i64> = db
+        .query_row(
+            "SELECT id FROM tour_registrations WHERE email = ?1 AND tournament = ?2",
+            params![input.email.to_lowercase(), input.tournament],
+            |r| r.get(0),
+        )
+        .ok();
+
+    if existing.is_some() {
+        return Ok(Json(json!({
+            "ok": false,
+            "message": "Tento e-mail je již přihlášen na tento turnaj."
+        })));
+    }
+
+    db.execute(
+        "INSERT INTO tour_registrations (email, name, tournament, created_at)
+         VALUES (?1, ?2, ?3, ?4)",
+        params![input.email.to_lowercase(), input.name, input.tournament, now_ms()],
+    )
+    .map_err(db_err)?;
+
+    Ok(Json(json!({
+        "ok": true,
+        "message": "Přihlášení proběhlo úspěšně! Těšíme se na vás."
+    })))
+}
+
+async fn get_tour_registrations(
+    State(state): State<AppState>,
+) -> HandlerResult<Json<Vec<TourRegistrationRow>>> {
+    let db = state.db.lock().unwrap();
+    let mut stmt = db
+        .prepare(
+            "SELECT id, email, name, tournament, created_at
+             FROM tour_registrations
+             ORDER BY created_at ASC",
+        )
+        .map_err(db_err)?;
+
+    let rows = stmt
+        .query_map([], |r| {
+            Ok(TourRegistrationRow {
+                id: r.get(0)?,
+                email: r.get(1)?,
+                name: r.get(2)?,
+                tournament: r.get(3)?,
+                created_at: r.get(4)?,
+            })
+        })
+        .map_err(db_err)?;
+
+    let mut result = Vec::new();
+    for row in rows {
+        result.push(row.map_err(db_err)?);
+    }
+
+    Ok(Json(result))
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Database initialisation
 
 fn init_db(conn: &Connection) -> rusqlite::Result<()> {
@@ -201,6 +294,14 @@ fn init_db(conn: &Connection) -> rusqlite::Result<()> {
             description TEXT,
             created_at  INTEGER NOT NULL,
             updated_at  INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS tour_registrations (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      TEXT NOT NULL,
+            name       TEXT,
+            tournament TEXT NOT NULL,
+            created_at INTEGER NOT NULL
         );
         ",
     )?;
@@ -259,7 +360,9 @@ async fn main() {
             "/api/shared-state",
             get(get_shared_state).post(post_shared_state),
         )
-        .route("/api/tournaments", get(get_tournaments).post(post_tournament));
+        .route("/api/tournaments", get(get_tournaments).post(post_tournament))
+        .route("/api/sachyuh/tour-register", post(post_tour_register))
+        .route("/api/sachyuh/tour-registrations", get(get_tour_registrations));
 
     // Static file fallback – serves index.html for /
     let static_service = ServeDir::new(&static_dir).append_index_html_on_directories(true);

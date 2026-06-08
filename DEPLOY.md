@@ -1,5 +1,18 @@
 # Deploy sachyuh
 
+> 📍 **Kde žijí projekty na serveru gaudi (`92.243.27.144`)**
+>
+> | Repozitář | Web | Dokumentace |
+> |-----------|-----|-------------|
+> | [amperai/sachyuh](https://github.com/amperai/sachyuh) | sachyuh.cz | tento soubor |
+> | [amperai/battleuh](https://github.com/amperai/battleuh) | battleuh.cz | [battleuh/README.md](https://github.com/amperai/battleuh/blob/dev/README.md) |
+> | [amperai/hosting_gaudi](https://github.com/amperai/hosting_gaudi) | *(infra)* | [hosting_gaudi/README.md](https://github.com/amperai/hosting_gaudi/blob/dev/README.md) |
+>
+> Oba weby běží na stejném serveru, konfigurovaném přes `hosting_gaudi`.
+> Deploy obou funguje stejným způsobem — viz níže.
+
+---
+
 ## ⛔ ZAKÁZÁNO
 
 **Nikdy nepoužívej `git push --force`.**
@@ -12,13 +25,24 @@ Bezpečná alternativa pokud potřebuješ přepsat historii:
 git push --force-with-lease
 ```
 Selže pokud remote obsahuje commity které nemáš lokálně — ochrana před přepsáním cizí práce.
-Ale i to používej jen na feature větvích, nikdy na `dev` nebo `testing`.
+Ale i to používej jen na feature větvích, nikdy na `release` nebo `testing`.
+
+---
+
+## Větve a prostředí
+
+| Větev | URL | systemd služba | hosting_gaudi input |
+|-------|-----|----------------|---------------------|
+| `release` | sachyuh.cz | `sachyuh-turnaj` | `sachyuh` |
+| `testing` | test1.sachyuh.cz | `sachyuh-turnaj-testing` | `sachyuh-testing` |
+
+**Produkce používá větev `release`** — to je co hosting_gaudi sleduje jako `sachyuh` input v `flake.nix`.
 
 ---
 
 ## Automatická verze
 
-Každý commit **automaticky** zvýší patch verzi (0.1.5 → 0.1.6 → 0.1.7...).
+Každý commit **automaticky** zvýší patch verzi (3.0.4 → 3.0.5 → 3.0.6...).
 
 Dělá to pre-commit hook v `.git/hooks/pre-commit`:
 - přečte `VERSION` soubor
@@ -38,27 +62,33 @@ Uprav soubory, commitni normálně:
 ```sh
 git add <soubory>
 git commit -m "popis změny"
-# hook automaticky bumpe verzi a přidá VERSION + index.html do commitu
-git push
+# hook automaticky zvýší verzi a přidá VERSION + index.html do commitu
+git push origin release   # produkce
+# nebo:
+git push origin testing   # testovací prostředí
 ```
-
-**Dev větev** → `git@github.com:amperai/sachyuh.git` branch `dev`  
-**Testing větev** → `git@github.com:amperai/sachyuh.git` branch `testing`
 
 ### 2. Aktualizace flake.lock v hosting_gaudi
 
-Po každém push do sachyuh musíš aktualizovat `flake.lock` v hosting_gaudi — jinak deploy nasadí starou verzi.
+Po každém push do sachyuh **musíš** aktualizovat `flake.lock` v hosting_gaudi —
+jinak deploy nasadí starý commit, ne nový.
 
 ```sh
 cd /workspace/projects/hosting_gaudi/dev
 
-# aktualizuj sachyuh input (stáhne nejnovější commit z dev/testing)
+# produkce (release větev)
 nix flake update sachyuh
+
+# NEBO testovací prostředí (testing větev)
+nix flake update sachyuh-testing
 
 git add flake.lock
 git commit -m "Update sachyuh flake input"
 git push
 ```
+
+> **Proč?** `flake.lock` zamkne konkrétní commit hash. Bez update by se nasadila stará verze
+> i kdyby v GitHubu byl nový kód.
 
 ### 3. Deploy na server
 
@@ -76,17 +106,25 @@ nixos-rebuild switch \
 ```
 
 Server buildí sám sebe:
-- stáhne sachyuh a battleuh přímo z GitHubu přes SSH
-- zkompiluje (Rust backend, nix deps)
+- stáhne sachyuh přímo z GitHubu (konkrétní commit z `flake.lock`)
+- zkompiluje Rust backend + nix deps
 - restartuje systemd služby + nginx
 
-### 4. Co se nasadí
+---
 
-| Větev | URL | systemd služba | DB |
-|-------|-----|----------------|-----|
-| `dev` | sachyuh.cz | `sachyuh-turnaj` | `/var/lib/sachyuh-turnaj/` |
-| `testing` | test1.sachyuh.cz | `sachyuh-turnaj-testing` | `/var/lib/sachyuh-turnaj-testing/` |
-| `dev` (dev instance) | test2.sachyuh.cz | `sachyuh-turnaj-dev` | `/var/lib/sachyuh-turnaj-dev/` |
+## Shrnutí CI pipeline
+
+```
+sachyuh: commit + push origin release
+         ↓
+hosting_gaudi: nix flake update sachyuh
+               git commit flake.lock
+               git push
+               ↓
+               nix run .#deploy
+                        ↓
+                      sachyuh.cz
+```
 
 ---
 
@@ -102,3 +140,49 @@ Server buildí sám sebe:
 ### Verze se nezměnila na webu
 → Zkontroluj že hook je spustitelný: `ls -la .git/hooks/pre-commit`  
 → Zkontroluj `VERSION` soubor: `cat VERSION`
+
+---
+
+## Deploy battleuh.cz (companion projekt)
+
+`battleuh.cz` běží na stejném serveru a používá **stejný postup**:
+
+```sh
+# 1. Změny v battleuh repu → commit + push
+cd /workspace/projects/battleuh/dev
+git add <soubory>
+git commit -m "popis změny"
+git push origin dev   # nebo release / testing
+
+# 2. Aktualizace flake.lock v hosting_gaudi
+cd /workspace/projects/hosting_gaudi/dev
+nix flake update battleuh
+git add flake.lock
+git commit -m "Update battleuh flake input"
+git push
+
+# 3. Deploy
+nix run .#deploy
+```
+
+Detailní CI/CD dokumentace battleuh (včetně vysvětlení proč flake.lock nestačí jen pushovat):
+- [battleuh/documentation/ci_deploy.md](https://github.com/amperai/battleuh/blob/dev/documentation/ci_deploy.md)
+- [battleuh/README.md — sekce Deploy](https://github.com/amperai/battleuh/blob/dev/README.md)
+
+---
+
+## Přehled repozitářů
+
+```
+amperai/sachyuh          ← kód sachyuh.cz (turnajový systém)
+amperai/battleuh         ← kód battleuh.cz (GPS hra)
+amperai/hosting_gaudi    ← NixOS konfigurace serveru + deploy skript
+```
+
+Hosting_gaudi odkazuje na oba projekty přes `flake.nix` vstupy:
+
+| Input | Sleduje větev |
+|-------|--------------|
+| `sachyuh` | sachyuh `release` |
+| `sachyuh-testing` | sachyuh `testing` |
+| `battleuh` | battleuh `dev` nebo `release` |

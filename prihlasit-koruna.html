@@ -3,31 +3,119 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Přihlášení · Na Koruně 21. 6. | ŠO Mařatice</title>
-  <meta name="description" content="Nezávazné přihlášení na první turnaj Letní šachové tour 2026 — Na Koruně 21. června.">
+  <title>Přihlášení na Na Koruně · 21. 6. | sachyuh.cz</title>
+  <meta name="description" content="Nezávazné přihlášení na první turnaj Letní šachové tour 2026 – Na Koruně 21. 6. 2026.">
   <meta name="theme-color" content="#001e32">
   <link rel="icon" type="image/png" href="assets/favicon-sachyuh.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .signup-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+    .signup-card {
+      background: var(--card, #fff);
+      border: 2px solid #001e32;
+      border-radius: 16px;
+      padding: 28px 24px;
+    }
+    .signup-desc {
+      margin: 0 0 20px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .signup-form { display: flex; flex-direction: column; gap: 16px; }
+    .signup-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 540px) {
+      .signup-row { grid-template-columns: 1fr; }
+    }
+    .signup-field { display: flex; flex-direction: column; gap: 6px; }
+    .signup-field label {
+      font-size: .875rem;
+      font-weight: 600;
+      color: #001e32;
+    }
+    .signup-field input {
+      padding: 11px 14px;
+      border: 1.5px solid #c8d0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .signup-field input:focus { border-color: #001e32; }
+    .optional { font-weight: 400; color: #888; font-size: .8rem; }
+    .required { color: #c0392b; }
+    .signup-btn {
+      align-self: flex-start;
+      background: #001e32;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .signup-btn:hover { background: #003558; }
+    .signup-btn:disabled { opacity: .5; cursor: default; }
+    .signup-msg {
+      margin: 0;
+      font-size: .9rem;
+      min-height: 1.4em;
+    }
+    .signup-msg.ok { color: #1a7a4a; font-weight: 600; }
+    .signup-msg.err { color: #c0392b; font-weight: 600; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .9rem;
+      color: #001e32;
+      text-decoration: none;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
 </head>
-<body>
+<body class="tour-page">
   <header class="site-header">
     <a class="brand" href="index.html" aria-label="sachyuh.cz">
       <img class="brand-logo brand-logo-wide" src="assets/brand-sachyuh.png" alt="sachyuh.cz">
     </a>
     <nav class="top-nav" aria-label="Hlavní navigace">
-      <a href="tour.html">Zpět na Tour</a>
+      <a href="index.html">Hlavní stránka</a>
+      <a href="tour.html">Tour</a>
     </nav>
   </header>
 
   <main>
-    <section class="content signup-section" aria-labelledby="signup-title">
-      <div class="signup-inner">
-        <p class="eyebrow">První turnaj · 21. 6. · Na Koruně</p>
-        <h1 id="signup-title">Nezávazné přihlášení</h1>
-        <p class="signup-desc">Přihlaste se e-mailem a budeme vědět, že přijdete. Pomůže nám to lépe odhadnout, kolik nás přibližně bude. Prezentace proběhne jako vždy na místě.</p>
+    <div class="signup-wrap">
+      <a class="back-link" href="tour.html">← Zpět na Tour</a>
+
+      <div class="section-heading" style="margin-bottom: 24px;">
+        <p class="eyebrow">První turnaj · 21. 6. 2026 · Na Koruně</p>
+        <h1 style="font-size: 1.8rem; margin: 0;">Nezávazné přihlášení</h1>
+      </div>
+
+      <div class="signup-card">
+        <p class="signup-desc">
+          Přihlaste se e-mailem a budeme vědět, že přijdete. Prezentace proběhne jako vždy na místě. Pomůže nám to lépe odhadnout, kolik nás přibližně bude.
+        </p>
         <form id="signupForm" class="signup-form" novalidate>
           <div class="signup-row">
             <div class="signup-field">
@@ -39,64 +127,28 @@
               <input type="email" id="signupEmail" name="email" placeholder="vas@email.cz" autocomplete="email" required maxlength="200">
             </div>
           </div>
-          <button type="submit" class="btn-signup">Přihlásit se</button>
+          <button type="submit" class="signup-btn" id="signupBtn">Přihlásit se nezávazně</button>
           <p id="signupMsg" class="signup-msg" aria-live="polite"></p>
         </form>
       </div>
-    </section>
+    </div>
   </main>
 
   <footer class="footer">
     <span>sachyuh.cz</span>
-    <a href="tour.html">Zpět na Tour</a>
+    <a href="tour.html">Letní šachová tour 2026</a>
   </footer>
-
-  <style>
-    .signup-inner {
-      max-width: 680px;
-      padding: clamp(22px, 4vw, 34px);
-      background: rgba(255, 255, 255, .78);
-      border: 1px solid var(--line);
-      box-shadow: 0 12px 34px rgba(0, 30, 50, .08);
-    }
-    .signup-desc { color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
-    .signup-form { display: flex; flex-direction: column; gap: 16px; }
-    .signup-row { display: flex; gap: 16px; flex-wrap: wrap; }
-    .signup-field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 200px; }
-    .signup-field label { font-size: 0.875rem; font-weight: 600; color: var(--ink); }
-    .optional { font-weight: 400; color: var(--muted); }
-    .required { color: #c0392b; }
-    .signup-field input {
-      padding: 10px 14px; border: 1.5px solid rgba(16, 32, 51, .2); border-radius: 8px;
-      font-size: 1rem; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box;
-      transition: border-color 0.15s;
-    }
-    .signup-field input:focus { outline: none; border-color: var(--ink); }
-    .btn-signup {
-      align-self: flex-start; padding: 11px 30px; background: var(--ink); color: #fff;
-      border: none; border-radius: 8px; font-size: 1rem; font-family: inherit;
-      font-weight: 700; cursor: pointer; transition: background 0.15s, opacity 0.15s;
-    }
-    .btn-signup:hover { background: #003a5c; }
-    .btn-signup:disabled { opacity: .5; cursor: default; }
-    .signup-msg { font-size: 0.9rem; min-height: 1.2em; }
-    .signup-msg.ok { color: #1a7a4a; font-weight: 600; }
-    .signup-msg.err { color: #c0392b; font-weight: 600; }
-    @media (max-width: 500px) {
-      .signup-row { flex-direction: column; }
-    }
-  </style>
 
   <script>
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const btn = this.querySelector('button[type=submit]');
+      const btn = document.getElementById('signupBtn');
       const msg = document.getElementById('signupMsg');
       const email = document.getElementById('signupEmail').value.trim();
-      const name = document.getElementById('signupName').value.trim();
+      const name  = document.getElementById('signupName').value.trim();
 
       if (!email || !email.includes('@')) {
-        msg.textContent = 'Zadejte platný e-mail.';
+        msg.textContent = 'Zadejte platnou e-mailovou adresu.';
         msg.className = 'signup-msg err';
         return;
       }
@@ -107,35 +159,26 @@
       msg.className = 'signup-msg';
 
       try {
-        const res = await fetch('/api/tour-registrations', {
+        const res = await fetch('/api/sachyuh/tour-register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, name: name || undefined, tournament: 'koruna-21-6-2026' }),
         });
-        let data;
-        try {
-          data = await res.json();
-        } catch {
-          throw new Error('bad_response:' + res.status);
-        }
+        const data = await res.json();
         msg.textContent = data.message || (data.ok ? 'Přihlášení proběhlo úspěšně!' : 'Chyba.');
-        msg.className = data.ok ? 'signup-msg ok' : 'signup-msg err';
+        msg.className = 'signup-msg ' + (data.ok ? 'ok' : 'err');
         if (data.ok) {
-          this.reset();
+          document.getElementById('signupForm').reset();
           btn.textContent = '✓ Přihlášeno';
         } else {
           btn.disabled = false;
-          btn.textContent = 'Přihlásit se';
+          btn.textContent = 'Přihlásit se nezávazně';
         }
       } catch (err) {
-        if (err?.message?.startsWith('bad_response:')) {
-          msg.textContent = 'Chyba serveru. Zkuste to prosím znovu.';
-        } else {
-          msg.textContent = 'Nepodařilo se připojit k serveru. Zkuste to prosím znovu.';
-        }
+        msg.textContent = 'Nepodařilo se odeslat. Zkuste to znovu.';
         msg.className = 'signup-msg err';
         btn.disabled = false;
-        btn.textContent = 'Přihlásit se';
+        btn.textContent = 'Přihlásit se nezávazně';
       }
     });
   </script>

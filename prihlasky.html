@@ -124,7 +124,7 @@
     async function load() {
       document.getElementById('status').textContent = 'Načítám…';
       try {
-        const res = await fetch('/api/tour-registrations');
+        const res = await fetch('/api/sachyuh/tour-registrations');
         allRows = await res.json();
         document.getElementById('status').textContent = `Celkem: ${allRows.length} přihlášek`;
         render();
