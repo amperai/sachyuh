@@ -51,6 +51,51 @@
               cp turnaj/tournament.js            $out/share/sachyuh-turnaj-rust/
             '';
           };
+
+          # bbpPairings prebuilt binary (x86_64-linux only)
+          bbpPairings = pkgs.stdenv.mkDerivation {
+            name = "bbpPairings-6.0.0";
+            src = pkgs.fetchurl {
+              url = "https://github.com/BieremaBoyzProgramming/bbpPairings/releases/download/v6.0.0/bbpPairings-v6.0.0-x86_64-pc-linux.tar.gz";
+              hash = "sha256-v/0tWk3J2G6z2YhjOejKRG2IaD93VZ8IieoNIEDn2Cc=";
+            };
+            nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+            buildInputs = [ pkgs.glibc ];
+            installPhase = ''
+              mkdir -p $out/bin
+              cp bbpPairings-v6.0.0/bbpPairings.exe $out/bin/bbpPairings
+              chmod +x $out/bin/bbpPairings
+            '';
+          };
+
+          # Turnaj2 static site (pairing GUI)
+          turnaj2Site = pkgs.stdenvNoCC.mkDerivation {
+            pname = "sachyuh-turnaj2-site";
+            version = "1.0.0";
+            src = ./turnaj2;
+            buildPhase = ":";
+            installPhase = ''
+              mkdir -p $out
+              cp pairing.html pairing.css pairing.js $out/
+            '';
+          };
+
+          # Turnaj2 Python API server (bbpPairings bridge)
+          turnaj2Server = pkgs.stdenv.mkDerivation {
+            pname = "sachyuh-turnaj2-server";
+            version = "1.0.0";
+            src = ./turnaj2;
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            buildPhase = ":";
+            installPhase = ''
+              mkdir -p $out/lib/turnaj2/server $out/bin
+              cp server/local_server.py server/bbp_bridge.py $out/lib/turnaj2/server/
+              makeWrapper ${pkgs.python3}/bin/python3 $out/bin/sachyuh-turnaj2-server \
+                --add-flags "$out/lib/turnaj2/server/local_server.py" \
+                --set BBP_PAIRINGS_EXE "${bbpPairings}/bin/bbpPairings" \
+                --set PYTHONPATH "$out/lib/turnaj2/server"
+            '';
+          };
         in
         {
           default = site;
@@ -63,6 +108,8 @@
             '';
           };
           rust-server = sachyuhTurnajRust;
+          turnaj2 = turnaj2Site;
+          turnaj2-server = turnaj2Server;
         });
     };
 }
