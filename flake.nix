@@ -63,7 +63,7 @@
             buildInputs = [ pkgs.glibc ];
             installPhase = ''
               mkdir -p $out/bin
-              cp bbpPairings-v6.0.0/bbpPairings.exe $out/bin/bbpPairings
+              cp bbpPairings.exe $out/bin/bbpPairings
               chmod +x $out/bin/bbpPairings
             '';
           };
