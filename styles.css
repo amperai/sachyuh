@@ -350,6 +350,11 @@ h3 {
   gap: 18px;
 }
 
+.info-flow {
+  display: grid;
+  gap: 18px;
+}
+
 .info-block,
 .note-panel {
   padding: clamp(22px, 4vw, 34px);
@@ -410,6 +415,30 @@ h3 {
   height: 9px;
   background: var(--gold);
   transform: translateY(-50%) rotate(45deg);
+}
+
+.support-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  width: min(100%, 412px);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.support-list a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.support-list img {
+  display: block;
+  width: min(128px, 100%);
+  max-width: 100%;
+  height: auto;
 }
 
 .points-intro {
