@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Přihlášení na U Pučalíka · 19. 7. | sachyuh.cz</title>
+  <meta name="description" content="Nezávazné přihlášení na druhý turnaj Letní šachové tour 2026 – U Pučalíka 19. 7. 2026.">
+  <meta name="theme-color" content="#001e32">
+  <link rel="icon" type="image/png" href="assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .signup-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+    .signup-card {
+      background: var(--card, #fff);
+      border: 2px solid #001e32;
+      border-radius: 16px;
+      padding: 28px 24px;
+    }
+    .signup-desc {
+      margin: 0 0 20px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .signup-form { display: flex; flex-direction: column; gap: 16px; }
+    .signup-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 540px) {
+      .signup-row { grid-template-columns: 1fr; }
+    }
+    .signup-field { display: flex; flex-direction: column; gap: 6px; }
+    .signup-field label {
+      font-size: .875rem;
+      font-weight: 600;
+      color: #001e32;
+    }
+    .signup-field input {
+      padding: 11px 14px;
+      border: 1.5px solid #c8d0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .signup-field input:focus { border-color: #001e32; }
+    .optional { font-weight: 400; color: #888; font-size: .8rem; }
+    .required { color: #c0392b; }
+    .signup-btn {
+      align-self: flex-start;
+      background: #001e32;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .signup-btn:hover { background: #003558; }
+    .signup-btn:disabled { opacity: .5; cursor: default; }
+    .signup-msg {
+      margin: 0;
+      font-size: .9rem;
+      min-height: 1.4em;
+    }
+    .signup-msg.ok { color: #1a7a4a; font-weight: 600; }
+    .signup-msg.err { color: #c0392b; font-weight: 600; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .9rem;
+      color: #001e32;
+      text-decoration: none;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body class="tour-page">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+    <nav class="top-nav" aria-label="Hlavní navigace">
+      <a href="index.html">Hlavní stránka</a>
+      <a href="tour.html">Tour</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="signup-wrap">
+      <a class="back-link" href="tour.html">← Zpět na Tour</a>
+
+      <div class="section-heading" style="margin-bottom: 24px;">
+        <p class="eyebrow">Druhý turnaj · 19. 7. 2026 · U Pučalíka</p>
+        <h1 style="font-size: 1.8rem; margin: 0;">Nezávazné přihlášení</h1>
+      </div>
+
+      <div class="signup-card">
+        <p class="signup-desc">
+          Přihlaste se e-mailem a budeme vědět, že přijdete. Prezentace proběhne jako vždy na místě. Pomůže nám to lépe odhadnout, kolik nás přibližně bude.
+        </p>
+        <form id="signupForm" class="signup-form" novalidate>
+          <div class="signup-row">
+            <div class="signup-field">
+              <label for="signupName">Jméno <span class="optional">(nepovinné)</span></label>
+              <input type="text" id="signupName" name="name" placeholder="Vaše jméno" autocomplete="name" maxlength="100">
+            </div>
+            <div class="signup-field">
+              <label for="signupEmail">E-mail <span class="required">*</span></label>
+              <input type="email" id="signupEmail" name="email" placeholder="vas@email.cz" autocomplete="email" required maxlength="200">
+            </div>
+          </div>
+          <button type="submit" class="signup-btn" id="signupBtn">Přihlásit se nezávazně</button>
+          <p id="signupMsg" class="signup-msg" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>sachyuh.cz</span>
+    <a href="tour.html">Letní šachová tour 2026</a>
+  </footer>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signupBtn');
+      const msg = document.getElementById('signupMsg');
+      const email = document.getElementById('signupEmail').value.trim();
+      const name  = document.getElementById('signupName').value.trim();
+
+      if (!email || !email.includes('@')) {
+        msg.textContent = 'Zadejte platnou e-mailovou adresu.';
+        msg.className = 'signup-msg err';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Odesílám…';
+      msg.textContent = '';
+      msg.className = 'signup-msg';
+
+      try {
+        const res = await fetch('/api/sachyuh/tour-register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name: name || undefined, tournament: 'pucalik-19-7-2026' }),
+        });
+        const data = await res.json();
+        msg.textContent = data.message || (data.ok ? 'Přihlášení proběhlo úspěšně!' : 'Chyba.');
+        msg.className = 'signup-msg ' + (data.ok ? 'ok' : 'err');
+        if (data.ok) {
+          document.getElementById('signupForm').reset();
+          btn.textContent = '✓ Přihlášeno';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Přihlásit se nezávazně';
+        }
+      } catch (err) {
+        msg.textContent = 'Nepodařilo se odeslat. Zkuste to znovu.';
+        msg.className = 'signup-msg err';
+        btn.disabled = false;
+        btn.textContent = 'Přihlásit se nezávazně';
+      }
+    });
+  </script>
+</body>
+</html>

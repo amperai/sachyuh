@@ -11,6 +11,44 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
+  <style>
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 12px;
+    }
+    .results-table th {
+      text-align: left;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #555;
+      border-bottom: 2px solid #001e32;
+    }
+    .results-table td {
+      padding: 5px 10px;
+      border-bottom: 1px solid #e8edf2;
+      vertical-align: middle;
+    }
+    .results-table td:first-child {
+      width: 2.5rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #001e32;
+    }
+    .results-table td:last-child {
+      width: 4rem;
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .results-table tr.top1 td { background: #fff8e1; font-weight: 700; }
+    .results-table tr.top3 td { background: #f5f5f5; }
+    .results-table tr:hover td { background: #f0f4f8; }
+  </style>
 </head>
 <body class="tour-page">
   <header class="site-header">
@@ -78,87 +116,35 @@
         <h2 id="results-title">Pořadí</h2>
       </div>
 
-      <div class="event-list">
-        <article class="event-item event-highlight">
-          <div class="event-date">🥇</div>
-          <div>
-            <h3>Petr Kapusta</h3>
-            <p>8,5 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">🥈</div>
-          <div>
-            <h3>Jaroslav Buráň</h3>
-            <p>8,0 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">🥉</div>
-          <div>
-            <h3>Jiří Vavřík</h3>
-            <p>7,5 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">4.</div>
-          <div>
-            <h3>Zdeněk Petrášek</h3>
-            <p>7,5 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">5.</div>
-          <div>
-            <h3>Jan Králík</h3>
-            <p>7,0 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">6.</div>
-          <div>
-            <h3>Jaroslav Sháněl</h3>
-            <p>7,0 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">7.</div>
-          <div>
-            <h3>Zdeněk Pícha</h3>
-            <p>7,0 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">8.</div>
-          <div>
-            <h3>Marek Kadlčík</h3>
-            <p>6,5 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">9.</div>
-          <div>
-            <h3>Ondřej Podškubka</h3>
-            <p>6,0 bodů</p>
-          </div>
-        </article>
-
-        <article class="event-item">
-          <div class="event-date">10.</div>
-          <div>
-            <h3>Jakub Vojtík</h3>
-            <p>6,0 bodů</p>
-          </div>
-        </article>
-      </div>
+      <table class="results-table">
+        <thead>
+          <tr><th>#</th><th>Hráč</th><th>Body</th></tr>
+        </thead>
+        <tbody>
+          <tr class="top1"><td>🥇</td><td>Petr Kapusta</td><td>8,5</td></tr>
+          <tr class="top3"><td>🥈</td><td>Jaroslav Buráň</td><td>8,0</td></tr>
+          <tr class="top3"><td>🥉</td><td>Jiří Vavřík</td><td>7,5</td></tr>
+          <tr><td>4.</td><td>Zdeněk Petrášek</td><td>7,5</td></tr>
+          <tr><td>5.</td><td>Jan Králík</td><td>7,0</td></tr>
+          <tr><td>6.</td><td>Jaroslav Sháněl</td><td>7,0</td></tr>
+          <tr><td>7.</td><td>Zdeněk Pícha</td><td>7,0</td></tr>
+          <tr><td>8.</td><td>Marek Kadlčík</td><td>6,5</td></tr>
+          <tr><td>9.</td><td>Ondřej Podškubka</td><td>6,0</td></tr>
+          <tr><td>10.</td><td>Jakub Vojtík</td><td>6,0</td></tr>
+          <tr><td>11.</td><td>—</td><td>—</td></tr>
+          <tr><td>12.</td><td>—</td><td>—</td></tr>
+          <tr><td>13.</td><td>—</td><td>—</td></tr>
+          <tr><td>14.</td><td>—</td><td>—</td></tr>
+          <tr><td>15.</td><td>—</td><td>—</td></tr>
+          <tr><td>16.</td><td>—</td><td>—</td></tr>
+          <tr><td>17.</td><td>—</td><td>—</td></tr>
+          <tr><td>18.</td><td>—</td><td>—</td></tr>
+          <tr><td>19.</td><td>—</td><td>—</td></tr>
+          <tr><td>20.</td><td>—</td><td>—</td></tr>
+          <tr><td>21.</td><td>—</td><td>—</td></tr>
+          <tr><td>22.</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
     </section>
   </main>
 
