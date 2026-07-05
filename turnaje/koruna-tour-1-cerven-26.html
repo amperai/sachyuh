@@ -12,6 +12,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <style>
+    .photo-link-row {
+      margin: 0 0 18px;
+    }
+    .photo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--navy);
+      background: rgba(255, 255, 255, .86);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 26px rgba(0, 30, 50, .07);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: transform .18s ease;
+    }
+    .photo-link:hover {
+      transform: translateY(-1px);
+    }
     .results-table {
       width: 100%;
       border-collapse: collapse;
@@ -111,6 +132,12 @@
     </section>
 
     <section class="content" aria-labelledby="results-title">
+      <div class="photo-link-row">
+        <a class="photo-link" href="https://eu.zonerama.com/SachyUH/Album/15657767?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">📷</span>
+          <span>Fotky z turnaje</span>
+        </a>
+      </div>
       <div class="section-heading">
         <p class="eyebrow">Výsledky</p>
         <h2 id="results-title">Pořadí</h2>
