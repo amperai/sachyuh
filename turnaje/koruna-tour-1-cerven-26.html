@@ -33,6 +33,35 @@
     .photo-link:hover {
       transform: translateY(-1px);
     }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0 0 24px;
+    }
+    @media (max-width: 600px) {
+      .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+      }
+    }
+    .photo-grid a {
+      display: block;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #e8edf2;
+    }
+    .photo-grid img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      transition: transform .22s ease, opacity .18s ease;
+    }
+    .photo-grid a:hover img {
+      transform: scale(1.04);
+      opacity: .92;
+    }
     .results-table {
       width: 100%;
       border-collapse: collapse;
@@ -132,10 +161,24 @@
     </section>
 
     <section class="content" aria-labelledby="results-title">
+      <div class="photo-grid">
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15657767/637956153?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 1">
+          <img src="../assets/foto/tour1-637956153.jpg" alt="Foto z 1. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15657767/637956201?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 2">
+          <img src="../assets/foto/tour1-637956201.jpg" alt="Foto z 1. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15657767/637956102?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 3">
+          <img src="../assets/foto/tour1-637956102.jpg" alt="Foto z 1. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15657767/637956217?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 4">
+          <img src="../assets/foto/tour1-637956217.jpg" alt="Foto z 1. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+      </div>
       <div class="photo-link-row">
         <a class="photo-link" href="https://eu.zonerama.com/SachyUH/Album/15657767?secret=r8AJAk1pv51DEMd78CW0lGKI5" target="_blank" rel="noopener noreferrer">
           <span aria-hidden="true">📷</span>
-          <span>Fotky z turnaje</span>
+          <span>Všechny fotky z turnaje</span>
         </a>
       </div>
       <div class="section-heading">
