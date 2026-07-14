@@ -419,14 +419,15 @@ h3 {
 
 .support-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
-  width: min(100%, 412px);
+  width: min(100%, 560px);
   gap: 14px;
   margin-top: 24px;
 }
 
-.support-list a {
+.support-list a,
+.support-list span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -436,9 +437,21 @@ h3 {
 
 .support-list img {
   display: block;
-  width: min(128px, 100%);
+  width: min(120px, 100%);
   max-width: 100%;
   height: auto;
+}
+
+@media (max-width: 480px) {
+  .support-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 18px 24px;
+  }
+
+  .support-list img {
+    width: min(140px, 100%);
+  }
 }
 
 .points-intro {
