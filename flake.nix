@@ -118,7 +118,7 @@
             buildPhase = ":";
             installPhase = ''
               mkdir -p $out/lib/turnaj3/server $out/bin
-              cp server/local_server.py server/bbp_bridge.py $out/lib/turnaj3/server/
+              cp server/local_server.py server/bbp_bridge.py server/round_robin.py $out/lib/turnaj3/server/
               makeWrapper ${pkgs.python3}/bin/python3 $out/bin/sachyuh-turnaj3-server \
                 --add-flags "$out/lib/turnaj3/server/local_server.py" \
                 --set BBP_PAIRINGS_EXE "${bbpPairings}/bin/bbpPairings" \
