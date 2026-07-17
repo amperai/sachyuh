@@ -96,6 +96,35 @@
                 --set PYTHONPATH "$out/lib/turnaj2/server"
             '';
           };
+
+          # Turnaj3 static site (pairing GUI — osel-pairing)
+          turnaj3Site = pkgs.stdenvNoCC.mkDerivation {
+            pname = "sachyuh-turnaj3-site";
+            version = "1.0.0";
+            src = ./turnaj3;
+            buildPhase = ":";
+            installPhase = ''
+              mkdir -p $out
+              cp pairing.html pairing.css pairing.js $out/
+            '';
+          };
+
+          # Turnaj3 Python API server (bbpPairings bridge)
+          turnaj3Server = pkgs.stdenv.mkDerivation {
+            pname = "sachyuh-turnaj3-server";
+            version = "1.0.0";
+            src = ./turnaj3;
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            buildPhase = ":";
+            installPhase = ''
+              mkdir -p $out/lib/turnaj3/server $out/bin
+              cp server/local_server.py server/bbp_bridge.py $out/lib/turnaj3/server/
+              makeWrapper ${pkgs.python3}/bin/python3 $out/bin/sachyuh-turnaj3-server \
+                --add-flags "$out/lib/turnaj3/server/local_server.py" \
+                --set BBP_PAIRINGS_EXE "${bbpPairings}/bin/bbpPairings" \
+                --set PYTHONPATH "$out/lib/turnaj3/server"
+            '';
+          };
         in
         {
           default = site;
@@ -110,6 +139,8 @@
           rust-server = sachyuhTurnajRust;
           turnaj2 = turnaj2Site;
           turnaj2-server = turnaj2Server;
+          turnaj3 = turnaj3Site;
+          turnaj3-server = turnaj3Server;
         });
     };
 }
