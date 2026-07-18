@@ -310,6 +310,25 @@ h3 {
   border-color: var(--navy);
 }
 
+.event-live {
+  background: #8b0000;
+  border-color: #8b0000;
+}
+
+.event-live h3,
+.event-live p {
+  color: #fff;
+}
+
+.event-live .event-date {
+  color: #ffcdd2;
+}
+
+.event-live h3 a {
+  color: #fff;
+  text-decoration: none;
+}
+
 .event-logo {
   display: block;
   width: 64px;

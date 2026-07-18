@@ -425,7 +425,7 @@ function renderAll() {
 
 async function checkEngine() {
   try {
-    const response = await fetch('/api/health', { cache: 'no-store' });
+    const response = await fetch('api/health', { cache: 'no-store' });
     const payload = await response.json();
     if (!response.ok || !payload.ok) {
       throw new Error(payload.error || 'Párovací program není připraven.');
@@ -439,7 +439,7 @@ async function checkEngine() {
 }
 
 async function loadSharedState(showMessage = false) {
-  const response = await fetch('/api/state', { cache: 'no-store' });
+  const response = await fetch('api/state', { cache: 'no-store' });
   const payload = await response.json();
   if (!response.ok || !payload.success) {
     throw new Error(payload.error || 'Nepodařilo se načíst turnaj.');
@@ -460,7 +460,7 @@ async function persistState(message = 'Uloženo.') {
   if (!isReferee) {
     throw new Error('Pro ukládání se přihlaste jako rozhodčí.');
   }
-  const response = await fetch('/api/state', {
+  const response = await fetch('api/state', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -495,7 +495,7 @@ async function generatePairings() {
   elements.generateButton.disabled = true;
   try {
     const isRoundRobin = state.pairingSystem === ROUND_ROBIN_SYSTEM;
-    const response = await fetch(isRoundRobin ? '/api/round-robin' : '/api/pairings', {
+    const response = await fetch(isRoundRobin ? 'api/round-robin' : 'api/pairings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(isRoundRobin

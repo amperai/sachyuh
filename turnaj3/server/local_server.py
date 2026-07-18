@@ -12,7 +12,8 @@ from round_robin import RoundRobinPairingError, generate_round_robin_pairings
 
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE_PATH = ROOT / "data" / "tournament-state.json"
+_data_dir_env = os.getenv("TURNAJ3_DATA_DIR")
+STATE_PATH = (Path(_data_dir_env) / "tournament-state.json") if _data_dir_env else (ROOT / "data" / "tournament-state.json")
 EMPTY_STATE = {
     "playersText": "",
     "rounds": [],
