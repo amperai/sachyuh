@@ -728,10 +728,10 @@ h3 {
 }
 
 .chessboard {
+  --cell: min(45px, 11.25vw);
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  width: min(360px, 90vw);
-  aspect-ratio: 1;
+  grid-template-columns: repeat(8, var(--cell));
+  grid-template-rows: repeat(8, var(--cell));
   border: 4px solid var(--navy);
   box-shadow: var(--shadow);
   flex-shrink: 0;
@@ -741,9 +741,10 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(min(360px, 90vw) / 8 * 0.76);
+  font-size: calc(var(--cell) * 0.76);
   line-height: 1;
   user-select: none;
+  overflow: hidden;
 }
 
 .sq.light { background: #f0d9b5; }
