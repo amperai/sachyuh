@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dubnový Koruna Open - pořadí</title>
+  <meta name="description" content="Pořadí hráčů Dubnového Koruna Open v restauraci Koruna" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
+  </style>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3eadf;
+      --card: rgba(255, 255, 255, 0.82);
+      --text: #2b1c0e;
+      --muted: #6f5a46;
+      --line: rgba(43, 28, 14, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fff7ed 0, var(--bg) 42%, #e9dccb 100%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, calc(100% - 24px));
+      margin: 24px auto;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(74, 48, 22, 0.12);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+      gap: 22px;
+      align-items: start;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(1.45rem, 3.2vw, 2.35rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.28em;
+      width: 100%;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .heading-chip {
+      font-family: "Noto Sans Symbols 2", system-ui, sans-serif;
+      font-weight: 400;
+      color: #7b4f18;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+    .heading-chip.trailing {
+      margin-left: 0;
+    }
+    .story p:last-child {
+      margin-bottom: 0;
+    }
+    .ranking {
+      position: sticky;
+      top: 18px;
+    }
+    .ranking h2 {
+      margin: 0 0 16px;
+      font-size: 1.3rem;
+    }
+    ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    li {
+      display: grid;
+      grid-template-columns: 3rem minmax(0, 1fr) auto;
+      gap: 0.6rem;
+      align-items: baseline;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--line);
+      line-height: 1.45;
+    }
+    .place {
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .name {
+      min-width: 0;
+    }
+    .points {
+      color: var(--muted);
+      white-space: nowrap;
+      justify-self: end;
+    }
+    @media (max-width: 640px) {
+      main { margin: 12px auto; padding: 16px; border-radius: 18px; }
+      .layout { grid-template-columns: 1fr; }
+      .ranking { position: static; }
+      h1 {
+        font-size: clamp(1.2rem, 7vw, 1.8rem);
+        gap: 0.22em;
+      }
+      li {
+        grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1><span class="heading-chip" aria-hidden="true">♛</span>Dubnový Koruna Open<span class="heading-chip trailing" aria-hidden="true">♜</span></h1>
+    <div class="layout">
+      <section class="story">
+        <p style="margin: 0 0 16px; color: var(--muted); line-height: 1.65;">
+          První kola se nesla v duchu opatrných výměn a velmi odvážných plánů, které obvykle skončily o dvě minuty později.
+          Obsluha prý po třetím kole poznala, že to nejsou běžní hosté: každý druhý stůl měl rozestavenou koncovku a někdo u dezertu řešil, jestli je lepší aktivní věž, nebo další guláš.
+        </p>
+        <p style="margin: 0 0 20px; color: var(--muted); line-height: 1.65;">
+          Legendární historka říká, že jedna partie se tak dlouho „jen na chvíli“ odkládala, až se z ní stal regionální orientační bod.
+          Další hráč si údajně omylem myslel, že Fernet je šachový termín. Nikdo to nepotvrdil, ale zní to dost dobře na to, aby se to v restauraci udrželo.
+        </p>
+        <p style="margin: 0; color: var(--muted); line-height: 1.65;">
+          V závěru se z turnaje stal hlavně festival holandských obran, protože každý chtěl být ten, kdo vytáhne něco exotického a zároveň působí, že to má pod kontrolou.
+          Výsledek? Méně klidných nervů, víc odvážných tahů a pocit, že Koruna vydržela i kombinaci šachu, smíchu a dobrého polského piva.
+        </p>
+      </section>
+      <section class="ranking">
+        <h2 style="display: inline-flex; align-items: center; gap: 0.35em; white-space: nowrap;"><span class="heading-chip" aria-hidden="true">♞</span>Pořadí hráčů<span class="heading-chip trailing" aria-hidden="true">♟</span></h2>
+        <ol>
+          <li><span class="place">1.</span><span class="name">Jarek Sháněl</span><span class="points">7 bodů</span></li>
+          <li><span class="place">2.</span><span class="name">Attila</span><span class="points">5 bodů</span></li>
+          <li><span class="place">3.</span><span class="name">Karel Machů</span><span class="points">5 bodů</span></li>
+          <li><span class="place">4.</span><span class="name">Roman Omelka</span><span class="points">4.5 bodu</span></li>
+          <li><span class="place">5.</span><span class="name">Nikola</span><span class="points">4 body</span></li>
+          <li><span class="place">6.</span><span class="name">Tomáš Lajsek</span><span class="points">4 body</span></li>
+          <li><span class="place">7.</span><span class="name">Albert Beatus</span><span class="points">4 body</span></li>
+          <li><span class="place">8.</span><span class="name">David Lukaštík</span><span class="points">3.5 bodu</span></li>
+          <li><span class="place">9.</span><span class="name">Jiří</span><span class="points">3 body</span></li>
+          <li><span class="place">10.</span><span class="name">Jan Bulhař</span><span class="points">3 body</span></li>
+          <li><span class="place">11.</span><span class="name">Albert</span><span class="points">3 body</span></li>
+          <li><span class="place">12.</span><span class="name">e2e4</span><span class="points">2.5 bodu</span></li>
+          <li><span class="place">13.</span><span class="name">Vasyl</span><span class="points">2.5 bodu</span></li>
+          <li><span class="place">14.</span><span class="name">Hani</span><span class="points">2 body</span></li>
+          <li><span class="place">15.</span><span class="name">Adéla</span><span class="points">1.5 bodu</span></li>
+          <li><span class="place">16.</span><span class="name">VW3TY</span><span class="points">1.5 bodu</span></li>
+        </ol>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
