@@ -12,6 +12,59 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <style>
+    .photo-link-row {
+      margin: 0 0 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .photo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--navy);
+      background: rgba(255, 255, 255, .86);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 26px rgba(0, 30, 50, .07);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: transform .18s ease;
+    }
+    .photo-link:hover {
+      transform: translateY(-1px);
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0 0 24px;
+    }
+    @media (max-width: 600px) {
+      .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+      }
+    }
+    .photo-grid a {
+      display: block;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #e8edf2;
+    }
+    .photo-grid img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      transition: transform .22s ease, opacity .18s ease;
+    }
+    .photo-grid a:hover img {
+      transform: scale(1.04);
+      opacity: .92;
+    }
     .results-table {
       width: 100%;
       border-collapse: collapse;
@@ -111,6 +164,26 @@
     </section>
 
     <section class="content" aria-labelledby="results-title">
+      <div class="photo-grid">
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15759225/647137991?secret=058SaGL7Undlo0dKTICFJ83hS" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 1">
+          <img src="../assets/foto/tour2-647137991.jpg" alt="Foto z 2. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15759225/647137977?secret=058SaGL7Undlo0dKTICFJ83hS" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 2">
+          <img src="../assets/foto/tour2-647137977.jpg" alt="Foto z 2. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15759225/647137962?secret=058SaGL7Undlo0dKTICFJ83hS" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 3">
+          <img src="../assets/foto/tour2-647137962.jpg" alt="Foto z 2. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+        <a href="https://eu.zonerama.com/SachyUH/Photo/15759225/647137964?secret=058SaGL7Undlo0dKTICFJ83hS" target="_blank" rel="noopener noreferrer" aria-label="Foto z turnaje 4">
+          <img src="../assets/foto/tour2-647137964.jpg" alt="Foto z 2. turnaje Letní šachové tour 2026" loading="lazy">
+        </a>
+      </div>
+      <div class="photo-link-row">
+        <a class="photo-link" href="https://eu.zonerama.com/SachyUH/Album/15759225?secret=058SaGL7Undlo0dKTICFJ83hS" target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">📷</span>
+          <span>Všechny fotky z turnaje</span>
+        </a>
+      </div>
       <div class="section-heading">
         <p class="eyebrow">Výsledky</p>
         <h2 id="results-title">Pořadí</h2>
