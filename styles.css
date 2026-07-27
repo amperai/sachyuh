@@ -438,9 +438,9 @@ h3 {
 
 .support-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
-  width: min(100%, 560px);
+  width: min(100%, 680px);
   gap: 14px;
   margin-top: 24px;
 }
@@ -459,17 +459,24 @@ h3 {
   width: min(120px, 100%);
   max-width: 100%;
   height: auto;
+  filter: grayscale(1);
+  opacity: 0.75;
+  transition: opacity .18s ease;
+}
+
+.support-list a:hover img {
+  opacity: 1;
 }
 
 @media (max-width: 480px) {
   .support-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
-    gap: 18px 24px;
+    gap: 18px 16px;
   }
 
   .support-list img {
-    width: min(140px, 100%);
+    width: min(100px, 100%);
   }
 }
 
