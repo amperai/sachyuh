@@ -438,7 +438,7 @@ h3 {
 
 .support-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
   width: min(100%, 680px);
   gap: 14px;
