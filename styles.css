@@ -48,6 +48,40 @@ a {
   text-decoration: none;
 }
 
+.live-banner {
+  background: var(--gold);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: .6rem 1rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.live-badge {
+  background: var(--navy);
+  color: var(--gold);
+  font-size: .7rem;
+  padding: .15rem .45rem;
+  border-radius: 2px;
+  letter-spacing: .08em;
+}
+
+.live-link {
+  color: var(--navy);
+  text-decoration: none;
+  transition: opacity .15s;
+}
+
+.live-link:hover {
+  opacity: .7;
+}
+
 .site-header {
   position: sticky;
   top: 0;
