@@ -207,6 +207,25 @@ main {
   text-transform: uppercase;
 }
 
+.event-bar {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 6px 14px;
+  background: var(--navy);
+  color: var(--gold-2);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background .15s;
+}
+.event-bar:hover {
+  background: #0a3050;
+  color: var(--gold-2);
+}
+
 h1,
 h2,
 h3 {
