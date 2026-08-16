@@ -439,8 +439,14 @@ async function checkEngine() {
 }
 
 async function loadSharedState(showMessage = false) {
-  const response = await fetch('api/state', { cache: 'no-store' });
-  const payload = await response.json();
+  let response;
+  let payload;
+  try {
+    response = await fetch('api/state', { cache: 'no-store' });
+    payload = await response.json();
+  } catch {
+    throw new Error('Server není dostupný. Zkuste obnovit stránku.');
+  }
   if (!response.ok || !payload.success) {
     throw new Error(payload.error || 'Nepodařilo se načíst turnaj.');
   }
