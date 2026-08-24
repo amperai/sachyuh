@@ -305,6 +305,49 @@ h3 {
   border: 2px solid var(--gold);
 }
 
+.button.outline {
+  color: var(--gold);
+  background: transparent;
+  border: 2px solid var(--gold);
+}
+
+.button.outline:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.event-list-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 4px;
+  color: var(--gold);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.event-list-divider::before,
+.event-list-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.35);
+}
+
+.email-highlight {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 6px 0 2px;
+}
+
+.email-highlight a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
 .button:hover,
 .top-nav a:hover,
 .poster-link:hover {
