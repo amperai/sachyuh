@@ -320,13 +320,13 @@ h3 {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 8px 0 4px;
+  margin: 16px 0 8px;
   color: var(--gold);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .event-list-divider::before,
@@ -334,7 +334,22 @@ h3 {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(212, 175, 55, 0.35);
+  background: rgba(212, 175, 55, 0.5);
+}
+
+.event-detail-note {
+  display: block;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: var(--text-muted, #9ba8b4);
+  margin-top: 4px;
+}
+
+.event-detail-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(155, 168, 180, 0.4);
 }
 
 .email-highlight {
