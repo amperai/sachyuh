@@ -315,6 +315,23 @@ h3 {
   background: rgba(212, 175, 55, 0.1);
 }
 
+.button.secondary {
+  color: var(--navy);
+  border: 2px solid var(--navy);
+  background: transparent;
+}
+
+.btn-row {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.btn-row .button {
+  margin-top: 0;
+}
+
 .event-list-divider {
   grid-column: 1 / -1;
   display: flex;
