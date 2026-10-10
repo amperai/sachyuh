@@ -22,6 +22,14 @@
     .lekce-hra h3 { font-size: 20px; margin-bottom: 10px; }
     .lekce-hra img { width: 100%; display: block; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
     .lekce-hra figcaption { margin-top: 10px; font-size: 0.92rem; line-height: 1.5; }
+    .lekce-body ul { margin: 8px 0 0; padding-left: 1.2em; line-height: 1.6; max-width: 640px; }
+    .lekce-body ul li { margin-bottom: 4px; }
+    .hodnoty { margin-top: 12px; border-collapse: collapse; min-width: 260px; }
+    .hodnoty th, .hodnoty td { padding: 8px 16px; border-bottom: 1px solid var(--line); text-align: left; }
+    .hodnoty th { font-family: var(--font-display); font-size: 18px; color: var(--navy); }
+    .hodnoty td:first-child { font-size: 1.6rem; line-height: 1; width: 1.6em; }
+    .hodnoty td:last-child { font-weight: 700; }
+    .lekce + .lekce { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--line); }
     .domaci-ukol { margin-top: 8px; padding: 16px 20px; border-left: 4px solid var(--navy); background: rgba(0,30,50,0.05); border-radius: 4px; max-width: 640px; }
     .domaci-ukol h3 { font-size: 22px; }
     .domaci-ukol p { margin: 6px 0 0; }
@@ -38,7 +46,116 @@
   </header>
 
   <main>
-    <section class="content" aria-labelledby="lekce1-title">
+    <section class="content lekce" id="lekce2" aria-labelledby="lekce2-title">
+      <div class="section-heading">
+        <p class="eyebrow">Trénink mládeže</p>
+        <h2 id="lekce2-title">2. lekce — Šachovnice (9.&nbsp;10.&nbsp;2026)</h2>
+      </div>
+      <ol class="lekce-body">
+        <li>
+          <h3>Úvodní hra</h3>
+          <p>Hodinu jsme opět začali partií. Každý si sedl k šachovnici a zahrál si, abychom se rozehřáli a abychom měli na čem ukazovat, co se budeme učit dál.</p>
+        </li>
+        <li>
+          <h3>Šachovnice: políčko, sloupec, řada a diagonála</h3>
+          <p>Šachovnice má 8&nbsp;×&nbsp;8&nbsp;=&nbsp;64 políček, střídavě světlých a tmavých. Správně položená šachovnice má vpravo dole u každého hráče <strong>světlé políčko</strong> (pomůcka: „světlá vpravo“). Bílý hraje odspodu, černý shora.</p>
+          <p><strong>Sloupec</strong> je svislá čára políček, která vede od bílého hráče k černému. Sloupců je osm a označujeme je písmeny <strong>a, b, c, d, e, f, g, h</strong> — zleva doprava z pohledu bílého. Písmena najdeš na spodním (a horním) okraji šachovnice.</p>
+          <p><strong>Řada</strong> je vodorovná čára políček, která vede zleva doprava. Řad je také osm a označujeme je čísly <strong>1 až 8</strong> — počítá se od bílého: na 1. řadě stojí na začátku bílé figury, na 2. řadě bílí pěšci, na 7. řadě černí pěšci a na 8. řadě černé figury. Čísla najdeš na levém (a pravém) okraji šachovnice.</p>
+          <p><strong>Políčko</strong> je místo, kde se sloupec a řada protínají. Jméno políčka proto složíme ze dvou částí: <strong>nejdřív písmeno sloupce, potom číslo řady</strong>. Například políčko <strong>e4</strong> leží ve sloupci&nbsp;e a ve 4.&nbsp;řadě. Každé políčko má jméno, které se na šachovnici nikde jinde neopakuje, takže podle něj vždy přesně víme, kam figurka táhla. Levé dolní políčko je <strong>a1</strong> (tmavé), pravé horní <strong>h8</strong> (také tmavé). Bílý král začíná na e1, bílá dáma na d1, černý král na e8 a černá dáma na d8.</p>
+          <p><strong>Diagonála</strong> je šikmá čára políček, která se dotýkají jen rohy. Všechna políčka jedné diagonály mají stejnou barvu. Nejdelší diagonály mají 8 políček: <strong>a1–h8</strong> (samá tmavá políčka) a <strong>h1–a8</strong> (samá světlá políčka). Ostatní diagonály jsou kratší — nejkratší mají jen dvě políčka (např. a7–b8 nebo g1–h2).</p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <h3>Sloupec</h3>
+              <img src="lekce2-sloupec.svg" alt="Šachovnice se zvýrazněným sloupcem e, políčka e1 až e8">
+              <figcaption>Sloupec je svislý. Zvýrazněný je <strong>sloupec e</strong> (políčka e1 až e8).</figcaption>
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Řada</h3>
+              <img src="lekce2-rada.svg" alt="Šachovnice se zvýrazněnou 4. řadou, políčka a4 až h4">
+              <figcaption>Řada je vodorovná. Zvýrazněná je <strong>4. řada</strong> (políčka a4 až h4).</figcaption>
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Diagonála</h3>
+              <img src="lekce2-diagonala.svg" alt="Šachovnice se zvýrazněnými dlouhými diagonálami a1–h8 a h1–a8">
+              <figcaption>Diagonála je šikmá. Zvýrazněné jsou dvě nejdelší: <strong>a1–h8</strong> (oranžově, tmavá políčka) a <strong>h1–a8</strong> (modře, světlá políčka).</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <h3>Hodnota figurek</h3>
+          <p>Abychom věděli, jestli se nám vyplatí něco vyměnit nebo obětovat, počítáme figurky v bodech. Hodnota odpovídá tomu, kolik toho figurka na šachovnici zvládne — čím víc políček ovládá, tím je cennější.</p>
+          <table class="hodnoty">
+            <thead>
+              <tr><th></th><th>Figurka</th><th>Body</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>♕</td><td>dáma</td><td>9 (10)</td></tr>
+              <tr><td>♖</td><td>věž</td><td>5</td></tr>
+              <tr><td>♘</td><td>jezdec (kůň)</td><td>3</td></tr>
+              <tr><td>♗</td><td>střelec</td><td>3</td></tr>
+              <tr><td>♙</td><td>pěšec</td><td>1</td></tr>
+            </tbody>
+          </table>
+          <p>Dáma se počítá za 9 bodů, někdy se uvádí i 10 — je to nejsilnější figura, protože spojuje sílu věže i střelce. Jezdec a střelec jsou zhruba stejně cenní, proto jim říkáme <strong>lehké figury</strong>; věž a dáma jsou <strong>těžké figury</strong>. Král nemá bodovou hodnotu — je nevyčíslitelný, protože když dostane mat, partie končí.</p>
+          <p>Příklad: když vezmeš soupeři věž (5) a on tobě jezdce (3), vydělal sis 2 body. Vyměnit dámu za věž se naopak nevyplatí.</p>
+          <p>Proč mají figurky takovou hodnotu, je vidět z toho, jak táhnou:</p>
+          <ul>
+            <li><strong>♔ Král</strong> táhne o jedno políčko libovolným směrem — po sloupci, po řadě i po diagonále. Nesmí vstoupit na políčko, které napadá soupeř, a dva králové nikdy nemohou stát vedle sebe. Jednou za partii smí udělat <strong>rošádu</strong> spolu s věží.</li>
+            <li><strong>♕ Dáma</strong> táhne o libovolný počet políček po sloupci, po řadě i po diagonále — umí tedy totéž co věž a střelec dohromady. Z prostředka šachovnice ovládá až 27 políček, proto je nejcennější.</li>
+            <li><strong>♖ Věž</strong> táhne o libovolný počet políček po sloupci nebo po řadě. Z kteréhokoli políčka na prázdné šachovnici ovládá vždy 14 políček.</li>
+            <li><strong>♗ Střelec</strong> táhne o libovolný počet políček po diagonále. Celou partii proto zůstává na políčkách jedné barvy — každý hráč má jednoho „světlopolného“ a jednoho „tmavopolného“ střelce.</li>
+            <li><strong>♘ Jezdec</strong> táhne do tvaru písmene <strong>L</strong>: dvě políčka rovně a jedno do strany. Jako jediná figurka umí <strong>přeskakovat</strong> ostatní figurky. Po každém tahu změní barvu políčka (ze světlého skočí na tmavé a naopak).</li>
+            <li><strong>♙ Pěšec</strong> táhne jen dopředu po svém sloupci o jedno políčko; ze svého výchozího postavení (bílý z 2. řady, černý ze 7. řady) smí táhnout i o dvě. <strong>Bere však šikmo</strong> — o jedno políčko dopředu po diagonále. Nikdy necouvá. Když dojde na poslední řadu, <strong>promění se</strong> v dámu, věž, střelce nebo jezdce (nejčastěji v dámu).</li>
+          </ul>
+          <p>Ostatní figurky (kromě jezdce) nemohou přeskakovat — když jim do cesty vstoupí vlastní figurka, dál nepokračují; na políčko se soupeřovou figurkou mohou vstoupit a vzít ji.</p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <h3>Král</h3>
+              <img src="lekce2-tah-kral.svg" alt="Bílý král na e4; vybarvená jsou políčka, kam může táhnout">
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Dáma</h3>
+              <img src="lekce2-tah-dama.svg" alt="Bílá dáma na d4; vybarvená jsou políčka, kam může táhnout">
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Věž</h3>
+              <img src="lekce2-tah-vez.svg" alt="Bílá věž na d4; vybarvená jsou políčka, kam může táhnout">
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Střelec</h3>
+              <img src="lekce2-tah-strelec.svg" alt="Bílý střelec na c3; vybarvená jsou políčka, kam může táhnout">
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Jezdec</h3>
+              <img src="lekce2-tah-jezdec.svg" alt="Bílý jezdec na e4; vybarvená jsou políčka, kam může táhnout">
+            </figure>
+            <figure class="lekce-hra">
+              <h3>Pěšec</h3>
+              <img src="lekce2-tah-pesec.svg" alt="Bílí pěšci na a2, c5, f4 a h7, černí pěšci na e5 a g5, na h8 je naznačená dáma; vybarvená jsou políčka, kam mohou pěšci táhnout">
+              <figcaption><strong>a2</strong> — z výchozího postavení o jedno nebo o dvě (a3, a4). <strong>c5</strong> — uprostřed jen o jedno (c6). <strong>f4</strong> — rovně na f5, nebo bere šikmo na e5 či g5. <strong>h7</strong> — na poslední řadě se promění, nejčastěji v dámu.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <h3>Ovečky a vlk — opakování</h3>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <img src="lekce1-ovecky-a-vlk.png" alt="Pozice: černá dáma d8; bílí pěšci a2–h2">
+              <figcaption>Zopakovali jsme si minihru z minulé lekce. Bílý (ovečky) začíná. Když dojde pěšcem na poslední řadu, vyhrává. Černá dáma (vlk) se snaží všechny pěšce sebrat dřív.</figcaption>
+            </figure>
+          </div>
+        </li>
+      </ol>
+      <div class="domaci-ukol">
+        <h3>Domácí úkol</h3>
+        <p>Tři políčka už mají napsané jméno, ostatní mají <strong style="color:#c0392b">?</strong>. Doplň jména všech políček s otazníkem — nejdřív písmeno sloupce, potom číslo řady (např. <strong>e4</strong>).</p>
+        <figure class="lekce-hra" style="width:420px;margin-top:16px;">
+          <img src="lekce2-ukol.svg" alt="Prázdná šachovnice; políčka a1, e4 a h8 mají napsané jméno, všechna ostatní políčka mají otazník">
+        </figure>
+      </div>
+    </section>
+
+    <section class="content lekce" id="lekce1" aria-labelledby="lekce1-title">
       <div class="section-heading">
         <p class="eyebrow">Trénink mládeže</p>
         <h2 id="lekce1-title">1. lekce — úvodní hodina (2.&nbsp;10.&nbsp;2026)</h2>
