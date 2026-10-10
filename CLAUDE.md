@@ -49,9 +49,8 @@ git push origin release
 - `scripts/` — pomocné skripty
 - `tests/` — testy
 
-## Vztah k battleuh
+## Vztah k ostatním repům
 
 Toto je **samostatné repo** (`amperai/sachyuh`).  
-Soubory z tohoto repa jsou manuálně kopírovány do `static/sachyuh/` v repu `amperai/battleuh`.  
-Po každé změně je třeba kopii v battleuh aktualizovat ručně.  
+`amperai/battleuh` je jiný projekt — změny ze sachyuh se tam nekopírují.  
 Deploy konfigurace je v repu `amperai/hosting_gaudi`.
