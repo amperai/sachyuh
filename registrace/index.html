@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registrace | sachyuh.cz</title>
+  <meta name="description" content="Registrace – jméno, telefon a poznámka.">
+  <meta name="theme-color" content="#001e32">
+  <link rel="icon" type="image/png" href="../assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .signup-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+    .signup-card {
+      background: var(--card, #fff);
+      border: 2px solid #001e32;
+      border-radius: 16px;
+      padding: 28px 24px;
+    }
+    .signup-desc {
+      margin: 0 0 20px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .signup-form { display: flex; flex-direction: column; gap: 16px; }
+    .signup-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 540px) {
+      .signup-row { grid-template-columns: 1fr; }
+    }
+    .signup-field { display: flex; flex-direction: column; gap: 6px; }
+    .signup-field label {
+      font-size: .875rem;
+      font-weight: 600;
+      color: #001e32;
+    }
+    .signup-field input, .signup-field textarea {
+      padding: 11px 14px;
+      border: 1.5px solid #c8d0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .signup-field textarea { min-height: 110px; resize: vertical; }
+    .signup-field input:focus, .signup-field textarea:focus { border-color: #001e32; }
+    .optional { font-weight: 400; color: #888; font-size: .8rem; }
+    .required { color: #c0392b; }
+    .signup-btn {
+      align-self: flex-start;
+      background: #001e32;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .signup-btn:hover { background: #003558; }
+    .signup-btn:disabled { opacity: .5; cursor: default; }
+    .signup-msg {
+      margin: 0;
+      font-size: .9rem;
+      min-height: 1.4em;
+    }
+    .signup-msg.ok { color: #1a7a4a; font-weight: 600; }
+    .signup-msg.err { color: #c0392b; font-weight: 600; }
+  </style>
+</head>
+<body class="tour-page">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="../assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+    <nav class="top-nav" aria-label="Hlavní navigace">
+      <a href="../index.html">Hlavní stránka</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="signup-wrap">
+      <div class="section-heading" style="margin-bottom: 24px;">
+        <p class="eyebrow">sachyuh.cz</p>
+        <h1 style="font-size: 1.8rem; margin: 0;">Registrace</h1>
+      </div>
+
+      <div class="signup-card">
+        <p class="signup-desc">
+          Vyplňte jméno a telefon, ozveme se vám. Do poznámky můžete napsat cokoliv, co bychom měli vědět.
+        </p>
+        <form id="regForm" class="signup-form" novalidate>
+          <div class="signup-row">
+            <div class="signup-field">
+              <label for="regName">Jméno <span class="required">*</span></label>
+              <input type="text" id="regName" name="name" placeholder="Jméno a příjmení" autocomplete="name" required maxlength="100">
+            </div>
+            <div class="signup-field">
+              <label for="regPhone">Telefon <span class="required">*</span></label>
+              <input type="tel" id="regPhone" name="phone" placeholder="+420 123 456 789" autocomplete="tel" required maxlength="30">
+            </div>
+          </div>
+          <div class="signup-field">
+            <label for="regEmail">E-mail <span class="optional">(nepovinné)</span></label>
+            <input type="email" id="regEmail" name="email" placeholder="vas@email.cz" autocomplete="email" maxlength="200">
+          </div>
+          <div class="signup-field">
+            <label for="regNote">Poznámka <span class="optional">(nepovinné)</span></label>
+            <textarea id="regNote" name="note" maxlength="2000"></textarea>
+          </div>
+          <button type="submit" class="signup-btn" id="regBtn">Odeslat</button>
+          <p id="regMsg" class="signup-msg" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>sachyuh.cz</span>
+    <a href="mailto:sachyuh@seznam.cz">sachyuh@seznam.cz</a>
+  </footer>
+
+  <script>
+    document.getElementById('regForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('regBtn');
+      const msg = document.getElementById('regMsg');
+      const name  = document.getElementById('regName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const note  = document.getElementById('regNote').value.trim();
+
+      if (!name) {
+        msg.textContent = 'Vyplňte jméno.';
+        msg.className = 'signup-msg err';
+        return;
+      }
+      if (phone.replace(/\D/g, '').length < 9) {
+        msg.textContent = 'Zadejte platné telefonní číslo.';
+        msg.className = 'signup-msg err';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Odesílám…';
+      msg.textContent = '';
+      msg.className = 'signup-msg';
+
+      try {
+        const res = await fetch('/api/sachyuh/registrace', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, email: email || undefined, note: note || undefined }),
+        });
+        const data = await res.json();
+        msg.textContent = data.message || (data.ok ? 'Odesláno.' : 'Chyba.');
+        msg.className = 'signup-msg ' + (data.ok ? 'ok' : 'err');
+        if (data.ok) {
+          document.getElementById('regForm').reset();
+          btn.textContent = '✓ Odesláno';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Odeslat';
+        }
+      } catch (err) {
+        msg.textContent = 'Nepodařilo se odeslat. Zkuste to znovu.';
+        msg.className = 'signup-msg err';
+        btn.disabled = false;
+        btn.textContent = 'Odeslat';
+      }
+    });
+  </script>
+</body>
+</html>

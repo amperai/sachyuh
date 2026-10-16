@@ -24,6 +24,7 @@ type Db = Arc<Mutex<Connection>>;
 #[derive(Clone)]
 struct AppState {
     db: Db,
+    registrace_heslo: Option<Arc<str>>,
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -277,6 +278,116 @@ async fn get_tour_registrations(
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Registrace API   POST /api/sachyuh/registrace
+//                  POST /api/sachyuh/registrovani   (vyžaduje heslo)
+
+#[derive(Deserialize)]
+struct RegistraceInput {
+    name: String,
+    phone: String,
+    email: Option<String>,
+    note: Option<String>,
+}
+
+#[derive(Serialize)]
+struct RegistraceRow {
+    id: i64,
+    name: String,
+    phone: String,
+    email: Option<String>,
+    note: Option<String>,
+    created_at: i64,
+}
+
+#[derive(Deserialize)]
+struct HesloInput {
+    heslo: String,
+}
+
+fn trim_opt(s: Option<String>, max: usize) -> Option<String> {
+    s.map(|v| v.trim().chars().take(max).collect::<String>())
+        .filter(|v| !v.is_empty())
+}
+
+async fn post_registrace(
+    State(state): State<AppState>,
+    Json(input): Json<RegistraceInput>,
+) -> HandlerResult<Json<Value>> {
+    let name: String = input.name.trim().chars().take(100).collect();
+    let phone: String = input.phone.trim().chars().take(30).collect();
+    let digits = phone.chars().filter(|c| c.is_ascii_digit()).count();
+
+    if name.is_empty() {
+        return Ok(Json(json!({ "ok": false, "message": "Vyplňte jméno." })));
+    }
+    if digits < 9 {
+        return Ok(Json(json!({ "ok": false, "message": "Zadejte platné telefonní číslo." })));
+    }
+
+    let email = trim_opt(input.email, 200);
+    let note = trim_opt(input.note, 2000);
+
+    let db = state.db.lock().unwrap();
+    db.execute(
+        "INSERT INTO registrace (name, phone, email, note, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![name, phone, email, note, now_ms()],
+    )
+    .map_err(db_err)?;
+
+    Ok(Json(json!({
+        "ok": true,
+        "message": "Registrace byla odeslána. Děkujeme, ozveme se vám."
+    })))
+}
+
+async fn post_registrovani(
+    State(state): State<AppState>,
+    Json(input): Json<HesloInput>,
+) -> HandlerResult<Json<Vec<RegistraceRow>>> {
+    let Some(expected) = state.registrace_heslo.as_deref() else {
+        return Err((
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Heslo není na serveru nastavené.".to_string(),
+        ));
+    };
+    if input.heslo != expected {
+        // zpomalí zkoušení hesel
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        return Err((StatusCode::UNAUTHORIZED, "Špatné heslo.".to_string()));
+    }
+
+    let db = state.db.lock().unwrap();
+    let mut stmt = db
+        .prepare(
+            "SELECT id, name, phone, email, note, created_at
+             FROM registrace
+             ORDER BY created_at ASC",
+        )
+        .map_err(db_err)?;
+
+    let rows = stmt
+        .query_map([], |r| {
+            Ok(RegistraceRow {
+                id: r.get(0)?,
+                name: r.get(1)?,
+                phone: r.get(2)?,
+                email: r.get(3)?,
+                note: r.get(4)?,
+                created_at: r.get(5)?,
+            })
+        })
+        .map_err(db_err)?;
+
+    let mut result = Vec::new();
+    for row in rows {
+        result.push(row.map_err(db_err)?);
+    }
+
+    Ok(Json(result))
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Database initialisation
 
 fn init_db(conn: &Connection) -> rusqlite::Result<()> {
@@ -301,6 +412,15 @@ fn init_db(conn: &Connection) -> rusqlite::Result<()> {
             email      TEXT NOT NULL,
             name       TEXT,
             tournament TEXT NOT NULL,
+            created_at INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS registrace (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            phone      TEXT NOT NULL,
+            email      TEXT,
+            note       TEXT,
             created_at INTEGER NOT NULL
         );
         ",
@@ -350,8 +470,17 @@ async fn main() {
     let conn = Connection::open(&db_path).expect("Failed to open SQLite database");
     init_db(&conn).expect("Failed to initialise database schema");
 
+    let registrace_heslo = std::env::var("SACHYUH_REGISTRACE_HESLO")
+        .ok()
+        .filter(|h| !h.is_empty())
+        .map(Arc::from);
+    if registrace_heslo.is_none() {
+        println!("SACHYUH_REGISTRACE_HESLO není nastavené – /registrovani nebude fungovat");
+    }
+
     let state = AppState {
         db: Arc::new(Mutex::new(conn)),
+        registrace_heslo,
     };
 
     // API router (takes precedence over static files)
@@ -362,7 +491,9 @@ async fn main() {
         )
         .route("/api/tournaments", get(get_tournaments).post(post_tournament))
         .route("/api/sachyuh/tour-register", post(post_tour_register))
-        .route("/api/sachyuh/tour-registrations", get(get_tour_registrations));
+        .route("/api/sachyuh/tour-registrations", get(get_tour_registrations))
+        .route("/api/sachyuh/registrace", post(post_registrace))
+        .route("/api/sachyuh/registrovani", post(post_registrovani));
 
     // Static file fallback – serves index.html for /
     let static_service = ServeDir::new(&static_dir).append_index_html_on_directories(true);
