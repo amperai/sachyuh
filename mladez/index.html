@@ -21,6 +21,7 @@
     .lekce-hra { margin: 0; width: 280px; max-width: 100%; }
     .lekce-hra h3 { font-size: 20px; margin-bottom: 10px; }
     .lekce-hra img { width: 100%; display: block; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .lekce-list { width: 420px; }
     .lekce-hra figcaption { margin-top: 10px; font-size: 0.92rem; line-height: 1.5; }
     .lekce-body ul { margin: 8px 0 0; padding-left: 1.2em; line-height: 1.6; max-width: 640px; }
     .lekce-body ul li { margin-bottom: 4px; }
@@ -29,6 +30,8 @@
     .hodnoty th { font-family: var(--font-display); font-size: 18px; color: var(--navy); }
     .hodnoty td:first-child { font-size: 1.6rem; line-height: 1; width: 1.6em; }
     .hodnoty td:last-child { font-weight: 700; }
+    .srovnani td:first-child { font-size: inherit; line-height: inherit; width: auto; font-weight: 700; }
+    .srovnani td:last-child { font-weight: 400; }
     .lekce + .lekce { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--line); }
     .domaci-ukol { margin-top: 8px; padding: 16px 20px; border-left: 4px solid var(--navy); background: rgba(0,30,50,0.05); border-radius: 4px; max-width: 640px; }
     .domaci-ukol h3 { font-size: 22px; }
@@ -46,6 +49,85 @@
   </header>
 
   <main>
+    <section class="content lekce" id="lekce3" aria-labelledby="lekce3-title">
+      <div class="section-heading">
+        <p class="eyebrow">Trénink mládeže</p>
+        <h2 id="lekce3-title">3. lekce — Šach, šachmat a pat (16.&nbsp;10.&nbsp;2026)</h2>
+      </div>
+      <ol class="lekce-body">
+        <li>
+          <h3>Šach</h3>
+          <p><strong>Šach</strong> znamená, že soupeř <strong>napadá krále</strong>. Na šach musíš hned odpovědět. Máš tři možnosti:</p>
+          <ul>
+            <li><strong>Uhnout</strong> králem na políčko, které soupeř nenapadá.</li>
+            <li><strong>Vzít</strong> figurku, která šachuje.</li>
+            <li><strong>Zakrýt</strong> šach vlastní figurkou (proti jezdci to nejde).</li>
+          </ul>
+          <p><strong>Do šachu se táhnout nesmí.</strong></p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <h3>Šach</h3>
+              <img src="lekce3-sach.svg" alt="Bílý král e1, černá věž e8, černý král h8; bílý král je v šachu, vybarvená jsou políčka d1, f1, d2 a f2, kam může uhnout">
+              <figcaption>Věž dává šach. Král <strong>uhne</strong> na d1, f1, d2 nebo f2.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <h3>Mat</h3>
+          <p><strong>Mat</strong> je šach, ze kterého <strong>není úniku</strong>. Král nemůže uhnout, šachující figurku nejde vzít ani zakrýt. Kdo dostal mat, <strong>prohrál</strong>.</p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <h3>Mat</h3>
+              <img src="lekce3-mat.svg" alt="Bílý král g1, bílí pěšci f2, g2, h2, černá věž e1, černý král g8; bílý král dostal mat">
+              <figcaption>Věž dává šach. Král nemá kam uhnout, věž nejde vzít ani zakrýt: <strong>mat</strong>.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <h3>Pat</h3>
+          <p><strong>Pat</strong> je, když hráč na tahu <strong>nemá žádný tah</strong>, ale jeho král <strong>není v šachu</strong>. Pat je <strong>remíza</strong>.</p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra">
+              <h3>Pat</h3>
+              <img src="lekce3-pat.svg" alt="Bílý král h8, černý král f7, černá dáma g6; bílý je na tahu a je pat">
+              <figcaption>Bílý je na tahu. Král není v šachu, ale nemá kam táhnout: <strong>pat</strong>.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <h3>Šach, mat, nebo pat?</h3>
+          <table class="hodnoty srovnani">
+            <thead>
+              <tr><th>Situace</th><th>Je král v šachu?</th><th>Má hráč tah?</th><th>Výsledek</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>šach</td><td>ano</td><td>ano</td><td>hraje se dál</td></tr>
+              <tr><td>mat</td><td>ano</td><td>ne</td><td>prohra</td></tr>
+              <tr><td>pat</td><td>ne</td><td>ne</td><td>remíza</td></tr>
+            </tbody>
+          </table>
+        </li>
+        <li>
+          <h3>Úkoly</h3>
+          <p><a href="lekce3-pracovni-listy.pdf" download><strong>Stáhnout úkoly k tisku (PDF)</strong></a></p>
+          <div class="lekce-hry">
+            <figure class="lekce-hra lekce-list">
+              <a href="lekce3-list-1.jpg"><img src="lekce3-list-1.jpg" alt="Légalova léčka: přehraj tahy partie, zakroužkuj správnou závěrečnou pozici A, B nebo C a rozhodni, jestli je to mat" loading="lazy"></a>
+            </figure>
+            <figure class="lekce-hra lekce-list">
+              <a href="lekce3-list-2.jpg"><img src="lekce3-list-2.jpg" alt="Šustr mat: přehraj tahy partie, zakroužkuj správnou závěrečnou pozici A, B nebo C a rozhodni, jestli je to mat" loading="lazy"></a>
+            </figure>
+            <figure class="lekce-hra lekce-list">
+              <a href="lekce3-list-3.jpg"><img src="lekce3-list-3.jpg" alt="Mat, pat, nebo ani jedno: tři pozice podle seznamu figurek, bílý je vždy na tahu, zakroužkuj výsledek" loading="lazy"></a>
+            </figure>
+            <figure class="lekce-hra lekce-list">
+              <a href="lekce3-list-4.jpg"><img src="lekce3-list-4.jpg" alt="Šachová výzva: tři pozice od lehké po těžkou, bílý je vždy na tahu, zakroužkuj mat, pat, nebo ani jedno" loading="lazy"></a>
+            </figure>
+          </div>
+        </li>
+      </ol>
+    </section>
+
     <section class="content lekce" id="lekce2" aria-labelledby="lekce2-title">
       <div class="section-heading">
         <p class="eyebrow">Trénink mládeže</p>

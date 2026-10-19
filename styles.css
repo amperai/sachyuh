@@ -471,6 +471,20 @@ h3 {
   box-shadow: 0 8px 18px rgba(0, 30, 50, .16);
 }
 
+.lekce-kolecko {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.lekce-kolecko-1 { background: #e3a83b; }
+.lekce-kolecko-2 { background: #dc5545; }
+.lekce-kolecko-3 { background: #2f6fa3; }
+.lekce-kolecko-4 { background: #159a8f; }
+
 .event-date {
   color: var(--gold);
   font-family: var(--font-display);
@@ -790,6 +804,10 @@ h3 {
 
   .event-logo {
     width: 52px;
+  }
+
+  .lekce-kolecko {
+    font-size: 28px;
   }
 
   .event-date {
