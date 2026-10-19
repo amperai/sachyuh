@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Registrovaní | sachyuh.cz</title>
+  <title>Odběratelé | sachyuh.cz</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/png" href="../assets/favicon-sachyuh.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,6 @@
     thead th { background: #001e32; color: #fff; padding: 10px 12px; text-align: left; }
     tbody tr:nth-child(even) { background: #f4f6f8; }
     tbody td { padding: 9px 12px; border-bottom: 1px solid #e0e3e7; vertical-align: top; }
-    td.note { white-space: pre-wrap; }
     .empty { color: #888; text-align: center; padding: 2rem; }
     .err { color: #c0392b; font-weight: 600; }
     #loginForm { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -42,7 +41,7 @@
   </header>
 
   <div class="admin-wrap">
-    <h1>Registrovaní</h1>
+    <h1>Odběratelé</h1>
 
     <form id="loginForm" class="toolbar">
       <input type="password" id="heslo" placeholder="Heslo" autocomplete="current-password" required>
@@ -63,10 +62,8 @@
             <tr>
               <th>#</th>
               <th>Jméno</th>
-              <th>Telefon</th>
               <th>E-mail</th>
-              <th>Poznámka</th>
-              <th>Odesláno</th>
+              <th>Přihlášeno</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -91,30 +88,28 @@
       const q = document.getElementById('filterText').value.trim().toLowerCase();
       if (!q) return allRows;
       return allRows.filter(r =>
-        [r.name, r.phone, r.email, r.note].join(' ').toLowerCase().includes(q));
+        [r.name, r.email].join(' ').toLowerCase().includes(q));
     }
 
     function render() {
       const rows = filtered();
       const tbody = document.getElementById('tableBody');
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty">Žádné záznamy.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">Žádné záznamy.</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map((r, i) => `
         <tr>
           <td>${i + 1}</td>
           <td>${esc(r.name)}</td>
-          <td><a href="tel:${esc(r.phone.replace(/\s/g, ''))}">${esc(r.phone)}</a></td>
-          <td>${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '—'}</td>
-          <td class="note">${esc(r.note || '')}</td>
+          <td><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></td>
           <td>${formatDate(r.created_at)}</td>
         </tr>
       `).join('');
     }
 
     async function load() {
-      const res = await fetch('/api/sachyuh/registrovani', {
+      const res = await fetch('/api/sachyuh/odberatele', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ heslo }),
@@ -145,13 +140,13 @@
       load().catch(err => { document.getElementById('status').textContent = err.message; }));
 
     document.getElementById('exportBtn').addEventListener('click', () => {
-      const csv = ['#,Jméno,Telefon,E-mail,Poznámka,Odesláno', ...filtered().map((r, i) =>
-        [i + 1, r.name, r.phone, r.email || '', r.note || '', new Date(r.created_at).toLocaleString('cs-CZ')]
+      const csv = ['#,Jméno,E-mail,Přihlášeno', ...filtered().map((r, i) =>
+        [i + 1, r.name, r.email, new Date(r.created_at).toLocaleString('cs-CZ')]
           .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
       )].join('\n');
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-      a.download = 'registrovani.csv';
+      a.download = 'odberatele.csv';
       a.click();
     });
   </script>

@@ -278,24 +278,20 @@ async fn get_tour_registrations(
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Registrace API   POST /api/sachyuh/registrace
-//                  POST /api/sachyuh/registrovani   (vyžaduje heslo)
+// Odběr API   POST /api/sachyuh/odber
+//             POST /api/sachyuh/odberatele   (vyžaduje heslo)
 
 #[derive(Deserialize)]
-struct RegistraceInput {
+struct OdberInput {
     name: String,
-    phone: String,
-    email: Option<String>,
-    note: Option<String>,
+    email: String,
 }
 
 #[derive(Serialize)]
-struct RegistraceRow {
+struct OdberRow {
     id: i64,
     name: String,
-    phone: String,
-    email: Option<String>,
-    note: Option<String>,
+    email: String,
     created_at: i64,
 }
 
@@ -304,47 +300,41 @@ struct HesloInput {
     heslo: String,
 }
 
-fn trim_opt(s: Option<String>, max: usize) -> Option<String> {
-    s.map(|v| v.trim().chars().take(max).collect::<String>())
-        .filter(|v| !v.is_empty())
-}
-
-async fn post_registrace(
+async fn post_odber(
     State(state): State<AppState>,
-    Json(input): Json<RegistraceInput>,
+    Json(input): Json<OdberInput>,
 ) -> HandlerResult<Json<Value>> {
     let name: String = input.name.trim().chars().take(100).collect();
-    let phone: String = input.phone.trim().chars().take(30).collect();
-    let digits = phone.chars().filter(|c| c.is_ascii_digit()).count();
+    let email: String = input.email.trim().chars().take(200).collect();
 
     if name.is_empty() {
         return Ok(Json(json!({ "ok": false, "message": "Vyplňte jméno." })));
     }
-    if digits < 9 {
-        return Ok(Json(json!({ "ok": false, "message": "Zadejte platné telefonní číslo." })));
+    let valid_email = email
+        .split_once('@')
+        .is_some_and(|(user, domain)| !user.is_empty() && domain.contains('.'))
+        && !email.contains(char::is_whitespace);
+    if !valid_email {
+        return Ok(Json(json!({ "ok": false, "message": "Zadejte platný e-mail." })));
     }
-
-    let email = trim_opt(input.email, 200);
-    let note = trim_opt(input.note, 2000);
 
     let db = state.db.lock().unwrap();
     db.execute(
-        "INSERT INTO registrace (name, phone, email, note, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5)",
-        params![name, phone, email, note, now_ms()],
+        "INSERT INTO odber (name, email, created_at) VALUES (?1, ?2, ?3)",
+        params![name, email, now_ms()],
     )
     .map_err(db_err)?;
 
     Ok(Json(json!({
         "ok": true,
-        "message": "Registrace byla odeslána. Děkujeme, ozveme se vám."
+        "message": "Odběr je přihlášený. Děkujeme!"
     })))
 }
 
-async fn post_registrovani(
+async fn post_odberatele(
     State(state): State<AppState>,
     Json(input): Json<HesloInput>,
-) -> HandlerResult<Json<Vec<RegistraceRow>>> {
+) -> HandlerResult<Json<Vec<OdberRow>>> {
     let Some(expected) = state.registrace_heslo.as_deref() else {
         return Err((
             StatusCode::SERVICE_UNAVAILABLE,
@@ -360,21 +350,19 @@ async fn post_registrovani(
     let db = state.db.lock().unwrap();
     let mut stmt = db
         .prepare(
-            "SELECT id, name, phone, email, note, created_at
-             FROM registrace
+            "SELECT id, name, email, created_at
+             FROM odber
              ORDER BY created_at ASC",
         )
         .map_err(db_err)?;
 
     let rows = stmt
         .query_map([], |r| {
-            Ok(RegistraceRow {
+            Ok(OdberRow {
                 id: r.get(0)?,
                 name: r.get(1)?,
-                phone: r.get(2)?,
-                email: r.get(3)?,
-                note: r.get(4)?,
-                created_at: r.get(5)?,
+                email: r.get(2)?,
+                created_at: r.get(3)?,
             })
         })
         .map_err(db_err)?;
@@ -421,6 +409,13 @@ fn init_db(conn: &Connection) -> rusqlite::Result<()> {
             phone      TEXT NOT NULL,
             email      TEXT,
             note       TEXT,
+            created_at INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS odber (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            email      TEXT NOT NULL,
             created_at INTEGER NOT NULL
         );
         ",
@@ -475,7 +470,7 @@ async fn main() {
         .filter(|h| !h.is_empty())
         .map(Arc::from);
     if registrace_heslo.is_none() {
-        println!("SACHYUH_REGISTRACE_HESLO není nastavené – /registrovani nebude fungovat");
+        println!("SACHYUH_REGISTRACE_HESLO není nastavené – /odberatele nebude fungovat");
     }
 
     let state = AppState {
@@ -492,8 +487,8 @@ async fn main() {
         .route("/api/tournaments", get(get_tournaments).post(post_tournament))
         .route("/api/sachyuh/tour-register", post(post_tour_register))
         .route("/api/sachyuh/tour-registrations", get(get_tour_registrations))
-        .route("/api/sachyuh/registrace", post(post_registrace))
-        .route("/api/sachyuh/registrovani", post(post_registrovani));
+        .route("/api/sachyuh/odber", post(post_odber))
+        .route("/api/sachyuh/odberatele", post(post_odberatele));
 
     // Static file fallback – serves index.html for /
     let static_service = ServeDir::new(&static_dir).append_index_html_on_directories(true);
