@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moje úkoly | sachyuh.cz</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#001e32">
+  <link rel="icon" type="image/png" href="../assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@9.2.1/assets/chessground.base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@9.2.1/assets/chessground.brown.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@9.2.1/assets/chessground.cburnett.css">
+  <style>
+    .zak-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+    .zak-card {
+      background: var(--card, #fff);
+      border: 2px solid #001e32;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .zak-card h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.5rem;
+      color: #001e32;
+      margin: 0 0 8px;
+    }
+    .zak-card p { margin: 0 0 16px; color: #444; line-height: 1.6; }
+    .zak-form { display: flex; flex-direction: column; gap: 14px; }
+    .zak-field { display: flex; flex-direction: column; gap: 6px; }
+    .zak-field label { font-size: .875rem; font-weight: 600; color: #001e32; }
+    .zak-field input {
+      padding: 11px 14px;
+      border: 1.5px solid #c8d0d8;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .zak-field input:focus { border-color: #001e32; }
+    .zak-btn {
+      align-self: flex-start;
+      background: #001e32;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .zak-btn:hover { background: #003558; }
+    .zak-btn.secondary { background: #e4e8ec; color: #001e32; }
+    .zak-btn.secondary:hover { background: #d3d9df; }
+    .zak-msg { margin: 0; font-size: .95rem; min-height: 1.4em; font-weight: 600; }
+    .zak-msg.ok { color: #1a7a4a; }
+    .zak-msg.err { color: #c0392b; }
+    .zak-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .zak-top h1 { font-size: 1.8rem; margin: 0; }
+    .ukol-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .ukol-item {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      padding: 14px 16px; border: 1.5px solid #c8d0d8; border-radius: 12px;
+    }
+    .ukol-item strong { color: #001e32; }
+    .ukol-stav { font-size: .9rem; color: #666; }
+    .ukol-stav.splneno { color: #1a7a4a; font-weight: 700; }
+    .board {
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1;
+      margin: 0 auto 16px;
+    }
+    .board-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body class="tour-page">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="../assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+    <nav class="top-nav" aria-label="Hlavní navigace">
+      <a href="../index.html">Hlavní stránka</a>
+    </nav>
+  </header>
+
+  <main class="zak-wrap">
+    <!-- Přihlášení -->
+    <section id="login" class="zak-card">
+      <h2>Přihlášení</h2>
+      <p>Zadej svoje jméno a heslo, které ti dal trenér.</p>
+      <form id="loginForm" class="zak-form" novalidate>
+        <div class="zak-field">
+          <label for="jmeno">Jméno</label>
+          <input type="text" id="jmeno" autocomplete="username" autocapitalize="none" required>
+        </div>
+        <div class="zak-field">
+          <label for="heslo">Heslo</label>
+          <input type="password" id="heslo" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="zak-btn">Přihlásit</button>
+        <p id="loginMsg" class="zak-msg err" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Seznam úkolů -->
+    <section id="ukoly" hidden>
+      <div class="zak-top">
+        <h1>Ahoj, <span id="zakJmeno"></span>!</h1>
+        <button id="logoutBtn" class="zak-btn secondary">Odhlásit</button>
+      </div>
+      <div class="zak-card">
+        <h2>Moje úkoly</h2>
+        <ul id="ukolList" class="ukol-list"></ul>
+      </div>
+    </section>
+
+    <!-- Řešení úkolu -->
+    <section id="hra" class="zak-card" hidden>
+      <h2 id="hraNazev"></h2>
+      <p id="hraPopis"></p>
+      <div id="board" class="board"></div>
+      <p id="hraMsg" class="zak-msg" aria-live="polite"></p>
+      <div class="board-actions">
+        <button id="znovuBtn" class="zak-btn secondary">Začít znovu</button>
+        <button id="zpetBtn" class="zak-btn secondary">Zpět na úkoly</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>sachyuh.cz</span>
+    <a href="mailto:sachyuh@seznam.cz">sachyuh@seznam.cz</a>
+  </footer>
+
+  <script type="module">
+    import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.2.1/dist/chessground.min.js';
+    import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js';
+
+    // Žáci a hesla – natvrdo, jde jen o to, aby si děti nepletly úkoly
+    const ZACI = {
+      alice: '1',
+      ales: 'turnaj7',
+      anicka: 'vazba4',
+      karel: 'promena6',
+      natalie: 'koncovka6',
+      viki: 'vidlicka4',
+      zdenek: 'remiza7',
+      majda: 'hodiny3',
+      vojta: 'deska6',
+    };
+
+    const UKOLY = [
+      {
+        id: 'mat-damou',
+        nazev: 'Mat dámou',
+        popis: 'Hraješ bílými. Dej černému králi mat dámou a králem. Pozor na pat!',
+        fen: '8/8/8/4k3/8/8/8/3QK3 w - - 0 1',
+      },
+      {
+        id: 'mat-dvema-vezemi',
+        nazev: 'Mat dvěma věžemi',
+        popis: 'Hraješ bílými. Zatlač černého krále věžemi ke kraji šachovnice a dej mu mat.',
+        fen: '8/8/8/4k3/8/8/8/R3K2R w - - 0 1',
+      },
+      {
+        id: 'mat-vezi',
+        nazev: 'Mat věží',
+        popis: 'Hraješ bílými. Dej černému králi mat věží a králem – bez pomoci krále to nepůjde.',
+        fen: '8/8/8/4k3/8/8/8/R3K3 w - - 0 1',
+      },
+    ];
+
+    const STORAGE_KEY = 'sachyuh-zak';
+    const $ = id => document.getElementById(id);
+
+    let zak = null;
+    let splnene = new Set();
+
+    // ── Přihlášení ─────────────────────────────────────────────────────────────
+
+    function nactiZaka() {
+      try {
+        const z = localStorage.getItem(STORAGE_KEY);
+        return z && ZACI[z] !== undefined ? z : null;
+      } catch { return null; }
+    }
+
+    $('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const jmeno = $('jmeno').value.trim().toLowerCase();
+      const heslo = $('heslo').value;
+      if (ZACI[jmeno] === undefined || ZACI[jmeno] !== heslo) {
+        $('loginMsg').textContent = 'Špatné jméno nebo heslo.';
+        return;
+      }
+      try { localStorage.setItem(STORAGE_KEY, jmeno); } catch {}
+      prihlasen(jmeno);
+    });
+
+    $('logoutBtn').addEventListener('click', () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      zak = null;
+      $('loginForm').reset();
+      $('loginMsg').textContent = '';
+      ukaz('login');
+    });
+
+    function ukaz(id) {
+      for (const s of ['login', 'ukoly', 'hra']) $(s).hidden = s !== id;
+    }
+
+    async function prihlasen(jmeno) {
+      zak = jmeno;
+      $('zakJmeno').textContent = jmeno.charAt(0).toUpperCase() + jmeno.slice(1);
+      ukaz('ukoly');
+      vykresliUkoly();
+      try {
+        const res = await fetch('/api/sachyuh/ukol?zak=' + encodeURIComponent(jmeno));
+        if (res.ok) {
+          splnene = new Set((await res.json()).map(r => r.ukol));
+          vykresliUkoly();
+        }
+      } catch {}
+    }
+
+    function vykresliUkoly() {
+      const list = $('ukolList');
+      list.innerHTML = '';
+      for (const u of UKOLY) {
+        const li = document.createElement('li');
+        li.className = 'ukol-item';
+        const ok = splnene.has(u.id);
+        li.innerHTML = `
+          <div>
+            <strong></strong><br>
+            <span class="ukol-stav ${ok ? 'splneno' : ''}">${ok ? '✓ Splněno' : 'Čeká na splnění'}</span>
+          </div>
+          <button class="zak-btn">${ok ? 'Zahrát znovu' : 'Řešit'}</button>`;
+        li.querySelector('strong').textContent = u.nazev;
+        li.querySelector('button').addEventListener('click', () => spustUkol(u));
+        list.appendChild(li);
+      }
+    }
+
+    // ── Engine (Stockfish v prohlížeči, hraje za černé) ────────────────────────
+
+    let engine = null;
+    let engineCallback = null;
+
+    function startEngine() {
+      if (engine) return;
+      const src = "importScripts('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');";
+      engine = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+      engine.onmessage = e => {
+        const line = String(e.data);
+        if (line.startsWith('bestmove') && engineCallback) {
+          const cb = engineCallback;
+          engineCallback = null;
+          cb(line.split(' ')[1]);
+        }
+      };
+      engine.postMessage('uci');
+    }
+
+    function engineTah(fen, cb) {
+      engineCallback = cb;
+      engine.postMessage('position fen ' + fen);
+      engine.postMessage('go movetime 400');
+    }
+
+    // ── Hra ────────────────────────────────────────────────────────────────────
+
+    let ukol = null;
+    let chess = null;
+    let cg = null;
+    let hraId = 0;
+
+    function dests() {
+      const d = new Map();
+      for (const m of chess.moves({ verbose: true })) {
+        if (!d.has(m.from)) d.set(m.from, []);
+        d.get(m.from).push(m.to);
+      }
+      return d;
+    }
+
+    function zprava(text, cls = '') {
+      $('hraMsg').textContent = text;
+      $('hraMsg').className = 'zak-msg ' + cls;
+    }
+
+    function syncBoard(lastMove) {
+      const bily = chess.turn() === 'w';
+      cg.set({
+        fen: chess.fen(),
+        turnColor: bily ? 'white' : 'black',
+        lastMove,
+        check: chess.inCheck(),
+        movable: { color: bily && !chess.isGameOver() ? 'white' : undefined, dests: bily ? dests() : new Map() },
+      });
+    }
+
+    function spustUkol(u) {
+      ukol = u;
+      hraId++;
+      startEngine();
+      chess = new Chess(u.fen);
+      $('hraNazev').textContent = u.nazev;
+      $('hraPopis').textContent = u.popis;
+      ukaz('hra');
+      zprava('Jsi na tahu.');
+      const config = {
+        fen: chess.fen(),
+        orientation: 'white',
+        coordinates: true,
+        movable: { free: false, color: 'white', dests: dests(), events: { after: tahBileho } },
+        premovable: { enabled: false },
+      };
+      if (cg) cg.set(config); else cg = Chessground($('board'), config);
+      syncBoard();
+      cg.redrawAll();
+    }
+
+    function tahBileho(from, to) {
+      chess.move({ from, to, promotion: 'q' });
+      syncBoard([from, to]);
+      if (konecHry()) return;
+      zprava('Černý přemýšlí…');
+      const id = hraId;
+      engineTah(chess.fen(), uci => {
+        if (id !== hraId) return; // mezitím začala nová hra
+        const m = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
+        syncBoard([m.from, m.to]);
+        if (!konecHry()) zprava('Jsi na tahu.');
+      });
+    }
+
+    function konecHry() {
+      if (chess.isCheckmate()) {
+        const tahy = Math.ceil(chess.history().length / 2);
+        zprava(`🎉 Mat! Zvládl/a jsi to za ${tahy} tahů.`, 'ok');
+        odesliSplneni(tahy);
+        return true;
+      }
+      if (chess.isStalemate()) {
+        zprava('Pat! Černý král nemá kam jít, ale není v šachu. To je remíza – zkus to znovu.', 'err');
+        return true;
+      }
+      if (chess.isInsufficientMaterial()) {
+        zprava('Černý ti sebral figuru a mat už dát nejde. Zkus to znovu a dávej na figury pozor.', 'err');
+        return true;
+      }
+      if (chess.isDraw()) {
+        zprava('Remíza – trvalo to moc dlouho. Zkus to znovu.', 'err');
+        return true;
+      }
+      return false;
+    }
+
+    async function odesliSplneni(tahy) {
+      chess.setHeader('Event', ukol.nazev);
+      chess.setHeader('Site', 'sachyuh.cz');
+      chess.setHeader('Date', new Date().toISOString().slice(0, 10).replace(/-/g, '.'));
+      chess.setHeader('White', zak);
+      chess.setHeader('Black', 'Stockfish');
+      chess.setHeader('Result', '1-0');
+      try {
+        const res = await fetch('/api/sachyuh/ukol', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zak, ukol: ukol.id, tahy, pgn: chess.pgn() }),
+        });
+        if (!res.ok) throw new Error();
+        splnene.add(ukol.id);
+        vykresliUkoly();
+      } catch {
+        zprava($('hraMsg').textContent + ' (Výsledek se nepodařilo uložit, řekni to trenérovi.)', 'ok');
+      }
+    }
+
+    $('znovuBtn').addEventListener('click', () => spustUkol(ukol));
+    $('zpetBtn').addEventListener('click', () => { hraId++; ukaz('ukoly'); });
+    window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
+
+    const ulozeny = nactiZaka();
+    if (ulozeny) prihlasen(ulozeny);
+  </script>
+</body>
+</html>

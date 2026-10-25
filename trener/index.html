@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trenér – úkoly žáků | sachyuh.cz</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" href="../assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .admin-wrap { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; color: #001e32; margin-bottom: 0.25rem; }
+    .meta { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .toolbar input {
+      padding: 7px 12px; border: 1.5px solid #ccd0d5; border-radius: 7px;
+      font-size: 0.9rem; font-family: inherit;
+    }
+    .btn { padding: 8px 20px; background: #001e32; color: #fff; border: none; border-radius: 7px;
+           font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+    .btn:hover { background: #003a5c; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    thead th { background: #001e32; color: #fff; padding: 10px 12px; text-align: left; }
+    tbody tr:nth-child(even) { background: #f4f6f8; }
+    tbody td { padding: 9px 12px; border-bottom: 1px solid #e0e3e7; vertical-align: top; }
+    .empty { color: #888; text-align: center; padding: 2rem; }
+    .err { color: #c0392b; font-weight: 600; }
+    #loginForm { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    #data { display: none; }
+    .trener-nav { display: flex; gap: 8px; margin: 0 0 1.25rem; flex-wrap: wrap; }
+    .trener-nav a { padding: 7px 16px; border-radius: 7px; background: #e4e8ec; color: #001e32;
+                    font-weight: 600; font-size: .9rem; text-decoration: none; }
+    .trener-nav a.active { background: #001e32; color: #fff; }
+    h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; color: #001e32; margin: 1.5rem 0 .5rem; }
+    .ok { color: #1a7a4a; font-weight: 700; }
+    details summary { cursor: pointer; color: #003a5c; }
+    details pre { white-space: pre-wrap; font-size: .8rem; margin: .5rem 0 0; max-width: 360px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="../assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+  </header>
+
+  <div class="admin-wrap">
+    <h1>Úkoly žáků</h1>
+
+    <nav class="trener-nav" aria-label="Trenér">
+      <a href="./" class="active">Úkoly žáků</a>
+      <a href="./odberatele/">Odběratelé</a>
+    </nav>
+
+    <form id="loginForm" class="toolbar">
+      <input type="password" id="heslo" placeholder="Heslo" autocomplete="current-password" required>
+      <button class="btn" type="submit">Zobrazit</button>
+      <span id="loginMsg" class="err" aria-live="polite"></span>
+    </form>
+
+    <div id="data">
+      <p class="meta"><span id="status"></span></p>
+      <div class="toolbar">
+        <input type="search" id="filterText" placeholder="Hledat…">
+        <button class="btn" id="exportBtn">Exportovat CSV</button>
+        <button class="btn" id="reloadBtn" style="background:#555">Obnovit</button>
+      </div>
+      <h2>Souhrn</h2>
+      <div class="table-wrap">
+        <table>
+          <thead id="souhrnHead"></thead>
+          <tbody id="souhrnBody"></tbody>
+        </table>
+      </div>
+      <h2>Všechna splnění</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Žák</th>
+              <th>Úkol</th>
+              <th>Tahů</th>
+              <th>Splněno</th>
+              <th>Partie</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Názvy úkolů – musí odpovídat UKOLY v /zak/index.html
+    const UKOLY = {
+      'mat-damou': 'Mat dámou',
+      'mat-dvema-vezemi': 'Mat dvěma věžemi',
+      'mat-vezi': 'Mat věží',
+    };
+
+    let heslo = '';
+    let allRows = [];
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function formatDate(ts) {
+      return new Date(ts).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function nazevUkolu(id) {
+      return UKOLY[id] || id;
+    }
+
+    function filtered() {
+      const q = document.getElementById('filterText').value.trim().toLowerCase();
+      if (!q) return allRows;
+      return allRows.filter(r =>
+        [r.zak, r.ukol, nazevUkolu(r.ukol)].join(' ').toLowerCase().includes(q));
+    }
+
+    function renderSouhrn(rows) {
+      const ukoly = [...new Set([...Object.keys(UKOLY), ...rows.map(r => r.ukol)])];
+      const zaci = [...new Set(rows.map(r => r.zak))].sort();
+      // nejlepší (nejmenší) počet tahů pro každého žáka a úkol
+      const best = {};
+      for (const r of rows) {
+        const k = r.zak + '|' + r.ukol;
+        if (best[k] === undefined || r.tahy < best[k]) best[k] = r.tahy;
+      }
+      document.getElementById('souhrnHead').innerHTML =
+        '<tr><th>Žák</th>' + ukoly.map(u => `<th>${esc(nazevUkolu(u))}</th>`).join('') + '</tr>';
+      document.getElementById('souhrnBody').innerHTML = zaci.length === 0
+        ? `<tr><td colspan="${ukoly.length + 1}" class="empty">Zatím nikdo nic nesplnil.</td></tr>`
+        : zaci.map(z => '<tr><td>' + esc(z) + '</td>' + ukoly.map(u => {
+            const t = best[z + '|' + u];
+            return t === undefined ? '<td>–</td>' : `<td class="ok">✓ ${t} tahů</td>`;
+          }).join('') + '</tr>').join('');
+    }
+
+    function render() {
+      const rows = filtered();
+      renderSouhrn(rows);
+      const tbody = document.getElementById('tableBody');
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Žádné záznamy.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.slice().reverse().map((r, i) => `
+        <tr>
+          <td>${rows.length - i}</td>
+          <td>${esc(r.zak)}</td>
+          <td>${esc(nazevUkolu(r.ukol))}</td>
+          <td>${r.tahy}</td>
+          <td>${formatDate(r.created_at)}</td>
+          <td>${r.pgn ? `<details><summary>PGN</summary><pre>${esc(r.pgn)}</pre></details>` : ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function load() {
+      const res = await fetch('/api/sachyuh/ukoly-prehled', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ heslo }),
+      });
+      if (!res.ok) throw new Error(res.status === 401 ? 'Špatné heslo.' : (await res.text()) || 'Chyba serveru.');
+      allRows = await res.json();
+      document.getElementById('status').textContent = `Celkem splnění: ${allRows.length}`;
+      render();
+    }
+
+    // Heslo platí pro všechny stránky trenéra, pamatuje se do zavření záložky
+    const HESLO_KEY = 'sachyuh-trener-heslo';
+
+    async function prihlasit() {
+      const msg = document.getElementById('loginMsg');
+      msg.textContent = 'Ověřuji…';
+      try {
+        await load();
+        try { sessionStorage.setItem(HESLO_KEY, heslo); } catch {}
+        msg.textContent = '';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('data').style.display = 'block';
+      } catch (err) {
+        try { sessionStorage.removeItem(HESLO_KEY); } catch {}
+        msg.textContent = err.message;
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      heslo = document.getElementById('heslo').value;
+      prihlasit();
+    });
+
+    try { heslo = sessionStorage.getItem(HESLO_KEY) || ''; } catch {}
+    if (heslo) prihlasit();
+
+    document.getElementById('filterText').addEventListener('input', render);
+    document.getElementById('reloadBtn').addEventListener('click', () =>
+      load().catch(err => { document.getElementById('status').textContent = err.message; }));
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const csv = ['#,Žák,Úkol,Tahů,Splněno', ...filtered().map((r, i) =>
+        [i + 1, r.zak, nazevUkolu(r.ukol), r.tahy, new Date(r.created_at).toLocaleString('cs-CZ')]
+          .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+      )].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'ukoly-zaku.csv';
+      a.click();
+    });
+  </script>
+</body>
+</html>

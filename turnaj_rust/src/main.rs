@@ -1,5 +1,5 @@
 use axum::{
-    extract::State,
+    extract::{Query, State},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
@@ -376,6 +376,115 @@ async fn post_odberatele(
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Úkoly žáků   POST /api/sachyuh/ukol           (žák splnil úkol)
+//              GET  /api/sachyuh/ukol?zak=…     (co už žák splnil)
+//              POST /api/sachyuh/ukoly-prehled  (vyžaduje heslo)
+
+#[derive(Deserialize)]
+struct UkolInput {
+    zak: String,
+    ukol: String,
+    tahy: i64,
+    pgn: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct UkolQuery {
+    zak: String,
+}
+
+#[derive(Serialize)]
+struct UkolRow {
+    id: i64,
+    zak: String,
+    ukol: String,
+    tahy: i64,
+    pgn: Option<String>,
+    created_at: i64,
+}
+
+async fn post_ukol(
+    State(state): State<AppState>,
+    Json(input): Json<UkolInput>,
+) -> HandlerResult<Json<Value>> {
+    let zak: String = input.zak.trim().to_lowercase().chars().take(50).collect();
+    let ukol: String = input.ukol.trim().chars().take(50).collect();
+    let pgn: Option<String> = input.pgn.map(|p| p.chars().take(5000).collect());
+
+    if zak.is_empty() || ukol.is_empty() {
+        return Ok(Json(json!({ "ok": false, "message": "Chybí žák nebo úkol." })));
+    }
+
+    let db = state.db.lock().unwrap();
+    db.execute(
+        "INSERT INTO ukoly (zak, ukol, tahy, pgn, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![zak, ukol, input.tahy, pgn, now_ms()],
+    )
+    .map_err(db_err)?;
+
+    Ok(Json(json!({ "ok": true })))
+}
+
+fn query_ukoly(db: &Connection, zak: Option<&str>) -> HandlerResult<Vec<UkolRow>> {
+    let mut stmt = db
+        .prepare(
+            "SELECT id, zak, ukol, tahy, pgn, created_at
+             FROM ukoly
+             WHERE ?1 IS NULL OR zak = ?1
+             ORDER BY created_at ASC",
+        )
+        .map_err(db_err)?;
+
+    let rows = stmt
+        .query_map(params![zak], |r| {
+            Ok(UkolRow {
+                id: r.get(0)?,
+                zak: r.get(1)?,
+                ukol: r.get(2)?,
+                tahy: r.get(3)?,
+                pgn: r.get(4)?,
+                created_at: r.get(5)?,
+            })
+        })
+        .map_err(db_err)?;
+
+    let mut result = Vec::new();
+    for row in rows {
+        result.push(row.map_err(db_err)?);
+    }
+    Ok(result)
+}
+
+async fn get_ukol(
+    State(state): State<AppState>,
+    Query(q): Query<UkolQuery>,
+) -> HandlerResult<Json<Vec<UkolRow>>> {
+    let zak = q.zak.trim().to_lowercase();
+    let db = state.db.lock().unwrap();
+    Ok(Json(query_ukoly(&db, Some(&zak))?))
+}
+
+async fn post_ukoly_prehled(
+    State(state): State<AppState>,
+    Json(input): Json<HesloInput>,
+) -> HandlerResult<Json<Vec<UkolRow>>> {
+    let Some(expected) = state.registrace_heslo.as_deref() else {
+        return Err((
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Heslo není na serveru nastavené.".to_string(),
+        ));
+    };
+    if input.heslo != expected {
+        // zpomalí zkoušení hesel
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        return Err((StatusCode::UNAUTHORIZED, "Špatné heslo.".to_string()));
+    }
+
+    let db = state.db.lock().unwrap();
+    Ok(Json(query_ukoly(&db, None)?))
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Database initialisation
 
 fn init_db(conn: &Connection) -> rusqlite::Result<()> {
@@ -416,6 +525,15 @@ fn init_db(conn: &Connection) -> rusqlite::Result<()> {
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             name       TEXT NOT NULL,
             email      TEXT NOT NULL,
+            created_at INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS ukoly (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            zak        TEXT NOT NULL,
+            ukol       TEXT NOT NULL,
+            tahy       INTEGER NOT NULL,
+            pgn        TEXT,
             created_at INTEGER NOT NULL
         );
         ",
@@ -470,7 +588,7 @@ async fn main() {
         .filter(|h| !h.is_empty())
         .map(Arc::from);
     if registrace_heslo.is_none() {
-        println!("SACHYUH_REGISTRACE_HESLO není nastavené – /odberatele nebude fungovat");
+        println!("SACHYUH_REGISTRACE_HESLO není nastavené – /odberatele a /trener nebudou fungovat");
     }
 
     let state = AppState {
@@ -488,7 +606,9 @@ async fn main() {
         .route("/api/sachyuh/tour-register", post(post_tour_register))
         .route("/api/sachyuh/tour-registrations", get(get_tour_registrations))
         .route("/api/sachyuh/odber", post(post_odber))
-        .route("/api/sachyuh/odberatele", post(post_odberatele));
+        .route("/api/sachyuh/odberatele", post(post_odberatele))
+        .route("/api/sachyuh/ukol", get(get_ukol).post(post_ukol))
+        .route("/api/sachyuh/ukoly-prehled", post(post_ukoly_prehled));
 
     // Static file fallback – serves index.html for /
     let static_service = ServeDir::new(&static_dir).append_index_html_on_directories(true);
