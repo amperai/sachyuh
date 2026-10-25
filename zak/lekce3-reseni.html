@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Řešení úkolů 3. lekce | sachyuh.cz</title>
+  <meta name="description" content="Řešení domácích úkolů ze 3. lekce tréninku mládeže — šach, šachmat a pat.">
+  <meta name="theme-color" content="#001e32">
+  <link rel="icon" type="image/png" href="../assets/favicon-sachyuh.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .reseni-list + .reseni-list { margin-top: 36px; }
+    .reseni-list > h3 { font-size: 26px; }
+    .reseni-list > p { margin: 6px 0 0; line-height: 1.6; max-width: 640px; }
+    .lekce-hry { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 16px; }
+    .lekce-hra { margin: 0; width: 280px; max-width: 100%; }
+    .lekce-hra h4 { font-family: var(--font-display); font-size: 20px; margin: 0 0 10px; color: var(--navy); }
+    .lekce-hra img { width: 100%; display: block; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .lekce-hra figcaption { margin-top: 10px; font-size: 0.92rem; line-height: 1.5; }
+    .vysledek { display: inline-block; margin-bottom: 4px; padding: 2px 10px; border-radius: 4px; font-weight: 700; color: #fff; background: var(--navy); }
+    .vysledek-mat { background: #c0392b; }
+    .vysledek-pat { background: #1f7a5a; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="sachyuh.cz">
+      <img class="brand-logo brand-logo-wide" src="../assets/brand-sachyuh.png" alt="sachyuh.cz">
+    </a>
+    <nav class="top-nav" aria-label="Hlavní navigace">
+      <a href="index.html">Zpět na úkoly</a>
+      <a href="../index.html">Hlavní stránka</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="content" aria-labelledby="reseni-title">
+      <div class="section-heading">
+        <p class="eyebrow">Trénink mládeže — 3. lekce</p>
+        <h2 id="reseni-title">Řešení úkolů</h2>
+      </div>
+
+      <div class="reseni-list">
+        <h3>Légalova léčka a Šustr mat</h3>
+        <p>V obou partiích je správně diagram <strong>B</strong> a v obou je výsledná pozice <strong>mat</strong>.</p>
+        <div class="lekce-hry">
+          <figure class="lekce-hra">
+            <h4>Légalova léčka — B</h4>
+            <img src="lekce3-reseni-legal.svg" alt="Pozice po 7. Jc3–d5: bílí jezdci na d5 a e5, bílý střelec na f7, černý král e7 dostal mat">
+            <figcaption><span class="vysledek vysledek-mat">MAT</span><br>Jezdec z c3 skočil na d5, druhý jezdec stojí na e5. Král na e7 je v šachu a nemá kam uhnout.</figcaption>
+          </figure>
+          <figure class="lekce-hra">
+            <h4>Šustr mat — B</h4>
+            <img src="lekce3-reseni-sustr.svg" alt="Pozice po 4. Dh5×f7: bílá dáma na f7 krytá střelcem c4, černý král e8 dostal mat">
+            <figcaption><span class="vysledek vysledek-mat">MAT</span><br>Dáma vzala pěšce na f7 a je krytá střelcem z c4. Král ji nemůže vzít ani uhnout.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="reseni-list">
+        <h3>Mat, pat, nebo ani jedno</h3>
+        <p>Bílý je vždy na tahu.</p>
+        <div class="lekce-hry">
+          <figure class="lekce-hra">
+            <h4>1. úkol</h4>
+            <img src="lekce3-reseni-list3-1.svg" alt="Bílý král a1, černý král c3, černá dáma b2; bílý král dostal mat">
+            <figcaption><span class="vysledek vysledek-mat">MAT</span><br>Dáma na b2 dává šach a je krytá králem. Bílý král ji nemůže vzít a nemá kam uhnout.</figcaption>
+          </figure>
+          <figure class="lekce-hra">
+            <h4>2. úkol</h4>
+            <img src="lekce3-reseni-list3-2.svg" alt="Bílý král a1, černý král c2, černá dáma b3; bílý je na tahu a je pat">
+            <figcaption><span class="vysledek vysledek-pat">PAT</span><br>Král na a1 není v šachu, ale a2, b1 i b2 jsou napadené. Bílý nemá žádný tah.</figcaption>
+          </figure>
+          <figure class="lekce-hra">
+            <h4>3. úkol</h4>
+            <img src="lekce3-reseni-list3-3.svg" alt="Bílý král g1, věž a2, střelec b2, jezdec a3; černý král g8, věž e1, dáma h3, střelec c5; bílý král dostal mat">
+            <figcaption><span class="vysledek vysledek-mat">MAT</span><br>Šach dává věž e1 a zároveň střelec c5. Na dvojitý šach pomůže jen útěk králem, a všechna políčka kolem něj jsou napadená.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="reseni-list">
+        <h3>Šachová výzva</h3>
+        <p>Bílý je vždy na tahu.</p>
+        <div class="lekce-hry">
+          <figure class="lekce-hra">
+            <h4>1. Lehká</h4>
+            <img src="lekce3-reseni-list4-1.svg" alt="Bílý král h1, černý král f3, černá dáma g2; bílý král dostal mat">
+            <figcaption><span class="vysledek vysledek-mat">MAT</span><br>Dáma na g2 dává šach a je krytá králem na f3. Bílý král nemá kam uhnout.</figcaption>
+          </figure>
+          <figure class="lekce-hra">
+            <h4>2. Středně těžká</h4>
+            <img src="lekce3-reseni-list4-2.svg" alt="Bílý král h1, bílý pěšec a2; černý král f2, černá dáma g3, černý pěšec a3; bílý je na tahu a je pat">
+            <figcaption><span class="vysledek vysledek-pat">PAT</span><br>Král na h1 není v šachu a nemá kam jít. Pěšec na a2 je zablokovaný pěšcem a3, takže bílý nemá žádný tah.</figcaption>
+          </figure>
+          <figure class="lekce-hra">
+            <h4>3. Těžká</h4>
+            <img src="lekce3-reseni-list4-3.svg" alt="Bílý král g1, věž a2, střelec g2, jezdec a3; černý král g8, věž e1, dáma h4, střelec a8; bílý je v šachu, ale může zakrýt střelcem na f1">
+            <figcaption><span class="vysledek">ANI JEDNO</span><br>Věž e1 dává šach a král nemá kam uhnout, ale střelec z g2 může šach <strong>zakrýt</strong> na f1. Je to jen šach.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
